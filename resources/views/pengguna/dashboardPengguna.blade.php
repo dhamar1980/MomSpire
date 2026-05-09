@@ -544,7 +544,7 @@
 		</a>
 
 	<!-- Quick Action Cards -->
-	<div class="row g-2 mb-4 mt-n3">
+	<div class="row g-2 mb-4 mt-3">
 		<div class="col-12 col-lg-6">
 			<a href="{{ route('pengguna.kalkulator') }}" class="card dashboard-card-modern action-shell d-block text-decoration-none" style="min-height: 160px; overflow: hidden;">
 				<div class="card-body d-flex flex-column flex-sm-row gap-3 align-items-start align-sm-items-center" style="padding: 16px;">
