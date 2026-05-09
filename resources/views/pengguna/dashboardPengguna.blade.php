@@ -489,8 +489,9 @@
 		@endphp
 
 		<!-- Hero Greeting Section -->
-		<div class="card dashboard-card-modern hero-shell mb-4">
-			<div class="card-body" style="padding: 24px;">
+		<a href="{{ route('pengguna.status_kehamilan') }}" class="text-decoration-none text-reset">
+		<div class="card dashboard-card-modern hero-shell mb-2">
+			<div class="card-body" style="padding: 16px;">
 				<div class="row align-items-center g-4">
 					<div class="col-12 col-lg-7 d-flex flex-column justify-content-between">
 						<div>
@@ -498,7 +499,7 @@
 							<div class="hero-stats-row">
 								<div class="hero-stat">
 									<small class="text-muted d-block" style="font-size: .74rem; margin-bottom: 0.3rem;">Status Kehamilan</small>
-									<div class="fw-bold" style="font-size: .98rem; color: #1e293b;">{{ auth()->user()->is_hamil ? 'Sedang Hamil' : 'Tidak Hamil' }}</div>
+									<div class="fw-bold" style="font-size: .98rem; color: #1e293b;">{{ ($pengguna->is_hamil ?? auth()->user()->is_hamil) ? 'Sedang Hamil' : 'Tidak Hamil' }}</div>
 								</div>
 								<div class="hero-stat">
 									<small class="text-muted d-block" style="font-size: .74rem; margin-bottom: 0.3rem;">HPL</small>
@@ -539,9 +540,11 @@
 				</div>
 			</div>
 		</div>
+		</div>
+		</a>
 
 	<!-- Quick Action Cards -->
-	<div class="row g-4 mb-4">
+	<div class="row g-3 mb-4">
 		<div class="col-12 col-lg-6">
 			<a href="{{ route('pengguna.kalkulator') }}" class="card dashboard-card-modern action-shell d-block text-decoration-none" style="min-height: 160px; overflow: hidden;">
 				<div class="card-body d-flex flex-column flex-sm-row gap-3 align-items-start align-sm-items-center" style="padding: 20px;">

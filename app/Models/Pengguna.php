@@ -23,4 +23,9 @@ class Pengguna extends Model
     {
         return $this->hasMany(Anak::class, 'pengguna_id')->orderBy('anak_ke');
     }
+
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class, 'pengguna_id');
+    }
 }

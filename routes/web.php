@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use App\Models\ArtikelEdukasi;
+use App\Models\Pengguna;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
@@ -231,8 +233,58 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/articles', function () use ($ensureRole) {
         $ensureRole('admin');
 
-        return view('Admin.ManajemenArtikel');
+        $articles = ArtikelEdukasi::query()->latest()->get();
+
+        return view('Admin.ManajemenArtikel', [
+            'articles' => $articles,
+            'articleStats' => [
+                'total' => $articles->count(),
+                'trimester1' => $articles->where('category', 'trimester_1')->count(),
+                'trimester2' => $articles->where('category', 'trimester_2')->count(),
+                'trimester3' => $articles->where('category', 'trimester_3')->count(),
+            ],
+        ]);
     })->name('admin.articles');
+
+    Route::post('/admin/articles', function (Request $request) use ($ensureRole) {
+        $ensureRole('admin');
+
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'in:umum,trimester_1,trimester_2,trimester_3'],
+            'image_url' => ['nullable', 'url', 'max:2048'],
+            'summary' => ['required', 'string', 'max:2000'],
+            'article_url' => ['nullable', 'url', 'max:2048'],
+        ]);
+
+        $categoryMap = [
+            'trimester_1' => [1, 13],
+            'trimester_2' => [14, 27],
+            'trimester_3' => [28, 42],
+        ];
+
+        $range = $categoryMap[$validated['category']] ?? [null, null];
+
+        ArtikelEdukasi::create([
+            'title' => $validated['title'],
+            'category' => $validated['category'],
+            'image_url' => $validated['image_url'] ?? null,
+            'summary' => $validated['summary'],
+            'article_url' => $validated['article_url'] ?? null,
+            'min_week' => $range[0],
+            'max_week' => $range[1],
+        ]);
+
+        return back()->with('success', 'Artikel edukasi berhasil ditambahkan.');
+    })->name('admin.articles.store');
+
+    Route::delete('/admin/articles/{article}', function (ArtikelEdukasi $article) use ($ensureRole) {
+        $ensureRole('admin');
+
+        $article->delete();
+
+        return back()->with('success', 'Artikel edukasi berhasil dihapus.');
+    })->name('admin.articles.destroy');
 
     Route::get('/admin/kia', function () use ($ensureRole) {
         $ensureRole('admin');
@@ -448,20 +500,164 @@ $ensureUserRole = function (string $role) {
         $ensureUserRole('pengguna');
 
         // Use the modernized pengguna dashboard view
-        return view('pengguna.dashboardPengguna');
+        $pengguna = \App\Models\Pengguna::find(auth()->id());
+
+        return view('pengguna.dashboardPengguna', [
+            'pengguna' => $pengguna,
+        ]);
     })->name('pengguna.dashboard');
 
-    Route::get('/pengguna/artikel', function () use ($ensureUserRole) {
+    Route::get('/pengguna/artikel', function (Request $request) use ($ensureUserRole) {
         $ensureUserRole('pengguna');
 
-        return view('pengguna.artikel');
+        $user = auth()->user();
+        $pengguna = Pengguna::find($user->id);
+
+        $selectedWeek = (int) (
+            $user->usia_kehamilan_minggu
+            ?? $pengguna->usia_kehamilan_minggu
+            ?? 0
+        );
+        $selectedWeek = $selectedWeek > 0 ? $selectedWeek : null;
+
+        $articles = ArtikelEdukasi::query()->inRandomOrder()->get();
+
+        $selectedTrimester = null;
+        if ($selectedWeek) {
+            $selectedTrimester = $selectedWeek <= 13 ? 'trimester_1' : ($selectedWeek <= 27 ? 'trimester_2' : 'trimester_3');
+        }
+
+        $recommendedArticles = collect();
+        if ($selectedTrimester) {
+            $recommendedArticles = $articles->filter(function (ArtikelEdukasi $article) use ($selectedTrimester) {
+                return $article->category === $selectedTrimester || $article->category === 'umum';
+            })->values();
+        }
+
+        $recommendedIds = $recommendedArticles->pluck('id')->all();
+
+        return view('pengguna.artikel', [
+            'articles' => $articles,
+            'selectedWeek' => $selectedWeek,
+            'selectedTrimester' => $selectedTrimester,
+            'recommendedIds' => $recommendedIds,
+            'recommendedArticles' => $recommendedArticles,
+        ]);
     })->name('pengguna.artikel');
 
     Route::get('/pengguna/konsultasi', function () use ($ensureUserRole) {
         $ensureUserRole('pengguna');
 
-        return view('pengguna.konsultasi');
+        $user = auth()->user();
+        $pengguna = \App\Models\Pengguna::find($user->id);
+        
+        $bidan = \App\Models\Bidan::all();
+        $dokter = \App\Models\Dokter::all();
+        
+        $conversations = \App\Models\Conversation::where('pengguna_id', $user->id)
+            ->with('messages')
+            ->orderBy('last_message_at', 'desc')
+            ->get()
+            ->map(function ($conv) {
+                $conv->unread_count = $conv->messages->where('is_read', false)->where('sender_type', '!=', 'pengguna')->count();
+                return $conv;
+            });
+
+        return view('pengguna.konsultasi', [
+            'bidan' => $bidan,
+            'dokter' => $dokter,
+            'conversations' => $conversations,
+        ]);
     })->name('pengguna.konsultasi');
+
+    Route::post('/pengguna/konsultasi/start', function (Request $request) use ($ensureUserRole) {
+        $ensureUserRole('pengguna');
+
+        $validated = $request->validate([
+            'professional_type' => ['required', 'in:bidan,dokter'],
+            'professional_id' => ['required', 'integer'],
+        ]);
+
+        $user = auth()->user();
+
+        $conversation = \App\Models\Conversation::firstOrCreate(
+            [
+                'pengguna_id' => $user->id,
+                'professional_type' => $validated['professional_type'],
+                'professional_id' => $validated['professional_id'],
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'conversation_id' => $conversation->id,
+        ]);
+    })->name('pengguna.konsultasi.start');
+
+    Route::post('/pengguna/konsultasi/send-message', function (Request $request) use ($ensureUserRole) {
+        $ensureUserRole('pengguna');
+
+        $validated = $request->validate([
+            'conversation_id' => ['required', 'integer', 'exists:conversations,id'],
+            'message' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $user = auth()->user();
+        $conversation = \App\Models\Conversation::findOrFail($validated['conversation_id']);
+
+        abort_unless($conversation->pengguna_id === $user->id, 403);
+
+        $message = \App\Models\Message::create([
+            'conversation_id' => $validated['conversation_id'],
+            'sender_type' => 'pengguna',
+            'sender_id' => $user->id,
+            'message' => $validated['message'],
+            'is_read' => false,
+        ]);
+
+        $conversation->update([
+            'last_message' => $validated['message'],
+            'last_message_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => [
+                'id' => $message->id,
+                'sender_type' => $message->sender_type,
+                'message' => $message->message,
+                'created_at' => $message->created_at->format('Y-m-d H:i:s'),
+            ],
+        ]);
+    })->name('pengguna.konsultasi.send_message');
+
+    Route::get('/pengguna/konsultasi/{conversation_id}/messages', function (Request $request, $conversation_id) use ($ensureUserRole) {
+        $ensureUserRole('pengguna');
+
+        $user = auth()->user();
+        $conversation = \App\Models\Conversation::findOrFail($conversation_id);
+
+        abort_unless($conversation->pengguna_id === $user->id, 403);
+
+        $messages = \App\Models\Message::where('conversation_id', $conversation_id)
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function ($msg) {
+                return [
+                    'id' => $msg->id,
+                    'sender_type' => $msg->sender_type,
+                    'sender_id' => $msg->sender_id,
+                    'message' => $msg->message,
+                    'created_at' => $msg->created_at->format('Y-m-d H:i:s'),
+                    'is_read' => $msg->is_read,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'messages' => $messages,
+        ]);
+    })->name('pengguna.konsultasi.get_messages');
 
     Route::get('/pengguna/kalkulator', function () use ($ensureUserRole) {
         $ensureUserRole('pengguna');
@@ -478,7 +674,95 @@ $ensureUserRole = function (string $role) {
     Route::get('/pengguna/status-kehamilan', function () use ($ensureUserRole) {
         $ensureUserRole('pengguna');
 
-        return view('pengguna.status-kehamilan');
+        $user = auth()->user();
+        $pengguna = \App\Models\Pengguna::with('anak')->find($user->id);
+
+        if (!$pengguna) {
+            abort(404, 'Pengguna tidak ditemukan.');
+        }
+
+        $isHamil = (bool) ($pengguna->is_hamil ?? false);
+        $daftarAnak = $pengguna->anak ?? collect();
+        $kehamilanKe = max((int) ($daftarAnak->max('anak_ke') ?? 0), 0) + ($isHamil ? 1 : 0);
+
+        $ringkasan = [
+            [
+                'label' => 'Status Saat Ini',
+                'value' => $isHamil ? 'Sedang Hamil' : 'Tidak Hamil',
+                'icon' => 'bi-heart-pulse-fill',
+                'tone' => $isHamil ? 'active' : 'muted',
+            ],
+            [
+                'label' => 'Kehamilan Ke',
+                'value' => $isHamil && $kehamilanKe > 0 ? 'Kehamilan ke-' . $kehamilanKe : 'Belum aktif',
+                'icon' => 'bi-clipboard2-pulse-fill',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'HPL',
+                'value' => '—',
+                'icon' => 'bi-calendar2-week-fill',
+                'tone' => 'warning',
+            ],
+            [
+                'label' => 'Risiko Kehamilan',
+                'value' => 'Normal',
+                'icon' => 'bi-shield-check',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'GPA',
+                'value' => '0/0/0',
+                'icon' => 'bi-diagram-3-fill',
+                'tone' => 'primary',
+            ],
+        ];
+
+        $riwayatKehamilan = $daftarAnak->map(function ($anak) {
+            return [
+                'judul' => $anak->nama_anak ? "Anak ke-{$anak->anak_ke} - {$anak->nama_anak}" : "Anak ke-{$anak->anak_ke}",
+                'status' => $anak->status === 'dalam_kandungan' ? 'Dalam kandungan' : 'Riwayat anak',
+                'tanggal' => $anak->tanggal_lahir ? $anak->tanggal_lahir->format('d M Y') : 'Belum diisi',
+            ];
+        })->values()->all();
+
+        if ($isHamil) {
+            array_unshift($riwayatKehamilan, [
+                'judul' => 'Kehamilan aktif saat ini',
+                'status' => 'Sedang dipantau',
+                'tanggal' => 'Data dari profil pengguna',
+            ]);
+        }
+
+        $riwayatKontrol = $isHamil ? [
+            [
+                'judul' => 'Kontrol ANC berikutnya',
+                'waktu' => 'Belum dijadwalkan',
+                'status' => 'Menunggu jadwal',
+                'catatan' => 'Tambahkan jadwal kontrol untuk memantau tekanan darah, berat badan, dan perkembangan janin.',
+            ],
+            [
+                'judul' => 'Pemeriksaan laboratorium',
+                'waktu' => 'Belum tercatat',
+                'status' => 'Belum ada data',
+                'catatan' => 'Hasil pemeriksaan akan tampil di sini setelah dicatat.',
+            ],
+            [
+                'judul' => 'Konsultasi nutrisi',
+                'waktu' => 'Belum tercatat',
+                'status' => 'Belum ada data',
+                'catatan' => 'Catatan makan dan suplementasi akan muncul saat riwayat kontrol diisi.',
+            ],
+        ] : [];
+
+        return view('pengguna.statusKehamilan', [
+            'pengguna' => $pengguna,
+            'isHamil' => $isHamil,
+            'kehamilanKe' => $kehamilanKe,
+            'ringkasan' => $ringkasan,
+            'riwayatKontrol' => $riwayatKontrol,
+            'riwayatKehamilan' => $riwayatKehamilan,
+        ]);
     })->name('pengguna.status_kehamilan');
 
     Route::get('/pengguna/buku-kia', function () use ($ensureUserRole) {
