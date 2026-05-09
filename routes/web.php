@@ -484,8 +484,73 @@ $ensureUserRole = function (string $role) {
     Route::get('/pengguna/buku-kia', function () use ($ensureUserRole) {
         $ensureUserRole('pengguna');
 
-        return view('pengguna.buku-kia');
+        $user = auth()->user();
+        $pengguna = \App\Models\Pengguna::with('anak')->find($user->id);
+
+        if (!$pengguna) {
+            abort(404, 'Pengguna tidak ditemukan.');
+        }
+
+        $isHamil = (bool) ($pengguna->is_hamil ?? false);
+        $daftarAnak = $pengguna->anak ?? [];
+
+        $bukuKiaCards = [];
+
+        // Add child records from database
+        foreach ($daftarAnak as $index => $anak) {
+            $bukuKiaCards[] = [
+                'anak_ke' => $anak->anak_ke,
+                'nama_anak' => $anak->nama_anak,
+                'label' => $anak->nama_anak ? "Anak ke-{$anak->anak_ke} - {$anak->nama_anak}" : "Anak ke-{$anak->anak_ke}",
+                'status' => $anak->status === 'dalam_kandungan' ? 'Dalam kandungan' : 'Data anak',
+                'tanggal_lahir' => $anak->tanggal_lahir,
+            ];
+        }
+
+        // Add current pregnancy if is_hamil = true
+        if ($isHamil) {
+            $maxAnakKe = $daftarAnak->max('anak_ke') ?? 0;
+            $nextAnakKe = $maxAnakKe + 1;
+
+            $bukuKiaCards[] = [
+                'anak_ke' => $nextAnakKe,
+                'nama_anak' => null,
+                'label' => "Kehamilan ke-{$nextAnakKe}",
+                'status' => 'Dalam kandungan',
+                'tanggal_lahir' => null,
+            ];
+        }
+
+        $totalBukuKia = count($bukuKiaCards);
+
+        return view('pengguna.bukuKIA', [
+            'bukuKiaCards' => $bukuKiaCards,
+            'totalBukuKia' => $totalBukuKia,
+        ]);
     })->name('pengguna.buku_kia');
+
+    Route::get('/pengguna/kia/pdf', function () use ($ensureUserRole) {
+        $ensureUserRole('pengguna');
+
+        $pdfPath = resource_path('views/buku/Buku KIA (Permenkes).pdf');
+
+        abort_unless(file_exists($pdfPath), 404, 'File Buku KIA tidak ditemukan.');
+
+        return response()->file($pdfPath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="Buku KIA (Permenkes).pdf"',
+        ]);
+    })->name('pengguna.kia.pdf');
+
+    Route::get('/pengguna/kia/download', function () use ($ensureUserRole) {
+        $ensureUserRole('pengguna');
+
+        $pdfPath = resource_path('views/buku/Buku KIA (Permenkes).pdf');
+
+        abort_unless(file_exists($pdfPath), 404, 'File Buku KIA tidak ditemukan.');
+
+        return response()->download($pdfPath, 'Buku KIA (Permenkes).pdf');
+    })->name('pengguna.kia.download');
 
     Route::get('/pengguna/pengaturan', function () use ($ensureUserRole) {
         $ensureUserRole('pengguna');

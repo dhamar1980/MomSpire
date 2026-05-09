@@ -582,54 +582,62 @@
 					</div>
 				</div>
 				<div class="card-body p-4">
-					<!-- Month Year Navigation -->
+					<!-- Month Year Navigation (spaced) -->
 					<div class="row align-items-center justify-content-center mb-4">
-						<div class="col-12 col-sm-auto d-grid gap-2 d-sm-flex">
-							<button class="btn btn-sm btn-outline-pink" id="monthPrev" type="button">
-								<i class="bi bi-chevron-left"></i> <span class="d-none d-sm-inline">Bulan Sebelumnya</span>
-							</button>
-							<div class="text-center">
+						<div class="col-12 d-flex align-items-center justify-content-center gap-3 flex-wrap">
+							<div class="flex-shrink-0">
+								<button class="btn btn-sm btn-outline-pink" id="monthPrev" type="button">
+									<i class="bi bi-chevron-left"></i> <span class="d-none d-sm-inline">Bulan Sebelumnya</span>
+								</button>
+							</div>
+							<div class="text-center mx-2">
 								<div class="text-muted small mb-1">Bulan</div>
 								<div class="h6 fw-bold mb-0" id="displayMonth">{{ \Carbon\Carbon::today()->translatedFormat('F') }}</div>
 							</div>
-							<div class="text-center">
+							<div class="text-center mx-2">
 								<div class="text-muted small mb-1">Tahun</div>
 								<div class="h6 fw-bold mb-0" id="displayYear">{{ \Carbon\Carbon::today()->format('Y') }}</div>
 							</div>
-							<button class="btn btn-sm btn-outline-pink" id="monthNext" type="button">
-								<span class="d-none d-sm-inline">Bulan Berikutnya</span> <i class="bi bi-chevron-right"></i>
-							</button>
+							<div class="flex-shrink-0">
+								<button class="btn btn-sm btn-outline-pink" id="monthNext" type="button">
+									<span class="d-none d-sm-inline">Bulan Berikutnya</span> <i class="bi bi-chevron-right"></i>
+								</button>
+							</div>
 						</div>
 					</div>
 
-					<!-- Date Navigation -->
+					<!-- Date Navigation (prev/timeline/next on one line) -->
 					<div class="row align-items-center justify-content-center mb-4">
-						<div class="col-12 col-sm-auto">
-							<button class="btn btn-sm btn-outline-pink w-100 w-sm-auto" id="datePrev" type="button">
-								<i class="bi bi-chevron-left"></i> <span class="d-none d-sm-inline">7 Hari Sebelumnya</span>
-							</button>
-						</div>
 						<div class="col-12">
-							<div class="schedule-timeline-responsive overflow-x-auto mb-3" id="scheduleTimeline">
-								@php
-									$days = collect();
-									for ($i = 0; $i < 7; $i++) {
-										$days->push(\Carbon\Carbon::today()->addDays($i));
-									}
-								@endphp
-								@foreach($days as $d)
-									<button class="btn btn-sm schedule-day-btn text-center flex-shrink-0" data-date="{{ $d->toDateString() }}" data-label="{{ $d->translatedFormat('l, d F Y') }}" style="min-width: 100px;">
-										<div class="small text-muted mb-1">{{ $d->translatedFormat('D') }}</div>
-										<div class="h5 fw-bold mb-1" style="color: #1e293b;">{{ $d->format('d') }}</div>
-										<div class="tiny text-muted">{{ $d->translatedFormat('M') }}</div>
+							<div class="d-flex align-items-center justify-content-center gap-3">
+								<div class="flex-shrink-0">
+									<button class="btn btn-sm btn-outline-pink" id="datePrev" type="button">
+										<i class="bi bi-chevron-left"></i> <span class="d-none d-sm-inline">7 Hari Sebelumnya</span>
 									</button>
-								@endforeach
+								</div>
+								<div class="flex-fill" style="min-width:0;">
+									<div class="schedule-timeline-responsive overflow-x-auto mb-0" id="scheduleTimeline">
+										@php
+											$days = collect();
+											for ($i = 0; $i < 7; $i++) {
+												$days->push(\Carbon\Carbon::today()->addDays($i));
+											}
+										@endphp
+										@foreach($days as $d)
+											<button class="btn btn-sm schedule-day-btn text-center flex-shrink-0" data-date="{{ $d->toDateString() }}" data-label="{{ $d->translatedFormat('l, d F Y') }}" style="min-width: 100px;">
+												<div class="small text-muted mb-1">{{ $d->translatedFormat('D') }}</div>
+												<div class="h5 fw-bold mb-1" style="color: #1e293b;">{{ $d->format('d') }}</div>
+												<div class="tiny text-muted">{{ $d->translatedFormat('M') }}</div>
+											</button>
+										@endforeach
+									</div>
+								</div>
+								<div class="flex-shrink-0">
+									<button class="btn btn-sm btn-outline-pink" id="dateNext" type="button">
+										<span class="d-none d-sm-inline">7 Hari Berikutnya</span> <i class="bi bi-chevron-right"></i>
+									</button>
+								</div>
 							</div>
-						</div>
-						<div class="col-12 col-sm-auto">
-							<button class="btn btn-sm btn-outline-pink w-100 w-sm-auto" id="dateNext" type="button">
-								<span class="d-none d-sm-inline">7 Hari Berikutnya</span> <i class="bi bi-chevron-right"></i>
-							</button>
 						</div>
 					</div>
 

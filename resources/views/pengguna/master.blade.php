@@ -54,18 +54,26 @@
 
 		/* Responsive */
 		@media (max-width:991px){ .admin-main{ margin-left:0; padding:18px; } .admin-sidebar{ transform:translateX(-100%);} }
+
+		/* Sidebar mobile close button */
+		.sidebar-close-btn{ position:absolute; right:8px; top:8px; color:var(--muted); }
+		.sidebar-close-btn:hover{ color:#0f172a; }
 	</style>
 	@stack('head')
 </head>
 <body class="admin-body">
 
 	<aside class="admin-sidebar" id="adminSidebar">
-		<div class="sidebar-header">
+		<div class="sidebar-header" style="position:relative;">
 			<a href="{{ url('/') }}" class="sidebar-brand">
 				<img src="{{ asset('foto/logo.jpg') }}" alt="Logo MomSpire" class="brand-logo brand-logo-image">
 				<span>MomSpire</span>
 			</a>
 			<span class="sidebar-tag">Pengguna Panel</span>
+			<!-- Mobile close button (visible on small screens) -->
+			<button type="button" class="btn btn-sm btn-link sidebar-close-btn d-inline d-lg-none" onclick="return window.__momspireToggleSidebar(event)" aria-label="Tutup sidebar">
+				<i class="bi bi-x-lg"></i>
+			</button>
 		</div>
 		<nav class="sidebar-nav">
 			<div class="nav-section">

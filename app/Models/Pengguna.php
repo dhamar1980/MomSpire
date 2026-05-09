@@ -18,4 +18,9 @@ class Pengguna extends Model
         'password',
         'remember_token',
     ];
+
+    public function anak()
+    {
+        return $this->hasMany(Anak::class, 'pengguna_id')->orderBy('anak_ke');
+    }
 }
