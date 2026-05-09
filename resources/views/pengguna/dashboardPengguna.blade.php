@@ -188,8 +188,8 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 1rem;
-		min-height: 180px;
+		gap: .5rem;
+		min-height: 120px;
 		border-radius: 16px;
 		background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.55));
 		border: 1px solid rgba(148, 163, 184, 0.22);
@@ -210,7 +210,8 @@
 	.hero-hearts-container {
 		position: relative;
 		width: 100%;
-		height: 180px;
+		height: 120px;
+		overflow: hidden;
 	}
 
 	.floating-heart {
@@ -255,8 +256,8 @@
 	}
 
 	.mom-hug-svg {
-		width: 110px;
-		height: 110px;
+		width: 88px;
+		height: 88px;
 		transform-origin: center;
 		filter: drop-shadow(0 12px 28px rgba(15,23,42,0.12));
 		pointer-events: none;
@@ -311,11 +312,11 @@
 
 	@media (max-width: 767px) {
 		.hero-hearts-container {
-			height: 140px;
+			height: 100px;
 			max-width: 280px;
 			margin: 0 auto;
 		}
-		.mom-hug-svg { width: 80px; height: 80px; }
+		.mom-hug-svg { width: 70px; height: 70px; }
 		.floating-heart.h1 { font-size: 28px; }
 		.floating-heart.h5 { font-size: 24px; }
 		.floating-heart.h10 { font-size: 28px; }
@@ -540,11 +541,10 @@
 				</div>
 			</div>
 		</div>
-		</div>
 		</a>
 
 	<!-- Quick Action Cards -->
-	<div class="row g-2 mb-4" style="margin-top: -8px;">
+	<div class="row g-2 mb-4 mt-n3">
 		<div class="col-12 col-lg-6">
 			<a href="{{ route('pengguna.kalkulator') }}" class="card dashboard-card-modern action-shell d-block text-decoration-none" style="min-height: 160px; overflow: hidden;">
 				<div class="card-body d-flex flex-column flex-sm-row gap-3 align-items-start align-sm-items-center" style="padding: 16px;">
