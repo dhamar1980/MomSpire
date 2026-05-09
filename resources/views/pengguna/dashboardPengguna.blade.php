@@ -490,7 +490,7 @@
 
 		<!-- Hero Greeting Section -->
 		<a href="{{ route('pengguna.status_kehamilan') }}" class="text-decoration-none text-reset">
-		<div class="card dashboard-card-modern hero-shell mb-2">
+		<div class="card dashboard-card-modern hero-shell mb-0">
 			<div class="card-body" style="padding: 16px;">
 				<div class="row align-items-center g-4">
 					<div class="col-12 col-lg-7 d-flex flex-column justify-content-between">
@@ -544,10 +544,10 @@
 		</a>
 
 	<!-- Quick Action Cards -->
-	<div class="row g-3 mb-4">
+	<div class="row g-2 mb-4">
 		<div class="col-12 col-lg-6">
 			<a href="{{ route('pengguna.kalkulator') }}" class="card dashboard-card-modern action-shell d-block text-decoration-none" style="min-height: 160px; overflow: hidden;">
-				<div class="card-body d-flex flex-column flex-sm-row gap-3 align-items-start align-sm-items-center" style="padding: 20px;">
+				<div class="card-body d-flex flex-column flex-sm-row gap-3 align-items-start align-sm-items-center" style="padding: 16px;">
 					<div class="action-illustration buku">
 						<img src="{{ asset('foto/kalkulator.jpg') }}" alt="Kalkulator Gizi" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
 					</div>
@@ -561,7 +561,7 @@
 		</div>
 		<div class="col-12 col-lg-6">
 			<a href="{{ route('pengguna.buku_kia') }}" class="card dashboard-card-modern action-shell d-block text-decoration-none" style="min-height: 160px; overflow: hidden;">
-				<div class="card-body d-flex flex-column flex-sm-row gap-3 align-items-start align-sm-items-center" style="padding: 20px;">
+				<div class="card-body d-flex flex-column flex-sm-row gap-3 align-items-start align-sm-items-center" style="padding: 16px;">
 					<div class="action-illustration buku">
 						<img src="{{ asset('foto/BUKU KIA.jpg') }}" alt="Buku KIA" style="width:100%; height:100%; object-fit:cover; border-radius:24px;">
 					</div>
