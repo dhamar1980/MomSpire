@@ -327,7 +327,7 @@
     window.MOMSPIRE_ADMIN_SETTINGS = {
         csrfToken: @json(csrf_token()),
         passwordConfirmationUrl: @json(route('password.confirmation')),
-        passwordConfirmUrl: @json(route('password.confirm')),
+        passwordConfirmUrl: @json(route('password.confirm.store')),
         twoFactorEnableUrl: @json(route('two-factor.enable')),
         twoFactorConfirmUrl: @json(route('two-factor.confirm')),
         twoFactorDisableUrl: @json(route('two-factor.disable')),
@@ -434,9 +434,17 @@
             setLoadingState(confirmSubmitBtn, true, 'Memproses...');
 
             try {
-                await window.axios.post(settings.passwordConfirmUrl, {
-                    password: confirmPassword ? confirmPassword.value : '',
-                });
+                const csrfToken = settings.csrfToken || document.head.querySelector('meta[name="csrf-token"]')?.content || '';
+                const response = await window.axios.post(settings.passwordConfirmUrl, 
+                    { password: confirmPassword ? confirmPassword.value : '' },
+                    {
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        },
+                    }
+                );
 
                 hidePasswordModal();
 
@@ -446,7 +454,7 @@
                     callback();
                 }
             } catch (error) {
-                const message = error?.response?.data?.errors?.password?.[0] || 'Password tidak valid.';
+                const message = error?.response?.data?.errors?.password?.[0] || error?.response?.data?.message || 'Password tidak valid.';
                 setConfirmError(message);
             } finally {
                 setLoadingState(confirmSubmitBtn, false);

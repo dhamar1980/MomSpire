@@ -1,110 +1,208 @@
 @extends('dokter.master')
 
 @section('title', 'Dashboard Dokter - MomSpire')
+@section('header_title', 'Dashboard')
 
 @section('content')
 	@php
 		$penggunaCount = $penggunaCount ?? 0;
 		$bidanCount = $bidanCount ?? 0;
 		$dokterCount = $dokterCount ?? 0;
+		$recentPengguna = $recentPengguna ?? collect();
+		
+		// Get today's schedules for dokter (with table existence check)
+		$todaySchedules = collect();
+		if (\Illuminate\Support\Facades\Schema::hasTable('jadwal_pemantauan')) {
+			$todaySchedules = \App\Models\JadwalPemantauan::where('dokter_id', auth()->id())
+				->where('status', '!=', 'dibatalkan')
+				->whereDate('tanggal', \Carbon\Carbon::today())
+				->orderBy('waktu')
+				->take(5)
+				->get();
+		}
+
+		// Dynamic greeting based on time
+		$hour = \Carbon\Carbon::now()->hour;
+		if ($hour >= 5 && $hour < 11) {
+			$greeting = 'Selamat pagi';
+		} elseif ($hour >= 11 && $hour < 15) {
+			$greeting = 'Selamat siang';
+		} elseif ($hour >= 15 && $hour < 18) {
+			$greeting = 'Selamat sore';
+		} else {
+			$greeting = 'Selamat malam';
+		}
 	@endphp
 
-	<div class="role-hero p-3 p-sm-4 p-lg-5 mb-4">
-		<div class="row align-items-center g-3 g-lg-4">
-			<div class="col-12 col-lg-8">
-				<span class="badge text-bg-light text-primary mb-3">Dashboard Dokter</span>
-				<h1 class="display-6 fw-bold mb-2 mb-lg-3" style="font-size: clamp(1.5rem, 5vw, 2.5rem);">Selamat datang, Dokter.</h1>
-				<p class="lead mb-0" style="font-size: clamp(0.95rem, 3vw, 1.1rem);">Pantau jumlah pengguna, kolaborasi dengan tim bidan, dan siapkan evaluasi lanjutan untuk pasien yang memerlukan perhatian khusus.</p>
-			</div>
-			<div class="col-12 col-lg-4 text-lg-end">
-				<div class="bg-white text-primary rounded-4 p-3 p-lg-4 d-inline-block shadow-sm">
-					<div class="fs-1 fw-bold" style="font-size: clamp(2rem, 6vw, 2.5rem);">{{ $dokterCount }}</div>
-					<div class="small text-muted">dokter aktif di sistem</div>
+	<div class="dokter-dashboard">
+
+	<div class="mb-4">
+		<div class="card role-card hero-role">
+			<div class="card-body p-4 p-lg-5">
+				<div class="d-flex justify-content-between align-items-start">
+					<div>
+						<h2 class="fw-bold mb-2 dash-hero-title">{{ $greeting }}, Dokter {{ auth()->user()->name }}</h2>
+						<p class="mb-0 opacity-90">{{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM YYYY') }}</p>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
+	<!-- Grid Layout: Left 60% & Right 40% -->
 	<div class="row g-3 g-lg-4 mb-4">
-		<div class="col-12 col-sm-6 col-md-4">
-			<div class="card role-card h-100">
-				<div class="card-body p-3 p-lg-4">
-					<div class="text-primary mb-2"><i class="bi bi-person-workspace fs-3"></i></div>
-					<h5 class="fw-bold">Total Pengguna</h5>
-					<p class="display-6 fw-bold mb-1">{{ $penggunaCount }}</p>
-					<p class="text-muted mb-0" style="font-size: 0.9rem;">Akun pengguna yang dapat dipantau dan dievaluasi.</p>
-				</div>
-			</div>
-		</div>
-		<div class="col-12 col-sm-6 col-md-4">
-			<div class="card role-card h-100">
-				<div class="card-body p-3 p-lg-4">
-					<div class="text-danger mb-2"><i class="bi bi-exclamation-triangle-fill fs-3"></i></div>
-					<h5 class="fw-bold">Total Bidan</h5>
-					<p class="display-6 fw-bold mb-1">{{ $bidanCount }}</p>
-					<p class="text-muted mb-0" style="font-size: 0.9rem;">Tim bidan yang dapat mengirim eskalasi atau rujukan.</p>
-				</div>
-			</div>
-		</div>
-		<div class="col-12 col-sm-6 col-md-4">
-			<div class="card role-card h-100">
-				<div class="card-body p-3 p-lg-4">
-					<div class="text-success mb-2"><i class="bi bi-clipboard-check-fill fs-3"></i></div>
-					<h5 class="fw-bold">Total Dokter</h5>
-					<p class="display-6 fw-bold mb-1">{{ $dokterCount }}</p>
-					<p class="text-muted mb-0" style="font-size: 0.9rem;">Jumlah dokter yang terdaftar di platform.</p>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="row g-3 g-lg-4">
+		<!-- LEFT: Pengguna yang akan melahirkan -->
 		<div class="col-12 col-lg-7">
 			<div class="card role-card h-100">
-				<div class="card-body p-3 p-sm-4 p-lg-5">
-					<h5 class="fw-bold mb-3">Pengguna terbaru</h5>
+				<div class="card-body p-4 p-lg-5">
+					<h5 class="fw-bold mb-4 text-uppercase text-dark dash-section-title">
+						<i class="bi bi-exclamation-circle-fill me-2 dash-icon-soft"></i>
+						Daftar Pengguna yang Akan Melahirkan dalam Waktu Dekat
+					</h5>
 					<div class="list-group list-group-flush">
-						@forelse ($recentPengguna as $user)
-							<div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+						@php
+							$hamiltSoon = \App\Models\Pengguna::where('is_hamil', true)
+								->orderBy('updated_at', 'desc')
+								->take(8)
+								->get();
+						@endphp
+						@forelse ($hamiltSoon as $user)
+							<div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom-light">
 								<div class="flex-grow-1">
-									<div class="fw-semibold" style="font-size: 0.95rem;">{{ $user->name }}</div>
-									<div class="text-muted small">{{ $user->email }}</div>
+									<div class="fw-semibold dash-item-title">{{ $user->name }}</div>
+									<div class="text-muted small dash-item-sub"><i class="bi bi-telephone me-1"></i>{{ $user->no_telp ?? 'N/A' }}</div>
 								</div>
-								<span class="badge text-bg-light text-nowrap">{{ $user->created_at?->diffForHumans() }}</span>
+								<span class="badge badge-soft-primary dash-badge-sm">Hamil</span>
 							</div>
 						@empty
-							<div class="text-muted">Belum ada pengguna baru.</div>
+							<div class="text-muted text-center py-4">Belum ada data pengguna yang hamil</div>
 						@endforelse
 					</div>
 				</div>
 			</div>
 		</div>
+
+		<!-- RIGHT TOP: Pengguna Ditangani (compact list) -->
 		<div class="col-12 col-lg-5">
-			<div class="card role-card h-100">
-				<div class="card-body p-3 p-sm-4 p-lg-5">
-					<h5 class="fw-bold mb-3">Rekan dokter terbaru</h5>
-					<div class="list-group list-group-flush">
-						@forelse ($recentDokter as $doctor)
-							<div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-								<div class="flex-grow-1">
-									<div class="fw-semibold" style="font-size: 0.95rem;">{{ $doctor->name }}</div>
-									<div class="text-muted small">{{ $doctor->email }}</div>
-								</div>
-								<span class="badge text-bg-light text-nowrap">{{ $doctor->created_at?->diffForHumans() }}</span>
-							</div>
-						@empty
-							<div class="text-muted">Belum ada dokter baru.</div>
-						@endforelse
+			<div class="card role-card h-100 stat-card">
+				<div class="card-body p-4 p-lg-5">
+					<div class="d-flex justify-content-between align-items-start mb-3">
+						<h5 class="fw-bold mb-0 text-uppercase text-dark dash-section-title">
+							<i class="bi bi-people-fill text-muted me-2"></i>
+							Pengguna yang Sudah Ditangani
+						</h5>
+					</div>
+					@php
+						$handledCount = 0;
+						if (\Illuminate\Support\Facades\Schema::hasTable('jadwal_pemantauan')) {
+							$handledCount = \App\Models\JadwalPemantauan::where('dokter_id', auth()->id())->distinct('pengguna_id')->count('pengguna_id');
+						}
+					@endphp
+					<div class="text-center my-4 dash-count-wrap">
+						<div class="display-4 fw-bold text-gradient">{{ $handledCount }}</div>
+						<div class="text-muted dash-item-title">Pengguna ditangani oleh Anda</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="card role-card mt-3 mt-lg-4">
-		<div class="card-body p-3 p-sm-4 p-lg-5">
-			<h5 class="fw-bold mb-3">Catatan operasional</h5>
-			<p class="text-muted mb-0">Dashboard dokter sudah tersambung ke redirect role dan statistik dasar dari database. Kalau nanti konsultasi dipindah ke tabel Laravel, bagian review bisa dibuat live tanpa mengubah struktur login.</p>
+	<!-- Grid Layout: 3 columns for bottom sections -->
+	<div class="row g-3 g-lg-4">
+		<!-- LEFT: Jadwal Kegiatan Hari Ini -->
+		<div class="col-12 col-md-6 col-lg-4">
+			<div class="card role-card h-100">
+				<div class="card-body p-4 p-lg-4">
+					<h5 class="fw-bold mb-4 text-uppercase text-dark dash-section-title">
+						<i class="bi bi-calendar2-check me-2 dash-icon-soft"></i>
+						Jadwal Kegiatan Hari Ini
+					</h5>
+					<div class="list-group list-group-flush">
+						@forelse ($todaySchedules as $schedule)
+							<div class="list-group-item px-0 py-3 border-bottom-light">
+								<div class="d-flex justify-content-between align-items-start mb-2">
+									<div>
+										<div class="fw-semibold small dash-item-title">{{ $schedule->pengguna->name ?? 'User' }}</div>
+										<div class="text-muted small dash-item-sub">{{ $schedule->judul }}</div>
+									</div>
+									<span class="badge badge-soft-primary rounded-pill text-uppercase dash-badge-xs">
+										{{ $schedule->jenis }}
+									</span>
+								</div>
+								<div class="text-muted small dash-item-sub">
+									<i class="bi bi-clock-fill me-1 dash-icon-soft"></i>
+									<strong class="dash-strong">{{ $schedule->waktu ? \Carbon\Carbon::parse($schedule->waktu)->format('H:i') : 'Belum ditentukan' }}</strong>
+								</div>
+								@if ($schedule->catatan)
+									<div class="text-muted small mt-2 dash-note-chip">
+										<i class="bi bi-chat-left-text me-1"></i>{{ Str::limit($schedule->catatan, 50) }}
+									</div>
+								@endif
+							</div>
+						@empty
+							<div class="text-center py-5 dash-empty-state">
+								<i class="bi bi-calendar-x dash-empty-icon"></i>
+								<div class="dash-item-sub">Tidak ada jadwal hari ini</div>
+							</div>
+						@endforelse
+					</div>
+				</div>
+			</div>
 		</div>
+
+		<!-- MIDDLE: Note Pribadi -->
+		<div class="col-12 col-md-6 col-lg-4">
+			<div class="card role-card h-100">
+				<div class="card-body p-3 p-sm-4 p-lg-4">
+					<h5 class="fw-bold mb-4 text-uppercase text-dark dash-section-title">
+						<i class="bi bi-pencil-square me-2 dash-icon-soft"></i>
+						Note Pribadi
+					</h5>
+					<textarea class="form-control form-control-sm flex-grow-1 note-textarea" placeholder="Tulis catatan pribadi untuk hari ini..."></textarea>
+				</div>
+			</div>
+		</div>
+
+		<!-- RIGHT: Fokus Hari Ini -->
+		<div class="col-12 col-md-12 col-lg-4">
+			<div class="card role-card h-100">
+				<div class="card-body p-4 p-lg-4">
+					<h5 class="fw-bold mb-4 text-uppercase text-dark dash-section-title">
+						<i class="bi bi-star-fill me-2 dash-icon-soft"></i>
+						Fokus Hari Ini
+					</h5>
+					<div class="list-group list-group-flush">
+						<div class="list-group-item px-0 py-3 border-bottom-light">
+							<div class="d-flex gap-2">
+								<i class="bi bi-check-circle-fill dash-icon-soft dash-check-icon"></i>
+								<div>
+									<div class="fw-semibold small dash-item-title">Periksa Konsultasi Baru</div>
+									<div class="text-muted small dash-item-sub">Respons pesan dari pengguna yang menunggu</div>
+								</div>
+							</div>
+						</div>
+						<div class="list-group-item px-0 py-3 border-bottom-light">
+							<div class="d-flex gap-2">
+								<i class="bi bi-check-circle-fill dash-icon-soft dash-check-icon"></i>
+								<div>
+									<div class="fw-semibold small dash-item-title">Update Jadwal Imunisasi</div>
+									<div class="text-muted small dash-item-sub">Verifikasi jadwal imunisasi pengguna</div>
+								</div>
+							</div>
+						</div>
+						<div class="list-group-item px-0 py-3">
+							<div class="d-flex gap-2">
+								<i class="bi bi-check-circle-fill dash-icon-soft dash-check-icon"></i>
+								<div>
+									<div class="fw-semibold small dash-item-title">Review Data Pengguna Hamil</div>
+									<div class="text-muted small dash-item-sub">Pantau status kesehatan ibu hamil</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	</div>
 @endsection

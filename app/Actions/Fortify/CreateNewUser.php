@@ -24,6 +24,7 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'phone_number' => ['required', 'string', 'max:20'],
             'password' => $this->passwordRules(),
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
@@ -34,15 +35,17 @@ class CreateNewUser implements CreatesNewUsers
         $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
+            'no_telp' => $input['phone_number'],
             'password' => $hashedPassword,
             'role' => 'pengguna',
         ]);
 
-        // Sync to pengguna table
+        // Create data in pengguna table
         DB::table('pengguna')->insert([
-            'id' => $user->id,
+            'user_id' => $user->id,
             'name' => $input['name'],
             'email' => $input['email'],
+            'no_telp' => $input['phone_number'],
             'password' => $hashedPassword,
             'created_at' => now(),
             'updated_at' => now(),

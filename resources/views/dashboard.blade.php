@@ -1,112 +1,14 @@
-@extends('pengguna.master')
+﻿@extends('pengguna.master')
 
 @section('title', 'Dashboard Pengguna - MomSpire')
 @section('header_title', 'Dashboard Pengguna')
 @section('header_subtitle', '')
 
-@push('head')
-<style>
-	.role-hero { 
-		background: linear-gradient(135deg, #e63980 0%, #ff8c42 100%); 
-		color: #fff; 
-		border-radius: 24px;
-		position: relative;
-		overflow: hidden;
-	}
-	.role-hero::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		right: 0;
-		width: 300px;
-		height: 300px;
-		background: rgba(255, 255, 255, 0.1);
-		border-radius: 50%;
-		transform: translate(50%, -50%);
-	}
-	.role-hero::after {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 200px;
-		height: 200px;
-		background: rgba(255, 255, 255, 0.08);
-		border-radius: 50%;
-		transform: translate(-30%, 50%);
-	}
-	.role-hero .hero-content {
-		position: relative;
-		z-index: 1;
-	}
-	.role-card { border: 0; border-radius: 20px; box-shadow: 0 18px 40px rgba(15, 23, 42, .08); }
-	.feature-card {
-		border: 0;
-		border-radius: 20px;
-		box-shadow: 0 12px 32px rgba(15, 23, 42, .06);
-		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-		cursor: pointer;
-		text-decoration: none;
-		color: inherit;
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		padding: 32px 24px;
-		background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-		border: 1px solid rgba(15, 23, 42, .05);
-		position: relative;
-		overflow: hidden;
-	}
-	.feature-card::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 4px;
-		background: linear-gradient(90deg, #e63980 0%, #ff8c42 100%);
-		transform: scaleX(0);
-		transform-origin: left;
-		transition: transform 0.3s ease;
-	}
-	.feature-card:hover {
-		transform: translateY(-12px);
-		box-shadow: 0 24px 48px rgba(15, 23, 42, .12);
-		text-decoration: none;
-		color: inherit;
-		background: linear-gradient(135deg, #ffffff 0%, #fff5f7 100%);
-	}
-	.feature-card:hover::before {
-		transform: scaleX(1);
-	}
-	.feature-icon {
-		font-size: 56px;
-		margin-bottom: 20px;
-		transition: transform 0.3s ease;
-	}
-	.feature-card:hover .feature-icon {
-		transform: scale(1.1);
-	}
-	.feature-title {
-		font-size: 20px;
-		font-weight: 700;
-		margin-bottom: 12px;
-		color: #1a1a1a;
-	}
-	.feature-desc {
-		font-size: 14px;
-		color: #6c757d;
-		flex-grow: 1;
-		line-height: 1.6;
-	}
-</style>
-@endpush
-
 @section('content')
 	<div class="role-hero p-4 mb-4">
 		<div class="hero-content d-flex align-items-center justify-content-between">
 			<div>
-				<h2 class="h3 fw-bold mb-1">Halo, {{ auth()->user()->name }}! 👋</h2>
+				<h2 class="h3 fw-bold mb-1">Halo, {{ auth()->user()->name }}! ðŸ‘‹</h2>
 				<p class="mb-0" style="font-size: .98rem; line-height: 1.45; max-width: 720px;">Pantau informasi kesehatan kehamilan Anda dan akses fitur-fitur penting untuk kesehatan ibu dan bayi.</p>
 			</div>
 			<div class="text-end d-none d-md-block">

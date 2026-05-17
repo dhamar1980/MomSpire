@@ -6,12 +6,6 @@ return [
     |--------------------------------------------------------------------------
     | Third Party Services
     |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
-    |
     */
 
     'postmark' => [
@@ -33,6 +27,27 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Firebase Realtime Database - MomSpire Chat
+    |--------------------------------------------------------------------------
+    |
+    | Konfigurasi Firebase untuk fitur konsultasi real-time
+    | Project: momspire (Firebase Console: https://console.firebase.google.com/u/0/project/momspire/settings/general)
+    |
+    */
+
+    'firebase' => [
+        'api_key' => env('FIREBASE_API_KEY', 'AIzaSyCPg3wsZCxK6Bjc1_YibQmi6jir_3zhG1Q'),
+        'auth_domain' => env('FIREBASE_AUTH_DOMAIN', 'momspire.firebaseapp.com'),
+        'database_url' => env('FIREBASE_DATABASE_URL', 'https://momspire-default-rtdb.firebaseio.com'),
+        'project_id' => env('FIREBASE_PROJECT_ID', 'momspire'),
+        'storage_bucket' => env('FIREBASE_STORAGE_BUCKET', 'momspire.firebasestorage.app'),
+        'messaging_sender_id' => env('FIREBASE_MESSAGING_SENDER_ID', '14853541777'),
+        'app_id' => env('FIREBASE_APP_ID', '1:14853541777:web:e41071557361f2ad159430'),
+        'measurement_id' => env('FIREBASE_MEASUREMENT_ID', 'G-8W9M5WNYL7'),
     ],
 
 ];

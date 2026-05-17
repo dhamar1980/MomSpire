@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(findstr /S /N /C:\"pengguna-row\\\\|detail-hero\\\\|settings-section\" resources\\\\views\\\\dokter\\\\detailPengguna.blade.php resources\\\\views\\\\bidan\\\\detailPengguna.blade.php resources\\\\views\\\\dokter\\\\konsultasi.blade.php resources\\\\views\\\\bidan\\\\konsultasi.blade.php)",
+      "Read(//c/Users/USER/Documents/Project/SistemKIA/resources/views/Admin/**)",
+      "Read(//c/Users/USER/Documents/Project/SistemKIA/resources/views/bidan/**)",
+      "Read(//c/Users/USER/Documents/Project/SistemKIA/resources/views/dokter/**)",
+      "Bash(rm \"c:\\\\xampp\\\\htdocs\\\\MomSpire\\\\app\\\\Http\\\\Controllers\\\\Controller.php\" 2>/dev/null; echo \"Done\")",
+      "Bash(powershell -Command \"\\(Get-Content 'c:\\\\xampp\\\\htdocs\\\\MomSpire\\\\resources\\\\views\\\\dashboard.blade.php' -Raw\\) -replace '\\(?s\\)@push\\\\\\(''head''\\\\\\)\\\\s*<style>.*?</style>\\\\s*@endpush\\\\s*', ''\")",
+      "Bash(Set-Content 'c:\\\\xampp\\\\htdocs\\\\MomSpire\\\\resources\\\\views\\\\dashboard.blade.php' -NoNewline -Encoding UTF8)",
+      "Bash(php -r \"echo date\\('Y_m_d_His'\\);\")",
+      "Bash(php artisan *)",
+      "Bash(exist storage\\\\framework\\\\views\\\\*.php del /q storage\\\\framework\\\\views\\\\*.php)",
+      "Bash(Remove-Item -Path \"c:\\\\xampp\\\\htdocs\\\\MomSpire\\\\storage\\\\framework\\\\views\\\\*\" -Force -ErrorAction SilentlyContinue)",
+      "Bash(Write-Host \"Cache cleared\")",
+      "Bash(powershell.exe -Command \"Remove-Item -Path 'c:\\\\xampp\\\\htdocs\\\\MomSpire\\\\storage\\\\framework\\\\views\\\\*' -Force -ErrorAction SilentlyContinue; Write-Host 'Cache cleared'\")"
+    ],
+    "additionalDirectories": [
+      "c:\\xampp\\htdocs\\MomSpire\\app\\Http\\Controllers"
+    ]
+  }
+}

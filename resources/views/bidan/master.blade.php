@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<title>@yield('title', config('app.name', 'MomSpire'))</title>
 	@php
 		$currentUser = auth()->user();
@@ -24,7 +25,28 @@
 	@vite(['resources/css/style.css', 'resources/js/script.js'])
 	<style>
 		.role-hero { background: linear-gradient(135deg, #00b894 0%, #0984e3 100%); color: #fff; border-radius: 24px; }
-		.role-card { border: 0; border-radius: 20px; box-shadow: 0 18px 40px rgba(15, 23, 42, .08); }
+
+		.btn-back-page {
+			background: #fff;
+			border: 1px solid rgba(15, 23, 42, .12);
+			border-radius: 999px;
+			color: #0f172a;
+			font-weight: 700;
+			padding: 10px 16px;
+			box-shadow: 0 10px 20px rgba(15, 23, 42, .05);
+			transition: all .2s ease;
+			text-decoration: none;
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.btn-back-page:hover {
+			transform: translateY(-1px);
+			border-color: rgba(15, 23, 42, .25);
+			box-shadow: 0 14px 24px rgba(15, 23, 42, .12);
+			color: #0f172a;
+		}
 	</style>
 	@stack('head')
 </head>
@@ -45,6 +67,17 @@
 					<i class="bi bi-grid-1x2-fill"></i>
 					<span>Dashboard</span>
 				</a>
+				<a href="{{ route('bidan.pengguna') }}" class="nav-link {{ request()->routeIs('bidan.pengguna*') ? 'active' : '' }}">
+					<i class="bi bi-person-fill"></i>
+					<span>Detail Pengguna</span>
+				</a>
+				<a href="{{ route('bidan.konsultasi') }}" class="nav-link {{ request()->routeIs('bidan.konsultasi*') ? 'active' : '' }}">
+					<i class="bi bi-chat-dots-fill"></i>
+					<span>Konsultasi</span>
+				</a>
+			</div>
+			<div class="nav-section">
+				<span class="nav-label">SISTEM</span>
 				<a href="{{ route('bidan.settings') }}" class="nav-link {{ request()->routeIs('bidan.settings') ? 'active' : '' }}">
 					<i class="bi bi-gear-fill"></i>
 					<span>Pengaturan</span>
@@ -62,12 +95,20 @@
 	<main class="admin-main">
 		<header class="admin-header">
 			<div class="header-left">
-				<button type="button" class="btn btn-toggle-sidebar" id="toggleSidebar" onclick="return window.__momspireToggleSidebar(event)">
-					<i class="bi bi-list"></i>
-				</button>
+				@if (View::hasSection('header_action'))
+					@yield('header_action')
+				@else
+					<button type="button" class="btn btn-toggle-sidebar" id="toggleSidebar" onclick="return window.__momspireToggleSidebar(event)">
+						<i class="bi bi-list"></i>
+					</button>
+				@endif
 				<div>
-					<h1 class="header-title">@yield('header_title')</h1>
-					<p class="header-subtitle">@yield('header_subtitle')</p>
+					@if (View::hasSection('header_title'))
+						<h1 class="header-title">@yield('header_title')</h1>
+					@endif
+					@if (View::hasSection('header_subtitle'))
+						<p class="header-subtitle">@yield('header_subtitle')</p>
+					@endif
 				</div>
 			</div>
 		</header>
@@ -109,6 +150,12 @@
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+	<!-- Firebase Realtime Database SDK for Real-time Chat -->
+	<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+	<script src="/js/momspire-firebase.js"></script>
+
 	<script>
 		window.MOMSPIRE_USE_LEGACY_ADMIN_API = false;
 		window.__momspireSidebarOpen = true;

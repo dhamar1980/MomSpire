@@ -213,7 +213,10 @@
 
         <div class="article-panel" id="daftar-artikel">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                <h5 class="fw-bold mb-0">Daftar Artikel Edukasi</h5>
+                <div>
+                    <h5 class="fw-bold mb-0">Daftar Artikel Edukasi</h5>
+                    <span class="text-muted small">Sumber data: artikel yang diupload admin pada Manajemen Artikel.</span>
+                </div>
                 <span class="text-muted small">{{ $articles->count() }} artikel tersedia</span>
             </div>
 
@@ -230,7 +233,21 @@
                             $weekLabel = $article->min_week && $article->max_week
                                 ? $article->min_week . '-' . $article->max_week . ' minggu'
                                 : 'Umum';
-                            $imageUrl = $article->image_url ?: asset('foto/artikel.jpg');
+                            // Accept https/http, protocol-relative (//cdn...), absolute (/storage/...) or relative paths
+                            $imageUrl = asset('foto/artikel.jpg');
+                            if (!empty($article->image_url)) {
+                                $img = $article->image_url;
+                                if (preg_match('/^(?:https?:)?\\/\\//', $img)) {
+                                    // http(s):// or //cdn...
+                                    $imageUrl = $img;
+                                } elseif (str_starts_with($img, '/')) {
+                                    // absolute path on same host
+                                    $imageUrl = url($img);
+                                } else {
+                                    // treat as project-relative asset path
+                                    $imageUrl = asset($img);
+                                }
+                            }
                             $searchText = strtolower($article->title . ' ' . $article->summary . ' ' . $categoryLabel . ' ' . $weekLabel);
                         @endphp
                         <article class="article-card" id="artikel-{{ $article->id }}" data-article-card data-search="{{ $searchText }}">
@@ -247,12 +264,17 @@
                                         <a href="{{ $article->article_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary-custom btn-sm">
                                             Baca Artikel
                                         </a>
+                                    @else
+                                        <span class="text-muted small align-self-center">Tautan artikel belum ditambahkan admin.</span>
                                     @endif
                                 </div>
                             </div>
                         </article>
                     @endforeach
                 </div>
+                @php
+                    // No per-article detail modal: users read via external link or summary.
+                @endphp
             @endif
 
         </div>
