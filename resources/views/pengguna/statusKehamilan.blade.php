@@ -2,7 +2,6 @@
 
 @section('title', 'Status Kehamilan - MomSpire')
 @section('header_title', 'Status Kehamilan')
-@section('header_subtitle', 'Detail status kehamilan, riwayat kontrol, dan ringkasan kesehatan ibu')
 @section('header_action')
 	<a href="{{ route('pengguna.dashboard') }}" class="btn btn-back-page">
 		<i class="bi bi-arrow-left"></i>
@@ -223,11 +222,7 @@
 		<div class="status-hero">
 			<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3 position-relative" style="z-index: 1;">
 				<div>
-					<div class="status-chip mb-3">
-						<i class="bi bi-heart-pulse-fill"></i>
-						Status Kehamilan
-					</div>
-					<h2 class="mb-2">{{ $isHamil ? 'Pemantauan kehamilan aktif' : 'Status belum menunjukkan kehamilan aktif' }}</h2>
+					<h2 class="mb-2">{{ $isHamil ? 'Pemantauan kehamilan' : 'Status belum menunjukkan kehamilan aktif' }}</h2>
 					<p>
 						Halaman ini merangkum status kehamilan saat ini, ringkasan kesehatan, serta riwayat kontrol yang tercatat agar mudah dipantau dari satu tempat.
 					</p>
@@ -344,7 +339,6 @@
 						<div class="timeline-line d-grid gap-3">
 							@foreach ($riwayatKehamilan as $item)
 								<div class="history-item position-relative">
-									<span class="timeline-dot"></span>
 									<div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
 										<div>
 											<div class="fw-bold">{{ $item['judul'] }}</div>

@@ -81,6 +81,15 @@
             font-size: 13px;
             margin-top: 5px;
         }
+        .error-alert {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
         .submit-btn {
             width: 100%;
             padding: 12px;
@@ -123,15 +132,17 @@
             <p>Masuk ke akun Anda</p>
         </div>
 
-        @if ($errors->any())
-            <div style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 5px; margin-bottom: 20px;">
-                @foreach ($errors->all() as $error)
-                    <p style="margin: 0;">{{ $error }}</p>
-                @endforeach
-            </div>
+        @php
+            $loginError = $errors->first('email') ?: ($errors->first('password') ?: '');
+        @endphp
+
+        @if($loginError)
+        <div class="error-alert" id="login-error-alert">
+            {{ $loginError }}
+        </div>
         @endif
 
-        <form method="POST" action="{{ route('login') }}">
+        <form method="POST" action="{{ route('login.submit') }}">
             @csrf
 
             <div class="form-group">

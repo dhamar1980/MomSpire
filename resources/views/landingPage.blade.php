@@ -8,7 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <!-- AOS animations -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" integrity="sha512-Ho3qxc05Qz5B1do1BM6V+gZc5T9jp/+uvvFOvHML1Ng6sHdf6+n+W3YpUWLw5pX5hG1uhxTgnsCNjY72KkiY0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/style.css', 'resources/js/script.js'])
 </head>
 <body>
@@ -107,7 +108,7 @@
                                 <!-- Dekoratif -->
                                 <circle cx="150" cy="280" r="3" fill="#6f42c1" opacity="0.4"/>
                                 <circle cx="320" cy="320" r="4" fill="#00d4aa" opacity="0.4"/>
-                                <circle cx="80" cy="35₀" r="3.5" fill="#e63980" opacity="0.3"/>
+                                <circle cx="80" cy="350" r="3.5" fill="#e63980" opacity="0.3"/>
                             </svg>
                         </div>
                         <div class="floating-card" data-aos="zoom-in" data-aos-delay="600">
@@ -589,6 +590,16 @@
                     <p>Masuk ke akun Anda</p>
                 </div>
                 <div class="auth-body">
+                    @php
+                        $loginError = $errors->first('email') ?: ($errors->first('password') ?: '');
+                    @endphp
+
+                    @if($loginError)
+                    <div class="alert-modal-error" id="modal-login-error">
+                        {{ $loginError }}
+                    </div>
+                    @endif
+
                     <ul class="nav nav-pills auth-tabs" id="authTabs" role="tablist" style="display:flex;">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="login-tab" data-bs-toggle="pill" data-bs-target="#login" type="button">Masuk</button>
@@ -600,7 +611,7 @@
                     <div class="tab-content mt-4" id="authTabsContent">
                         <!-- Login -->
                         <div class="tab-pane fade show active" id="login" role="tabpanel">
-                            <form id="loginForm" action="{{ route('login') }}" method="POST">
+                            <form id="loginForm" action="{{ route('login.submit') }}" method="POST">
                                 @csrf
                                 <div class="form-group">
                                     <label class="form-label">Email</label>
@@ -712,6 +723,20 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" integrity="sha512-B5h6G+2SbZxi+9Hn1fJhQBr4GrY4qVhnjZcArxQFpcvKB0qPinB8S2EAbk89xFa21Y+q5l71yzpF+V8cV+4AOw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+    (function(){
+        // Automatically open auth modal if there's a login error
+        @if($errors->has('email') || $errors->has('password'))
+            window.addEventListener('load', function(){
+                var modalEl = document.getElementById('authModal');
+                if (modalEl) {
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                }
+            });
+        @endif
+    })();
+    </script>
 </body>
 </html>

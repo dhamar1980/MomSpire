@@ -159,7 +159,8 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Link Artikel</label>
-                            <input type="url" class="form-control" name="article_url" id="articleUrl" placeholder="https://example.com/artikel">
+                            <input type="url" class="form-control" name="article_url" id="articleUrl" placeholder="https://example.com/artikel" required>
+                            <div class="form-text">Wajib diisi agar artikel dapat langsung dibuka oleh pengguna.</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Deskripsi Singkat</label>

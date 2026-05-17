@@ -14,6 +14,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Password;
 use Laravel\Fortify\Features;
 use Laravel\Jetstream\Agent;
+use App\Http\Controllers\Auth\CustomLoginController;
 
 Route::get('/', function () {
     session()->regenerateToken();
@@ -25,10 +26,80 @@ Route::get('/', function () {
         ->header('Expires', '0');
 });
 
+// Custom login routes (override Fortify)
+Route::get('/login', [CustomLoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [CustomLoginController::class, 'login'])->name('login.submit');
+Route::post('/logout', [CustomLoginController::class, 'logout'])->name('logout');
+Route::get('/register', [CustomLoginController::class, 'showLoginForm'])->name('register'); // Placeholder, adjust as needed
+
 // Role-specific dashboards and admin-only user management
 Route::middleware(['auth'])->group(function () {
     $ensureRole = function (string $role) {
         abort_unless(auth()->check() && auth()->user()->role === $role, 403);
+    };
+
+    $buildBidanUserQuery = function (Request $request) {
+        $search = trim((string) $request->query('q', ''));
+
+        return \App\Models\Pengguna::query()
+            ->withCount(['anak', 'conversations'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($nested) use ($search) {
+                    $nested->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy('name');
+    };
+
+    $buildBidanScheduleQuery = function (Request $request) {
+        if (!Schema::hasTable('jadwal_pemantauan')) {
+            return collect();
+        }
+
+        $search = trim((string) $request->query('q', ''));
+
+        return \App\Models\JadwalPemantauan::with(['pengguna', 'bidan'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->whereHas('pengguna', function ($penggunaQuery) use ($search) {
+                    $penggunaQuery->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy('tanggal')
+            ->orderByRaw('COALESCE(waktu, "23:59:59") asc');
+    };
+
+    $buildDokterUserQuery = function (Request $request) {
+        $search = trim((string) $request->query('q', ''));
+
+        return \App\Models\Pengguna::query()
+            ->withCount(['anak', 'conversations'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($nested) use ($search) {
+                    $nested->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy('name');
+    };
+
+    $buildDokterScheduleQuery = function (Request $request) {
+        if (!Schema::hasTable('jadwal_pemantauan')) {
+            return collect();
+        }
+
+        $search = trim((string) $request->query('q', ''));
+
+        return \App\Models\JadwalPemantauan::with(['pengguna', 'dokter'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->whereHas('pengguna', function ($penggunaQuery) use ($search) {
+                    $penggunaQuery->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy('tanggal')
+            ->orderByRaw('COALESCE(waktu, "23:59:59") asc');
     };
 
     Route::get('/admin/dashboard', function () use ($ensureRole) {
@@ -254,7 +325,7 @@ Route::middleware(['auth'])->group(function () {
             'category' => ['required', 'in:umum,trimester_1,trimester_2,trimester_3'],
             'image_url' => ['nullable', 'url', 'max:2048'],
             'summary' => ['required', 'string', 'max:2000'],
-            'article_url' => ['nullable', 'url', 'max:2048'],
+            'article_url' => ['required', 'url', 'max:2048'],
         ]);
 
         $categoryMap = [
@@ -270,7 +341,7 @@ Route::middleware(['auth'])->group(function () {
             'category' => $validated['category'],
             'image_url' => $validated['image_url'] ?? null,
             'summary' => $validated['summary'],
-            'article_url' => $validated['article_url'] ?? null,
+            'article_url' => $validated['article_url'],
             'min_week' => $range[0],
             'max_week' => $range[1],
         ]);
@@ -412,10 +483,350 @@ Route::middleware(['auth'])->group(function () {
             'penggunaCount' => DB::table('pengguna')->count(),
             'bidanCount' => DB::table('bidan')->count(),
             'dokterCount' => DB::table('dokter')->count(),
-            'recentPengguna' => DB::table('pengguna')->latest('created_at')->take(5)->get(['name', 'email', 'created_at']),
-            'recentBidan' => DB::table('bidan')->latest('created_at')->take(5)->get(['name', 'email', 'created_at']),
+            'jadwalCount' => Schema::hasTable('jadwal_pemantauan') ? DB::table('jadwal_pemantauan')->count() : 0,
+            'konsultasiCount' => DB::table('conversations')->where('professional_type', 'bidan')->where('professional_id', auth()->id())->count(),
+            'recentPengguna' => DB::table('pengguna')->latest('created_at')->take(5)->get(['id', 'name', 'email', 'created_at'])->map(fn($u) => (object)[...(array)$u, 'created_at' => \Carbon\Carbon::parse($u->created_at)]),
+            'recentBidan' => DB::table('bidan')->latest('created_at')->take(5)->get(['id', 'name', 'email', 'created_at'])->map(fn($u) => (object)[...(array)$u, 'created_at' => \Carbon\Carbon::parse($u->created_at)]),
         ]);
     })->name('bidan.dashboard');
+    Route::get('/bidan/pengguna', function (Request $request) use ($ensureRole, $buildBidanUserQuery) {
+        $ensureRole('bidan');
+
+        $penggunaList = $buildBidanUserQuery($request)->get();
+
+        return view('bidan.detailPengguna', [
+            'penggunaList' => $penggunaList,
+            'search' => trim((string) $request->query('q', '')),
+        ]);
+    })->name('bidan.pengguna');
+
+    Route::get('/bidan/buku-kia', function (Request $request) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $templates = \App\Models\TemplateBukuKIA::orderBy('created_at', 'desc')->get();
+        
+        $bukuKIA = \App\Models\BukuKIA::where('created_by', auth()->id())
+            ->with('pengguna')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('bidan.bukuKIA', [
+            'templates' => $templates,
+            'bukuKIA' => $bukuKIA,
+        ]);
+    })->name('bidan.bukuKIA');
+
+    Route::get('/bidan/pengguna/{id}/buku-kia', function (Request $request, $id) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $pengguna = \App\Models\Pengguna::withCount(['anak', 'conversations'])->findOrFail($id);
+
+        $entries = \App\Models\BukuKIA::where('pengguna_id', $id)->orderByDesc('created_at')->get();
+        $templates = \App\Models\TemplateBukuKIA::orderBy('created_at', 'desc')->get();
+
+        return view('bidan.bukuKIAPengguna', [
+            'pengguna' => $pengguna,
+            'entries' => $entries,
+            'templates' => $templates,
+        ]);
+    })->name('bidan.pengguna.bukuKIA');
+
+    Route::post('/bidan/pengguna/{id}/buku-kia', function (Request $request, $id) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $pengguna = \App\Models\Pengguna::findOrFail($id);
+
+        $validated = $request->validate([
+            'judul' => ['nullable', 'string', 'max:255'],
+            'catatan' => ['nullable', 'string', 'max:5000'],
+            'file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ]);
+
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('buku_kia', 'public');
+        }
+
+        \App\Models\BukuKIA::create([
+            'pengguna_id' => $pengguna->id,
+            'created_by' => auth()->id(),
+            'judul' => $validated['judul'] ?? null,
+            'catatan' => $validated['catatan'] ?? null,
+            'file_path' => $filePath,
+        ]);
+
+        return back()->with('success', 'Catatan Buku KIA berhasil disimpan.');
+    })->name('bidan.pengguna.bukuKIA.store');
+
+    Route::delete('/bidan/pengguna/buku-kia/{bukuId}', function (Request $request, $bukuId) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $buku = \App\Models\BukuKIA::findOrFail($bukuId);
+        abort_unless($buku->created_by === auth()->id() || auth()->user()->role === 'admin', 403);
+
+        $buku->delete();
+
+        return back()->with('success', 'Catatan Buku KIA berhasil dihapus.');
+    })->name('bidan.pengguna.bukuKIA.destroy');
+
+
+
+
+    Route::get('/bidan/konsultasi', function (Request $request) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $bidanId = auth()->id();
+        $conversations = \App\Models\Conversation::with(['pengguna' => function ($query) {
+            $query->select('id', 'name', 'is_online', 'last_seen');
+        }, 'messages'])
+            ->where('professional_type', 'bidan')
+            ->where('professional_id', $bidanId)
+            ->orderByDesc('last_message_at')
+            ->get()
+            ->map(function ($conversation) {
+                $conversation->unread_count = $conversation->messages->where('is_read', false)->where('sender_type', 'pengguna')->count();
+                return $conversation;
+            });
+
+        $selectedConversation = $conversations->firstWhere('id', (int) $request->query('conversation_id')) ?? $conversations->first();
+
+        $messages = collect();
+        if ($selectedConversation) {
+            $messages = $selectedConversation->messages->map(function ($msg) {
+                return [
+                    'id' => $msg->id,
+                    'sender_type' => $msg->sender_type,
+                    'sender_id' => $msg->sender_id,
+                    'message' => $msg->message,
+                    'created_at' => $msg->created_at->format('Y-m-d H:i:s'),
+                    'is_read' => $msg->is_read,
+                ];
+            });
+        }
+
+        return view('bidan.konsultasi', [
+            'conversations' => $conversations,
+            'selectedConversation' => $selectedConversation,
+            'messages' => $messages,
+        ]);
+    })->name('bidan.konsultasi');
+
+    Route::post('/bidan/konsultasi/send-message', function (Request $request) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $validated = $request->validate([
+            'conversation_id' => ['required', 'integer', 'exists:conversations,id'],
+            'message' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $bidanId = auth()->id();
+        $conversation = \App\Models\Conversation::findOrFail($validated['conversation_id']);
+        abort_unless($conversation->professional_type === 'bidan' && (int) $conversation->professional_id === (int) $bidanId, 403);
+
+        $message = \App\Models\Message::create([
+            'conversation_id' => $validated['conversation_id'],
+            'sender_type' => 'bidan',
+            'sender_id' => $bidanId,
+            'message' => $validated['message'],
+            'is_read' => false,
+        ]);
+
+        $conversation->update([
+            'last_message' => $validated['message'],
+            'last_message_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => [
+                'id' => $message->id,
+                'sender_type' => $message->sender_type,
+                'message' => $message->message,
+                'created_at' => $message->created_at->format('Y-m-d H:i:s'),
+            ],
+        ]);
+    })->name('bidan.konsultasi.send_message');
+
+    Route::get('/bidan/konsultasi/{conversation_id}/messages', function (Request $request, $conversation_id) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $bidanId = auth()->id();
+        $conversation = \App\Models\Conversation::with('pengguna')->findOrFail($conversation_id);
+        abort_unless($conversation->professional_type === 'bidan' && (int) $conversation->professional_id === (int) $bidanId, 403);
+
+        $messages = \App\Models\Message::where('conversation_id', $conversation_id)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        \App\Models\Message::where('conversation_id', $conversation_id)
+            ->where('sender_type', 'pengguna')
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return response()->json([
+            'success' => true,
+            'messages' => $messages->map(function ($msg) {
+                return [
+                    'id' => $msg->id,
+                    'sender_type' => $msg->sender_type,
+                    'sender_id' => $msg->sender_id,
+                    'message' => $msg->message,
+                    'created_at' => $msg->created_at->format('Y-m-d H:i:s'),
+                    'is_read' => $msg->is_read,
+                ];
+            }),
+        ]);
+    })->name('bidan.konsultasi.get_messages');
+
+    Route::get('/bidan/jadwal', function (Request $request) use ($ensureRole, $buildBidanScheduleQuery) {
+        $ensureRole('bidan');
+
+        $jadwalList = $buildBidanScheduleQuery($request);
+
+        return view('bidan.jadwal', [
+            'jadwalList' => $jadwalList instanceof \Illuminate\Database\Eloquent\Builder ? $jadwalList->get() : $jadwalList,
+            'penggunaList' => \App\Models\Pengguna::orderBy('name')->get(['id', 'name', 'email', 'is_hamil']),
+            'search' => trim((string) $request->query('q', '')),
+            'selectedSchedule' => null,
+        ]);
+    })->name('bidan.jadwal');
+
+    Route::post('/bidan/jadwal', function (Request $request) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $validated = $request->validate([
+            'jadwal_id' => ['nullable', 'integer'],
+            'pengguna_id' => ['required', 'integer', 'exists:pengguna,id'],
+            'jenis' => ['required', 'in:kontrol,imunisasi'],
+            'judul' => ['required', 'string', 'max:255'],
+            'tanggal' => ['required', 'date'],
+            'waktu' => ['nullable', 'date_format:H:i'],
+            'catatan' => ['nullable', 'string', 'max:2000'],
+            'status' => ['required', 'in:terjadwal,selesai,dibatalkan'],
+        ]);
+
+        $payload = [
+            'pengguna_id' => $validated['pengguna_id'],
+            'bidan_id' => auth()->id(),
+            'jenis' => $validated['jenis'],
+            'judul' => $validated['judul'],
+            'tanggal' => $validated['tanggal'],
+            'waktu' => $validated['waktu'] ?? null,
+            'catatan' => $validated['catatan'] ?? null,
+            'status' => $validated['status'],
+        ];
+
+        if (!empty($validated['jadwal_id'])) {
+            $jadwal = \App\Models\JadwalPemantauan::where('bidan_id', auth()->id())->findOrFail($validated['jadwal_id']);
+            $jadwal->update($payload);
+            $message = 'Jadwal berhasil diperbarui.';
+        } else {
+            \App\Models\JadwalPemantauan::create($payload);
+            $message = 'Jadwal berhasil ditambahkan.';
+        }
+
+        return back()->with('success', $message);
+    })->name('bidan.jadwal.store');
+
+    Route::get('/bidan/settings', function (Request $request) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $bidanUser = $request->user();
+        $browserSessions = [];
+
+        if (config('session.driver') === 'database') {
+            $browserSessions = DB::connection(config('session.connection'))
+                ->table(config('session.table', 'sessions'))
+                ->where('user_id', $bidanUser->getAuthIdentifier())
+                ->orderByDesc('last_activity')
+                ->get()
+                ->map(function ($session) use ($request) {
+                    $agent = tap(new Agent(), fn ($agent) => $agent->setUserAgent($session->user_agent));
+
+                    return [
+                        'agent' => [
+                            'is_desktop' => $agent->isDesktop(),
+                            'platform' => $agent->platform(),
+                            'browser' => $agent->browser(),
+                        ],
+                        'ip_address' => $session->ip_address,
+                        'is_current_device' => $session->id === $request->session()->getId(),
+                        'last_active' => Carbon::createFromTimestamp($session->last_activity)->diffForHumans(),
+                    ];
+                })
+                ->all();
+        }
+
+        return view('bidan.pengaturan', [
+            'bidanUser' => $bidanUser,
+            'browserSessions' => $browserSessions,
+            'twoFactorEnabled' => filled($bidanUser->two_factor_secret),
+            'twoFactorConfirmed' => filled($bidanUser->two_factor_confirmed_at),
+            'requiresTwoFactorConfirmation' => Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm'),
+        ]);
+    })->name('bidan.settings');
+
+    Route::post('/bidan/settings/profile', function (Request $request) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'no_telp' => ['nullable', 'string', 'max:30'],
+        ]);
+
+        $bidanId = auth()->id();
+        $user = User::findOrFail($bidanId);
+
+        foreach (['users', 'pengguna', 'bidan', 'dokter', 'admin'] as $table) {
+            $query = DB::table($table)->where('email', $validated['email']);
+            if ($table === 'users' || Schema::hasColumn($table, 'id')) {
+                $query->where('id', '!=', $bidanId);
+            }
+            abort_if($query->exists(), 422, 'Email sudah dipakai.');
+        }
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        if (Schema::hasColumn('users', 'no_telp')) {
+            $user->no_telp = $validated['no_telp'] ?? null;
+        }
+        $user->save();
+
+        DB::table('bidan')->where('id', $bidanId)->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            ...(Schema::hasColumn('bidan', 'no_telp') ? ['no_telp' => $validated['no_telp'] ?? null] : []),
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', 'Profil bidan berhasil diperbarui.');
+    })->name('bidan.settings.profile');
+
+    Route::post('/bidan/settings/password', function (Request $request) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $bidanId = auth()->id();
+        $user = User::findOrFail($bidanId);
+
+        abort_unless(Hash::check($validated['current_password'], $user->password), 422, 'Password saat ini salah.');
+
+        $hashedPassword = Hash::make($validated['new_password']);
+        $user->password = $hashedPassword;
+        $user->save();
+
+        DB::table('bidan')->where('id', $bidanId)->update([
+            'password' => $hashedPassword,
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', 'Password bidan berhasil diperbarui.');
+    })->name('bidan.settings.password');
 
     Route::get('/dokter/dashboard', function () use ($ensureRole) {
         $ensureRole('dokter');
@@ -424,40 +835,351 @@ Route::middleware(['auth'])->group(function () {
             'penggunaCount' => DB::table('pengguna')->count(),
             'bidanCount' => DB::table('bidan')->count(),
             'dokterCount' => DB::table('dokter')->count(),
-            'recentPengguna' => DB::table('pengguna')->latest('created_at')->take(5)->get(['name', 'email', 'created_at']),
-            'recentDokter' => DB::table('dokter')->latest('created_at')->take(5)->get(['name', 'email', 'created_at']),
+            'jadwalCount' => Schema::hasTable('jadwal_pemantauan') ? DB::table('jadwal_pemantauan')->count() : 0,
+            'konsultasiCount' => DB::table('conversations')->where('professional_type', 'dokter')->where('professional_id', auth()->id())->count(),
+            'recentPengguna' => DB::table('pengguna')->latest('created_at')->take(5)->get(['id', 'name', 'email', 'created_at'])->map(fn($u) => (object)[...(array)$u, 'created_at' => \Carbon\Carbon::parse($u->created_at)]),
+            'recentDokter' => DB::table('dokter')->latest('created_at')->take(5)->get(['id', 'name', 'email', 'created_at'])->map(fn($u) => (object)[...(array)$u, 'created_at' => \Carbon\Carbon::parse($u->created_at)]),
         ]);
     })->name('dokter.dashboard');
-
-    Route::get('/bidan/settings', function () use ($ensureRole) {
-        $ensureRole('bidan');
-
-        return view('shared.panel-placeholder', [
-            'layout' => 'bidan.master',
-            'title' => 'Pengaturan Bidan - MomSpire',
-            'headerTitle' => 'Pengaturan Bidan',
-            'headerSubtitle' => 'Kelola profil dan preferensi akun bidan.',
-            'pageTitle' => 'Pengaturan Bidan',
-            'message' => 'Halaman pengaturan bidan sedang disiapkan.',
-            'primaryActionUrl' => route('bidan.dashboard'),
-            'primaryActionLabel' => 'Kembali ke Dashboard',
-        ]);
-    })->name('bidan.settings');
-
-    Route::get('/dokter/settings', function () use ($ensureRole) {
+    Route::get('/dokter/pengguna', function (Request $request) use ($ensureRole, $buildDokterUserQuery) {
         $ensureRole('dokter');
 
-        return view('shared.panel-placeholder', [
-            'layout' => 'dokter.master',
-            'title' => 'Pengaturan Dokter - MomSpire',
-            'headerTitle' => 'Pengaturan Dokter',
-            'headerSubtitle' => 'Kelola profil dan preferensi akun dokter.',
-            'pageTitle' => 'Pengaturan Dokter',
-            'message' => 'Halaman pengaturan dokter sedang disiapkan.',
-            'primaryActionUrl' => route('dokter.dashboard'),
-            'primaryActionLabel' => 'Kembali ke Dashboard',
+        $penggunaList = $buildDokterUserQuery($request)->get();
+
+        return view('dokter.detailPengguna', [
+            'penggunaList' => $penggunaList,
+            'search' => trim((string) $request->query('q', '')),
+        ]);
+    })->name('dokter.pengguna');
+
+    Route::get('/dokter/buku-kia', function (Request $request) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $templates = \App\Models\TemplateBukuKIA::orderBy('created_at', 'desc')->get();
+        
+        $bukuKIA = \App\Models\BukuKIA::where('created_by', auth()->id())
+            ->with('pengguna')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('dokter.bukuKIA', [
+            'templates' => $templates,
+            'bukuKIA' => $bukuKIA,
+        ]);
+    })->name('dokter.bukuKIA');
+
+    Route::get('/dokter/pengguna/{id}/buku-kia', function (Request $request, $id) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $pengguna = \App\Models\Pengguna::withCount(['anak', 'conversations'])->findOrFail($id);
+
+        $entries = \App\Models\BukuKIA::where('pengguna_id', $id)->orderByDesc('created_at')->get();
+        $templates = \App\Models\TemplateBukuKIA::orderBy('created_at', 'desc')->get();
+
+        return view('dokter.bukuKIAPengguna', [
+            'pengguna' => $pengguna,
+            'entries' => $entries,
+            'templates' => $templates,
+        ]);
+    })->name('dokter.pengguna.bukuKIA');
+
+    Route::post('/dokter/pengguna/{id}/buku-kia', function (Request $request, $id) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $pengguna = \App\Models\Pengguna::findOrFail($id);
+
+        $validated = $request->validate([
+            'judul' => ['nullable', 'string', 'max:255'],
+            'catatan' => ['nullable', 'string', 'max:5000'],
+            'file' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ]);
+
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('buku_kia', 'public');
+        }
+
+        \App\Models\BukuKIA::create([
+            'pengguna_id' => $pengguna->id,
+            'created_by' => auth()->id(),
+            'judul' => $validated['judul'] ?? null,
+            'catatan' => $validated['catatan'] ?? null,
+            'file_path' => $filePath,
+        ]);
+
+        return back()->with('success', 'Catatan Buku KIA berhasil disimpan.');
+    })->name('dokter.pengguna.bukuKIA.store');
+
+    Route::delete('/dokter/pengguna/buku-kia/{bukuId}', function (Request $request, $bukuId) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $buku = \App\Models\BukuKIA::findOrFail($bukuId);
+        abort_unless($buku->created_by === auth()->id() || auth()->user()->role === 'admin', 403);
+
+        $buku->delete();
+
+        return back()->with('success', 'Catatan Buku KIA berhasil dihapus.');
+    })->name('dokter.pengguna.bukuKIA.destroy');
+
+
+
+
+    Route::get('/dokter/konsultasi', function (Request $request) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $dokterId = auth()->id();
+        $conversations = \App\Models\Conversation::with(['pengguna' => function ($query) {
+            $query->select('id', 'name', 'is_online', 'last_seen');
+        }, 'messages'])
+            ->where('professional_type', 'dokter')
+            ->where('professional_id', $dokterId)
+            ->orderByDesc('last_message_at')
+            ->get()
+            ->map(function ($conversation) {
+                $conversation->unread_count = $conversation->messages->where('is_read', false)->where('sender_type', 'pengguna')->count();
+                return $conversation;
+            });
+
+        $selectedConversation = $conversations->firstWhere('id', (int) $request->query('conversation_id')) ?? $conversations->first();
+
+        $messages = collect();
+        if ($selectedConversation) {
+            $messages = $selectedConversation->messages->map(function ($msg) {
+                return [
+                    'id' => $msg->id,
+                    'sender_type' => $msg->sender_type,
+                    'sender_id' => $msg->sender_id,
+                    'message' => $msg->message,
+                    'created_at' => $msg->created_at->format('Y-m-d H:i:s'),
+                    'is_read' => $msg->is_read,
+                ];
+            });
+        }
+
+        return view('dokter.konsultasi', [
+            'conversations' => $conversations,
+            'selectedConversation' => $selectedConversation,
+            'messages' => $messages,
+        ]);
+    })->name('dokter.konsultasi');
+
+    Route::post('/dokter/konsultasi/send-message', function (Request $request) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $validated = $request->validate([
+            'conversation_id' => ['required', 'integer', 'exists:conversations,id'],
+            'message' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $dokterId = auth()->id();
+        $conversation = \App\Models\Conversation::findOrFail($validated['conversation_id']);
+        abort_unless($conversation->professional_type === 'dokter' && (int) $conversation->professional_id === (int) $dokterId, 403);
+
+        $message = \App\Models\Message::create([
+            'conversation_id' => $validated['conversation_id'],
+            'sender_type' => 'dokter',
+            'sender_id' => $dokterId,
+            'message' => $validated['message'],
+            'is_read' => false,
+        ]);
+
+        $conversation->update([
+            'last_message' => $validated['message'],
+            'last_message_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => [
+                'id' => $message->id,
+                'sender_type' => $message->sender_type,
+                'message' => $message->message,
+                'created_at' => $message->created_at->format('Y-m-d H:i:s'),
+            ],
+        ]);
+    })->name('dokter.konsultasi.send_message');
+
+    Route::get('/dokter/konsultasi/{conversation_id}/messages', function (Request $request, $conversation_id) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $dokterId = auth()->id();
+        $conversation = \App\Models\Conversation::with('pengguna')->findOrFail($conversation_id);
+        abort_unless($conversation->professional_type === 'dokter' && (int) $conversation->professional_id === (int) $dokterId, 403);
+
+        $messages = \App\Models\Message::where('conversation_id', $conversation_id)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        \App\Models\Message::where('conversation_id', $conversation_id)
+            ->where('sender_type', 'pengguna')
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return response()->json([
+            'success' => true,
+            'messages' => $messages->map(function ($msg) {
+                return [
+                    'id' => $msg->id,
+                    'sender_type' => $msg->sender_type,
+                    'sender_id' => $msg->sender_id,
+                    'message' => $msg->message,
+                    'created_at' => $msg->created_at->format('Y-m-d H:i:s'),
+                    'is_read' => $msg->is_read,
+                ];
+            }),
+        ]);
+    })->name('dokter.konsultasi.get_messages');
+
+    Route::get('/dokter/jadwal', function (Request $request) use ($ensureRole, $buildDokterScheduleQuery) {
+        $ensureRole('dokter');
+
+        $jadwalList = $buildDokterScheduleQuery($request);
+
+        return view('dokter.jadwal', [
+            'jadwalList' => $jadwalList instanceof \Illuminate\Database\Eloquent\Builder ? $jadwalList->get() : $jadwalList,
+            'penggunaList' => \App\Models\Pengguna::orderBy('name')->get(['id', 'name', 'email', 'is_hamil']),
+            'search' => trim((string) $request->query('q', '')),
+            'selectedSchedule' => null,
+        ]);
+    })->name('dokter.jadwal');
+
+    Route::post('/dokter/jadwal', function (Request $request) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $validated = $request->validate([
+            'jadwal_id' => ['nullable', 'integer'],
+            'pengguna_id' => ['required', 'integer', 'exists:pengguna,id'],
+            'jenis' => ['required', 'in:kontrol,imunisasi'],
+            'judul' => ['required', 'string', 'max:255'],
+            'tanggal' => ['required', 'date'],
+            'waktu' => ['nullable', 'date_format:H:i'],
+            'catatan' => ['nullable', 'string', 'max:2000'],
+            'status' => ['required', 'in:terjadwal,selesai,dibatalkan'],
+        ]);
+
+        $payload = [
+            'pengguna_id' => $validated['pengguna_id'],
+            'dokter_id' => auth()->id(),
+            'jenis' => $validated['jenis'],
+            'judul' => $validated['judul'],
+            'tanggal' => $validated['tanggal'],
+            'waktu' => $validated['waktu'] ?? null,
+            'catatan' => $validated['catatan'] ?? null,
+            'status' => $validated['status'],
+        ];
+
+        if (!empty($validated['jadwal_id'])) {
+            $jadwal = \App\Models\JadwalPemantauan::where('dokter_id', auth()->id())->findOrFail($validated['jadwal_id']);
+            $jadwal->update($payload);
+            $message = 'Jadwal berhasil diperbarui.';
+        } else {
+            \App\Models\JadwalPemantauan::create($payload);
+            $message = 'Jadwal berhasil ditambahkan.';
+        }
+
+        return back()->with('success', $message);
+    })->name('dokter.jadwal.store');
+
+    Route::get('/dokter/settings', function (Request $request) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $dokterUser = $request->user();
+        $browserSessions = [];
+
+        if (config('session.driver') === 'database') {
+            $browserSessions = DB::connection(config('session.connection'))
+                ->table(config('session.table', 'sessions'))
+                ->where('user_id', $dokterUser->getAuthIdentifier())
+                ->orderByDesc('last_activity')
+                ->get()
+                ->map(function ($session) use ($request) {
+                    $agent = tap(new Agent(), fn ($agent) => $agent->setUserAgent($session->user_agent));
+
+                    return [
+                        'agent' => [
+                            'is_desktop' => $agent->isDesktop(),
+                            'platform' => $agent->platform(),
+                            'browser' => $agent->browser(),
+                        ],
+                        'ip_address' => $session->ip_address,
+                        'is_current_device' => $session->id === $request->session()->getId(),
+                        'last_active' => Carbon::createFromTimestamp($session->last_activity)->diffForHumans(),
+                    ];
+                })
+                ->all();
+        }
+
+        return view('dokter.pengaturan', [
+            'dokterUser' => $dokterUser,
+            'browserSessions' => $browserSessions,
+            'twoFactorEnabled' => filled($dokterUser->two_factor_secret),
+            'twoFactorConfirmed' => filled($dokterUser->two_factor_confirmed_at),
+            'requiresTwoFactorConfirmation' => Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm'),
         ]);
     })->name('dokter.settings');
+
+    Route::post('/dokter/settings/profile', function (Request $request) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'no_telp' => ['nullable', 'string', 'max:30'],
+        ]);
+
+        $dokterId = auth()->id();
+        $user = User::findOrFail($dokterId);
+
+        foreach (['users', 'pengguna', 'bidan', 'dokter', 'admin'] as $table) {
+            $query = DB::table($table)->where('email', $validated['email']);
+            if ($table === 'users' || Schema::hasColumn($table, 'id')) {
+                $query->where('id', '!=', $dokterId);
+            }
+            abort_if($query->exists(), 422, 'Email sudah dipakai.');
+        }
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        if (Schema::hasColumn('users', 'no_telp')) {
+            $user->no_telp = $validated['no_telp'] ?? null;
+        }
+        $user->save();
+
+        DB::table('dokter')->where('id', $dokterId)->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            ...(Schema::hasColumn('dokter', 'no_telp') ? ['no_telp' => $validated['no_telp'] ?? null] : []),
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', 'Profil dokter berhasil diperbarui.');
+    })->name('dokter.settings.profile');
+
+    Route::post('/dokter/settings/password', function (Request $request) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $dokterId = auth()->id();
+        $user = User::findOrFail($dokterId);
+
+        abort_unless(Hash::check($validated['current_password'], $user->password), 422, 'Password saat ini salah.');
+
+        $hashedPassword = Hash::make($validated['new_password']);
+        $user->password = $hashedPassword;
+        $user->save();
+
+        DB::table('dokter')->where('id', $dokterId)->update([
+            'password' => $hashedPassword,
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', 'Password dokter berhasil diperbarui.');
+    })->name('dokter.settings.password');
+
 });
 
 Route::middleware([
@@ -492,18 +1214,62 @@ Route::middleware([
     })->name('dashboard');
 });
 
-$ensureUserRole = function (string $role) {
-    abort_unless(auth()->check() && auth()->user()->role === $role, 403);
-};
+// Auth middleware for pengguna routes
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+    $ensureUserRole = function (string $role) {
+        abort_unless(auth()->check() && auth()->user()->role === $role, 403);
+    };
 
     Route::get('/pengguna/dashboard', function () use ($ensureUserRole) {
         $ensureUserRole('pengguna');
 
-        // Use the modernized pengguna dashboard view
-        $pengguna = \App\Models\Pengguna::find(auth()->id());
+        $user = auth()->user();
+
+        // Cari pengguna berdasarkan email
+        $penggunaLogin = \App\Models\Pengguna::where('email', $user->email)->first();
+        // Screening check: Jika data KIA belum diisi (identitas ibu kosong), arahkan ke wizard
+        $dataKia = \App\Models\DataKia::with('ibu')->where('user_id', auth()->id())->first();
+        if (!$dataKia || !$dataKia->ibu || empty($dataKia->ibu->nama)) {
+            return redirect()->route('pengguna.buku_kia')->with('info', 'Mohon lengkapi screening Buku KIA terlebih dahulu.');
+        }
+
+        // Ambil jadwal pemantauan untuk pengguna ini
+        $jadwalList = collect();
+        $usedPenggunaId = $penggunaLogin ? $penggunaLogin->id : null;
+
+        if ($usedPenggunaId && Schema::hasTable('jadwal_pemantauan')) {
+            // Ambil data jadwal dan convert tanggal ke format string biasa
+            $jadwalRaw = \App\Models\JadwalPemantauan::with(['bidan', 'dokter'])
+                ->where('pengguna_id', $usedPenggunaId)
+                ->whereIn('status', ['terjadwal'])
+                ->orderBy('tanggal', 'asc')
+                ->orderBy('waktu', 'asc')
+                ->get();
+
+            // Convert ke format yang aman untuk JavaScript (abaikan timezone)
+            $jadwalList = $jadwalRaw->map(function($j) {
+                // Parse sebagai tanggal biasa (abaikan timezone) agar tidak terjadi penggeseran hari
+                $tanggalStr = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $j->tanggal)->format('Y-m-d');
+                $waktuStr = $j->waktu ? substr((string)$j->waktu, 0, 5) : null;
+
+                return [
+                    'id' => $j->id,
+                    'jenis' => $j->jenis,
+                    'judul' => $j->judul,
+                    'tanggal' => $tanggalStr,
+                    'waktu' => $waktuStr,
+                    'catatan' => $j->catatan,
+                    'bidan' => $j->bidan ? ['name' => $j->bidan->name] : null,
+                    'dokter' => $j->dokter ? ['name' => $j->dokter->name] : null,
+                ];
+            });
+        }
+
+        $pengguna = \App\Models\Pengguna::find($user->id);
 
         return view('pengguna.dashboardPengguna', [
             'pengguna' => $pengguna,
+            'jadwalList' => $jadwalList,
         ]);
     })->name('pengguna.dashboard');
 
@@ -513,14 +1279,20 @@ $ensureUserRole = function (string $role) {
         $user = auth()->user();
         $pengguna = Pengguna::find($user->id);
 
-        $selectedWeek = (int) (
+        $requestedWeek = (int) $request->integer('minggu');
+        $profileWeek = (int) (
             $user->usia_kehamilan_minggu
-            ?? $pengguna->usia_kehamilan_minggu
+            ?? optional($pengguna)->usia_kehamilan_minggu
             ?? 0
         );
-        $selectedWeek = $selectedWeek > 0 ? $selectedWeek : null;
 
-        $articles = ArtikelEdukasi::query()->inRandomOrder()->get();
+        // Prioritaskan minggu dari query param agar bisa dipakai saat user diarahkan dari halaman lain.
+        $selectedWeek = $requestedWeek > 0
+            ? $requestedWeek
+            : ($profileWeek > 0 ? $profileWeek : null);
+
+        // Semua artikel berasal dari manajemen admin (tabel artikel_edukasi).
+        $articles = ArtikelEdukasi::query()->latest()->get();
 
         $selectedTrimester = null;
         if ($selectedWeek) {
@@ -529,9 +1301,9 @@ $ensureUserRole = function (string $role) {
 
         $recommendedArticles = collect();
         if ($selectedTrimester) {
-            $recommendedArticles = $articles->filter(function (ArtikelEdukasi $article) use ($selectedTrimester) {
-                return $article->category === $selectedTrimester || $article->category === 'umum';
-            })->values();
+            $recommendedArticles = $articles
+                ->whereIn('category', [$selectedTrimester, 'umum'])
+                ->values();
         }
 
         $recommendedIds = $recommendedArticles->pluck('id')->all();
@@ -551,8 +1323,8 @@ $ensureUserRole = function (string $role) {
         $user = auth()->user();
         $pengguna = \App\Models\Pengguna::find($user->id);
         
-        $bidan = \App\Models\Bidan::all();
-        $dokter = \App\Models\Dokter::all();
+        $bidan = \App\Models\Bidan::select('id', 'name', 'email', 'is_online', 'last_seen')->get();
+        $dokter = \App\Models\Dokter::select('id', 'name', 'email', 'is_online', 'last_seen')->get();
         
         $conversations = \App\Models\Conversation::where('pengguna_id', $user->id)
             ->with('messages')
@@ -667,8 +1439,20 @@ $ensureUserRole = function (string $role) {
 
     Route::get('/pengguna/jadwal', function () use ($ensureUserRole) {
         $ensureUserRole('pengguna');
+        $tanggal = request('tanggal') ?? \Carbon\Carbon::today()->toDateString();
+        $user = auth()->user();
+        $jadwalList = Schema::hasTable('jadwal_pemantauan')
+            ? \App\Models\JadwalPemantauan::with('bidan')
+                ->where('pengguna_id', $user->id)
+                ->orderBy('tanggal')
+                ->orderBy('waktu')
+                ->get()
+            : collect();
 
-        return view('pengguna.jadwal');
+        return view('pengguna.jadwal', [
+            'tanggal' => $tanggal,
+            'jadwalList' => $jadwalList,
+        ]);
     })->name('pengguna.jadwal');
 
     Route::get('/pengguna/status-kehamilan', function () use ($ensureUserRole) {
@@ -765,6 +1549,148 @@ $ensureUserRole = function (string $role) {
         ]);
     })->name('pengguna.status_kehamilan');
 
+    // Note: /pengguna/buku-kia route is now inside Route::middleware(['auth'])->group at the bottom
+// to fix 404 issue. Duplicate route definition removed.
+
+    // Pengaturan pengguna (profile, password, sessions)
+    $buildPenggunaSettingsData = function (Request $request) {
+        $user = $request->user();
+        $pengguna = \App\Models\Pengguna::find($user->id);
+
+        $browserSessions = [];
+        if (config('session.driver') === 'database') {
+            $browserSessions = DB::connection(config('session.connection'))
+                ->table(config('session.table', 'sessions'))
+                ->where('user_id', $user->getAuthIdentifier())
+                ->orderByDesc('last_activity')
+                ->get()
+                ->map(function ($session) use ($request) {
+                    $agent = tap(new Agent(), fn ($agent) => $agent->setUserAgent($session->user_agent));
+
+                    return [
+                        'agent' => [
+                            'is_desktop' => $agent->isDesktop(),
+                            'platform' => $agent->platform(),
+                            'browser' => $agent->browser(),
+                        ],
+                        'ip_address' => $session->ip_address,
+                        'is_current_device' => $session->id === $request->session()->getId(),
+                        'last_active' => Carbon::createFromTimestamp($session->last_activity)->diffForHumans(),
+                    ];
+                })
+                ->all();
+        }
+
+        return [
+            'pengguna' => $pengguna,
+            'browserSessions' => $browserSessions,
+            'twoFactorEnabled' => filled($user->two_factor_secret ?? null),
+            'twoFactorConfirmed' => filled($user->two_factor_confirmed_at ?? null),
+            'requiresTwoFactorConfirmation' => Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm'),
+        ];
+    };
+
+    Route::get('/pengguna/settings', function (Request $request) use ($ensureUserRole, $buildPenggunaSettingsData) {
+        $ensureUserRole('pengguna');
+
+        return view('pengguna.pengaturan', $buildPenggunaSettingsData($request));
+    })->name('pengguna.settings');
+
+    Route::post('/pengguna/settings/profile', function (Request $request) use ($ensureUserRole) {
+        $ensureUserRole('pengguna');
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'no_telp' => ['nullable', 'string', 'max:30'],
+        ]);
+
+        $userId = auth()->id();
+        $user = User::findOrFail($userId);
+
+        // ensure email not used by other accounts
+        foreach (['users', 'pengguna', 'bidan', 'dokter', 'admin'] as $table) {
+            $query = DB::table($table)->where('email', $validated['email']);
+            if ($table === 'users' || Schema::hasColumn($table, 'id')) {
+                $query->where('id', '!=', $userId);
+            }
+            abort_if($query->exists(), 422, 'Email sudah dipakai.');
+        }
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        if (Schema::hasColumn('users', 'no_telp')) {
+            $user->no_telp = $validated['no_telp'] ?? null;
+        }
+        $user->save();
+
+        DB::table('pengguna')->where('id', $userId)->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            ...(Schema::hasColumn('pengguna', 'no_telp') ? ['no_telp' => $validated['no_telp'] ?? null] : []),
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', 'Profil berhasil diperbarui.');
+    })->name('pengguna.settings.profile');
+
+    Route::post('/pengguna/settings/password', function (Request $request) use ($ensureUserRole) {
+        $ensureUserRole('pengguna');
+
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $userId = auth()->id();
+        $user = User::findOrFail($userId);
+
+        abort_unless(Hash::check($validated['current_password'], $user->password), 422, 'Password saat ini salah.');
+
+        $hashed = Hash::make($validated['new_password']);
+        $user->password = $hashed;
+        $user->save();
+
+        DB::table('pengguna')->where('id', $userId)->update([
+            'password' => $hashed,
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', 'Password berhasil diperbarui.');
+    })->name('pengguna.settings.password');
+
+    Route::post('/pengguna/settings/logout-others', function (Request $request) use ($ensureUserRole) {
+        $ensureUserRole('pengguna');
+
+        if (config('session.driver') !== 'database') {
+            return back()->with('success', 'Fitur hanya tersedia saat session driver = database.');
+        }
+
+        $userId = auth()->id();
+        $currentId = $request->session()->getId();
+
+        DB::table(config('session.table', 'sessions'))
+            ->where('user_id', $userId)
+            ->where('id', '!=', $currentId)
+            ->delete();
+
+        return back()->with('success', 'Sesi perangkat lain berhasil dikeluarkan.');
+    })->name('pengguna.settings.logout_others');
+    // Note: /pengguna/kia/pdf and /pengguna/kia/download routes moved to bottom group
+// to fix 404 issue. Duplicate routes removed.
+
+    Route::get('/pengguna/pengaturan', function (Request $request) use ($ensureUserRole, $buildPenggunaSettingsData) {
+        $ensureUserRole('pengguna');
+
+        return view('pengguna.pengaturan', $buildPenggunaSettingsData($request));
+    })->name('pengguna.pengaturan');
+}); // End of auth:sanctum middleware group for pengguna routes
+
+Route::middleware(['auth'])->group(function () {
+    $ensureUserRole = function (string $role) {
+        abort_unless(auth()->check() && auth()->user()->role === $role, 403);
+    };
+
     Route::get('/pengguna/buku-kia', function () use ($ensureUserRole) {
         $ensureUserRole('pengguna');
 
@@ -835,12 +1761,7 @@ $ensureUserRole = function (string $role) {
 
         return response()->download($pdfPath, 'Buku KIA (Permenkes).pdf');
     })->name('pengguna.kia.download');
-
-    Route::get('/pengguna/pengaturan', function () use ($ensureUserRole) {
-        $ensureUserRole('pengguna');
-
-        return view('pengguna.pengaturan');
-    })->name('pengguna.pengaturan');
+});
 
 // Forgot password routes (simple UI + send reset link)
 Route::get('/forgot-password', function () {
@@ -857,10 +1778,200 @@ Route::post('/forgot-password', function (Illuminate\Http\Request $request) {
         : back()->withErrors(['email' => __($status)]);
 })->name('password.email');
 
-// Explicit logout route to ensure named route exists and redirects to landing page
-Route::post('/logout', function (Illuminate\Http\Request $request) {
-    \Illuminate\Support\Facades\Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-    return redirect('/');
-})->name('logout');
+Route::get('/who-am-i', function () {
+    return response()->json([
+        'authenticated' => auth()->check(),
+        'user' => auth()->check() ? [
+            'id' => auth()->user()->id,
+            'email' => auth()->user()->email,
+            'role' => auth()->user()->role,
+            'name' => auth()->user()->name,
+        ] : null,
+        'guard' => config('auth.defaults.guard'),
+    ]);
+});
+
+Route::get('/debug-pdf/{id}', function ($id) {
+    $dataKia = \App\Models\DataKia::with(['ibu', 'suami', 'anak', 'layanan', 'riwayat', 'ttdTrackings', 'pemantauanMingguans', 'absenKelasIbuHamils', 'persiapanMelahirkan', 'pemantauanIbuNifas', 'keluargaBerencana', 'bayiBaruLahir', 'pemantauanBayis', 'warnaTinja', 'absenKelasBalitas', 'pemantauanMingguanBayis', 'perkembanganBayi', 'pemantauanBulananBayis', 'perkembanganBayi6Bulan', 'pemantauanBulananBayi12s', 'perkembanganBayi9Bulan', 'perkembanganBayi12Bulan', 'pemantauanBulananAnak24s', 'perkembanganBayi18Bulan', 'perkembanganBayi24Bulan', 'pemantauanBulananAnak72s', 'perkembanganAnak36Bulan', 'perkembanganAnak48Bulan', 'perkembanganAnak60Bulan', 'perkembanganAnak72Bulan', 'kesehatanLingkungan'])->findOrFail($id);
+
+    $pdfService = new \App\Services\KiaPdfService();
+    $pdfContent = $pdfService->generate($dataKia);
+
+    return response($pdfContent, 200, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="debug_kia_' . $id . '.pdf"',
+    ]);
+});
+
+Route::get('/bidan/kia', [\App\Http\Controllers\DataKiaController::class, 'indexNakes'])->name('bidan.kia');
+Route::get('/bidan/kia/{id}/edit-riwayat', [\App\Http\Controllers\DataKiaController::class, 'editRiwayat'])->name('bidan.kia.edit_riwayat');
+Route::post('/bidan/kia/{id}/save-riwayat', [\App\Http\Controllers\DataKiaController::class, 'saveRiwayat'])->name('bidan.kia.save_riwayat');
+Route::get('/bidan/kia/{id}/edit-pelayanan', [\App\Http\Controllers\DataKiaController::class, 'editPelayanan'])->name('bidan.kia.edit_pelayanan');
+Route::post('/bidan/kia/{id}/save-pelayanan', [\App\Http\Controllers\DataKiaController::class, 'savePelayanan'])->name('bidan.kia.save_pelayanan');
+Route::get('/bidan/kia/{id}/edit-evaluasi', [\App\Http\Controllers\DataKiaController::class, 'editEvaluasi'])->name('bidan.kia.edit_evaluasi');
+Route::post('/bidan/kia/{id}/save-evaluasi', [\App\Http\Controllers\DataKiaController::class, 'saveEvaluasi'])->name('bidan.kia.save_evaluasi');
+Route::get('/bidan/kia/{id}/edit-trimester1', [\App\Http\Controllers\DataKiaController::class, 'editTrimester1'])->name('bidan.kia.edit_trimester1');
+Route::post('/bidan/kia/{id}/save-trimester1', [\App\Http\Controllers\DataKiaController::class, 'saveTrimester1'])->name('bidan.kia.save_trimester1');
+Route::get('/bidan/kia/{id}/edit-trimester2', [\App\Http\Controllers\DataKiaController::class, 'editTrimester2'])->name('bidan.kia.edit_trimester2');
+Route::post('/bidan/kia/{id}/save-trimester2', [\App\Http\Controllers\DataKiaController::class, 'saveTrimester2'])->name('bidan.kia.save_trimester2');
+
+Route::get('/dokter/kia', [\App\Http\Controllers\DataKiaController::class, 'indexNakes'])->name('dokter.kia');
+Route::get('/dokter/kia/{id}/edit-riwayat', [\App\Http\Controllers\DataKiaController::class, 'editRiwayat'])->name('dokter.kia.edit_riwayat');
+Route::post('/dokter/kia/{id}/save-riwayat', [\App\Http\Controllers\DataKiaController::class, 'saveRiwayat'])->name('dokter.kia.save_riwayat');
+Route::get('/dokter/kia/{id}/edit-pelayanan', [\App\Http\Controllers\DataKiaController::class, 'editPelayanan'])->name('dokter.kia.edit_pelayanan');
+Route::post('/dokter/kia/{id}/save-pelayanan', [\App\Http\Controllers\DataKiaController::class, 'savePelayanan'])->name('dokter.kia.save_pelayanan');
+Route::get('/dokter/kia/{id}/edit-evaluasi', [\App\Http\Controllers\DataKiaController::class, 'editEvaluasi'])->name('dokter.kia.edit_evaluasi');
+Route::post('/dokter/kia/{id}/save-evaluasi', [\App\Http\Controllers\DataKiaController::class, 'saveEvaluasi'])->name('dokter.kia.save_evaluasi');
+Route::get('/dokter/kia/{id}/edit-trimester1', [\App\Http\Controllers\DataKiaController::class, 'editTrimester1'])->name('dokter.kia.edit_trimester1');
+Route::post('/dokter/kia/{id}/save-trimester1', [\App\Http\Controllers\DataKiaController::class, 'saveTrimester1'])->name('dokter.kia.save_trimester1');
+Route::get('/dokter/kia/{id}/edit-trimester2', [\App\Http\Controllers\DataKiaController::class, 'editTrimester2'])->name('dokter.kia.edit_trimester2');
+Route::post('/dokter/kia/{id}/save-trimester2', [\App\Http\Controllers\DataKiaController::class, 'saveTrimester2'])->name('dokter.kia.save_trimester2');
+
+Route::get('/pengguna/buku-kia', [\App\Http\Controllers\DataKiaController::class, 'wizard'])
+    ->middleware('auth')->name('pengguna.buku_kia');
+
+Route::get('/pengguna/ttd', [\App\Http\Controllers\DataKiaController::class, 'ttdIndex'])
+    ->middleware('auth')->name('pengguna.ttd');
+Route::post('/pengguna/ttd/save', [\App\Http\Controllers\DataKiaController::class, 'ttdStore'])
+    ->middleware('auth')->name('pengguna.ttd.store');
+
+Route::get('/pengguna/pemantauan', [\App\Http\Controllers\DataKiaController::class, 'pemantauanIndex'])
+    ->middleware('auth')->name('pengguna.pemantauan');
+Route::post('/pengguna/pemantauan/save', [\App\Http\Controllers\DataKiaController::class, 'pemantauanStore'])
+    ->middleware('auth')->name('pengguna.pemantauan.save');
+
+Route::get('/pengguna/kelas-ibu', [\App\Http\Controllers\DataKiaController::class, 'kelasIbuIndex'])
+    ->middleware('auth')->name('pengguna.kelas_ibu');
+Route::post('/pengguna/kelas-ibu/save', [\App\Http\Controllers\DataKiaController::class, 'kelasIbuStore'])
+    ->middleware('auth')->name('pengguna.kelas_ibu.save');
+
+Route::get('/pengguna/persiapan-melahirkan', [\App\Http\Controllers\DataKiaController::class, 'persiapanIndex'])
+    ->middleware('auth')->name('pengguna.persiapan');
+Route::post('/pengguna/persiapan-melahirkan/save', [\App\Http\Controllers\DataKiaController::class, 'persiapanStore'])
+    ->middleware('auth')->name('pengguna.persiapan.save');
+
+
+Route::get('/pengguna/pemantauan-nifas', [\App\Http\Controllers\DataKiaController::class, 'nifasIndex'])
+    ->middleware('auth')->name('pengguna.nifas');
+Route::post('/pengguna/pemantauan-nifas/save', [\App\Http\Controllers\DataKiaController::class, 'nifasStore'])
+    ->middleware('auth')->name('pengguna.nifas.save');
+
+Route::get('/pengguna/keluarga-berencana', [\App\Http\Controllers\DataKiaController::class, 'kbIndex'])
+    ->middleware('auth')->name('pengguna.kb');
+Route::post('/pengguna/keluarga-berencana/save', [\App\Http\Controllers\DataKiaController::class, 'kbStore'])
+    ->middleware('auth')->name('pengguna.kb.save');
+
+Route::get('/pengguna/bayi-baru-lahir', [\App\Http\Controllers\DataKiaController::class, 'bayiIndex'])
+    ->middleware('auth')->name('pengguna.bayi');
+Route::post('/pengguna/bayi-baru-lahir/save', [\App\Http\Controllers\DataKiaController::class, 'bayiStore'])
+    ->middleware('auth')->name('pengguna.bayi.save');
+
+Route::get('/pengguna/pemantauan-bayi', [\App\Http\Controllers\DataKiaController::class, 'pemantauanBayiIndex'])
+    ->middleware('auth')->name('pengguna.pemantauan_bayi');
+Route::post('/pengguna/pemantauan-bayi/save', [\App\Http\Controllers\DataKiaController::class, 'pemantauanBayiStore'])
+    ->middleware('auth')->name('pengguna.pemantauan_bayi.save');
+
+Route::get('/pengguna/warna-tinja', [\App\Http\Controllers\DataKiaController::class, 'warnaTinjaIndex'])
+    ->middleware('auth')->name('pengguna.warna_tinja');
+Route::post('/pengguna/warna-tinja/save', [\App\Http\Controllers\DataKiaController::class, 'warnaTinjaStore'])
+    ->middleware('auth')->name('pengguna.warna_tinja.save');
+
+Route::get('/pengguna/kelas-balita', [\App\Http\Controllers\DataKiaController::class, 'kelasBalitaIndex'])
+    ->middleware('auth')->name('pengguna.kelas_balita');
+Route::post('/pengguna/kelas-balita/save', [\App\Http\Controllers\DataKiaController::class, 'kelasBalitaStore'])
+    ->middleware('auth')->name('pengguna.kelas_balita.save');
+
+Route::get('/pengguna/mingguan-bayi', [\App\Http\Controllers\DataKiaController::class, 'pemantauanMingguanBayiIndex'])
+    ->middleware('auth')->name('pengguna.mingguan_bayi');
+Route::post('/pengguna/mingguan-bayi/save', [\App\Http\Controllers\DataKiaController::class, 'pemantauanMingguanBayiStore'])
+    ->middleware('auth')->name('pengguna.mingguan_bayi.save');
+Route::post('/pengguna/perkembangan-bayi/save', [\App\Http\Controllers\DataKiaController::class, 'perkembanganBayiStore'])
+    ->middleware('auth')->name('pengguna.perkembangan_bayi.save');
+
+Route::get('/pengguna/bulanan-bayi', [\App\Http\Controllers\DataKiaController::class, 'pemantauanBulananBayiIndex'])
+    ->middleware('auth')->name('pengguna.bulanan_bayi');
+Route::post('/pengguna/bulanan-bayi/save', [\App\Http\Controllers\DataKiaController::class, 'pemantauanBulananBayiStore'])
+    ->middleware('auth')->name('pengguna.bulanan_bayi.save');
+Route::post('/pengguna/perkembangan-bayi-6-bulan/save', [\App\Http\Controllers\DataKiaController::class, 'perkembanganBayi6BulanStore'])
+    ->middleware('auth')->name('pengguna.perkembangan_bayi_6_bulan.save');
+
+Route::get('/pengguna/bulanan-bayi-12', [\App\Http\Controllers\DataKiaController::class, 'pemantauanBulananBayi12Index'])
+    ->middleware('auth')->name('pengguna.bulanan_bayi_12');
+Route::post('/pengguna/bulanan-bayi-12/save', [\App\Http\Controllers\DataKiaController::class, 'pemantauanBulananBayi12Store'])
+    ->middleware('auth')->name('pengguna.bulanan_bayi_12.save');
+Route::post('/pengguna/perkembangan-bayi-9-bulan/save', [\App\Http\Controllers\DataKiaController::class, 'perkembanganBayi9BulanStore'])
+    ->middleware('auth')->name('pengguna.perkembangan_bayi_9_bulan.save');
+Route::post('/pengguna/perkembangan-bayi-12-bulan/save', [\App\Http\Controllers\DataKiaController::class, 'perkembanganBayi12BulanStore'])
+    ->middleware('auth')->name('pengguna.perkembangan_bayi_12_bulan.save');
+
+Route::get('/pengguna/bulanan-anak-24', [\App\Http\Controllers\DataKiaController::class, 'pemantauanBulananAnak24Index'])
+    ->middleware('auth')->name('pengguna.bulanan_anak_24');
+Route::post('/pengguna/bulanan-anak-24/save', [\App\Http\Controllers\DataKiaController::class, 'pemantauanBulananAnak24Store'])
+    ->middleware('auth')->name('pengguna.bulanan_anak_24.save');
+Route::post('/pengguna/perkembangan-bayi-18-bulan/save', [\App\Http\Controllers\DataKiaController::class, 'perkembanganBayi18BulanStore'])
+    ->middleware('auth')->name('pengguna.perkembangan_bayi_18_bulan.save');
+Route::post('/pengguna/perkembangan-bayi-24-bulan/save', [\App\Http\Controllers\DataKiaController::class, 'perkembanganBayi24BulanStore'])
+    ->middleware('auth')->name('pengguna.perkembangan_bayi_24_bulan.save');
+
+Route::get('/pengguna/bulanan-anak-72', [\App\Http\Controllers\DataKiaController::class, 'pemantauanBulananAnak72Index'])
+    ->middleware('auth')->name('pengguna.bulanan_anak_72');
+Route::post('/pengguna/bulanan-anak-72/save', [\App\Http\Controllers\DataKiaController::class, 'pemantauanBulananAnak72Store'])
+    ->middleware('auth')->name('pengguna.bulanan_anak_72.save');
+Route::post('/pengguna/perkembangan-anak-36-bulan/save', [\App\Http\Controllers\DataKiaController::class, 'perkembanganAnak36BulanStore'])
+    ->middleware('auth')->name('pengguna.perkembangan_anak_36_bulan.save');
+Route::post('/pengguna/perkembangan-anak-48-bulan/save', [\App\Http\Controllers\DataKiaController::class, 'perkembanganAnak48BulanStore'])
+    ->middleware('auth')->name('pengguna.perkembangan_anak_48_bulan.save');
+Route::post('/pengguna/perkembangan-anak-60-bulan/save', [\App\Http\Controllers\DataKiaController::class, 'perkembanganAnak60BulanStore'])
+    ->middleware('auth')->name('pengguna.perkembangan_anak_60_bulan.save');
+Route::post('/pengguna/perkembangan-anak-72-bulan/save', [\App\Http\Controllers\DataKiaController::class, 'perkembanganAnak72BulanStore'])
+    ->middleware('auth')->name('pengguna.perkembangan_anak_72_bulan.save');
+
+Route::get('/pengguna/kesehatan-lingkungan', [\App\Http\Controllers\DataKiaController::class, 'kesehatanLingkunganIndex'])
+    ->middleware('auth')->name('pengguna.kesehatan_lingkungan');
+Route::post('/pengguna/kesehatan-lingkungan/save', [\App\Http\Controllers\DataKiaController::class, 'kesehatanLingkunganStore'])
+    ->middleware('auth')->name('pengguna.kesehatan_lingkungan.save');
+
+Route::post('/pengguna/kia/wizard/save', [\App\Http\Controllers\DataKiaController::class, 'saveWizard'])
+    ->middleware('auth')->name('pengguna.kia.wizard.save');
+
+if (!class_exists('MyFpdi')) {
+    class MyFpdi extends \setasign\Fpdi\Fpdi
+    {
+        protected $angle = 0;
+
+        function Rotate($angle, $x = -1, $y = -1)
+        {
+            if ($x == -1)
+                $x = $this->x;
+            if ($y == -1)
+                $y = $this->y;
+            if ($this->angle != 0)
+                $this->_out('Q');
+            $this->angle = $angle;
+            if ($angle != 0) {
+                $angle *= M_PI / 180;
+                $c = cos($angle);
+                $s = sin($angle);
+                $cx = $x * $this->k;
+                $cy = ($this->h - $y) * $this->k;
+                $this->_out(sprintf('q %.5F %.5F %.5F %.5F %.2F %.2F cm 1 0 0 1 %.2F %.2F cm', $c, $s, -$s, $c, $cx, $cy, -$cx, -$cy));
+            }
+        }
+
+        function RotatedText($x, $y, $txt, $angle)
+        {
+            $this->Rotate($angle, $x, $y);
+            $this->Text($x, $y, $txt);
+            $this->Rotate(0);
+        }
+
+        function _endpage()
+        {
+            if ($this->angle != 0) {
+                $this->angle = 0;
+                $this->_out('Q');
+            }
+            parent::_endpage();
+        }
+    }
+}

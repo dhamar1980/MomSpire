@@ -293,38 +293,77 @@ if (editUserForm) {
 // NOTE: Login form now handled by Laravel Fortify (/login route)
 // Form submission is native POST, not AJAX legacy backend
 
-// ==================== REGISTER HANDLER ====================
+// ==================== REGISTER HANDLER (Laravel Fortify) ====================
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
     registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+
         const name = document.getElementById('registerName').value.trim();
         const email = document.getElementById('registerEmail').value.trim();
         const phone = document.getElementById('registerPhone').value.trim();
         const password = document.getElementById('registerPassword').value;
+        const passwordConfirmation = document.getElementById('registerPasswordConfirm').value;
         const agreeTerms = document.getElementById('agreeTerms').checked;
-        
-        if (!name || !email || !phone || !password) { alert('Harap isi semua field!'); return; }
-        if (password.length < 8) { alert('Password minimal 8 karakter!'); return; }
-        if (!agreeTerms) { alert('Harap setujui Syarat & Ketentuan!'); return; }
 
-        const formData = new FormData();
-        formData.append('nama', name);
-        formData.append('email', email);
-        formData.append('no_telp', phone);
-        formData.append('password', password);
-        formData.append('role', 'pengguna'); // Default role
+        if (!name || !email || !phone || !password) {
+            alert('Harap isi semua field!');
+            return;
+        }
+        if (password.length < 8) {
+            alert('Password minimal 8 karakter!');
+            return;
+        }
+        if (password !== passwordConfirmation) {
+            alert('Password dan konfirmasi password tidak cocok!');
+            return;
+        }
+        if (!agreeTerms) {
+            alert('Harap setujui Syarat & Ketentuan!');
+            return;
+        }
 
-        const result = await apiRequest('add_user', formData);
+        // Submit ke Laravel route /register via fetch
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
-        if (result.status === 'success') {
-            alert('Registrasi Berhasil!\n\nSilakan login.');
-            const modal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
-            if (modal) modal.hide();
-            registerForm.reset();
-            document.getElementById('login-tab').click();
-        } else {
-            alert("Error: " + result.message);
+        try {
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    phone_number: phone,
+                    password: password,
+                    password_confirmation: passwordConfirmation,
+                    terms: agreeTerms ? 'on' : '',
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert('Registrasi Berhasil! Silakan login.');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
+                if (modal) modal.hide();
+                registerForm.reset();
+                document.getElementById('login-tab').click();
+            } else {
+                // Handle Laravel validation errors
+                if (result.errors) {
+                    const errorMessages = Object.values(result.errors).flat().join('\n');
+                    alert('Error: ' + errorMessages);
+                } else {
+                    alert('Error: ' + (result.message || 'Registrasi gagal'));
+                }
+            }
+        } catch (error) {
+            console.error('Register error:', error);
+            alert('Error: Tidak bisa connect ke server');
         }
     });
 }
@@ -482,29 +521,6 @@ document.querySelectorAll('.service-link').forEach(link => {
     });
 });
 
-// ==================== DASHBOARD PERSONALIZATION ====================
-function personalizeDashboard() {
-    const user = getCurrentUser();
-    if (!user) {
-        if (window.location.href.toLowerCase().includes('dashboard')) window.location.href = window.location.origin + APP_BASE;
-        return;
-    }
-    const nameEl = document.getElementById('adminName') || document.getElementById('dashboardName');
-    if (nameEl) nameEl.textContent = user.nama;
-    const titleEl = document.querySelector('.header-title');
-    if (titleEl) {
-        const lockedTitle = (window.__MOMSPIRE_HEADER_TITLE_LOCK || '').toString().trim();
-        if (lockedTitle) {
-            titleEl.textContent = lockedTitle;
-            return;
-        }
-
-        if (user.role === 'admin') titleEl.textContent = 'Dashboard Admin';
-        else if (user.role === 'bidan') titleEl.textContent = 'Dashboard Bidan';
-        else if (user.role === 'dokter') titleEl.textContent = 'Dashboard Dokter';
-        else titleEl.textContent = 'Dashboard Pengguna';
-    }
-}
 
 // ==================== AUTH MODAL: Forgot password handler ====================
 document.addEventListener('click', function(e){
@@ -758,7 +774,6 @@ function initPenggunaDashboard() {
             if (result.status === 'success') {
                 const updatedUser = { ...user, nama, email, no_telp };
                 saveCurrentUser(updatedUser);
-                personalizeDashboard();
                 alert('Profil berhasil diperbarui.');
             } else {
                 alert('Error: ' + (result.message || 'Gagal update profil'));
@@ -973,7 +988,6 @@ async function initDokterDashboard() {
 
 // ==================== INITIALIZE (ONLOAD) ====================
 document.addEventListener('DOMContentLoaded', () => {
-    personalizeDashboard();
     initPregnancyFieldToggles();
     initAdminSettingsPage();
     initPenggunaDashboard();
