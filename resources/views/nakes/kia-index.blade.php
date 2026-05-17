@@ -26,7 +26,7 @@
                                 <div class="fw-bold">{{ $kia->ibu->nama ?? 'N/A' }}</div>
                             </td>
                             <td>{{ $kia->user->email ?? '-' }}</td>
-                            <td> 
+                            <td>
                                 <span class="badge {{ $kia->riwayat ? 'text-bg-success' : 'text-bg-warning' }}">
                                     {{ $kia->riwayat ? 'Lengkap' : 'Menunggu Nakes' }}
                                 </span>

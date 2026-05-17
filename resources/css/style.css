@@ -1,41 +1,47 @@
-/* ==================== VARIABLES ==================== */
+/* ==========================================================================
+ *  VARIABLES - CSS Custom Properties (Warna, Shadow, Gradient Utama)
+ * ========================================================================== */
 :root {
-    /* Premium Brand Colors */
-    --primary: #e63980;
-    --primary-dark: #c41e5c;
-    --primary-light: rgba(230, 57, 128, 0.1);
+    /* * Warna Brand Utama - Pink/Magenta untuk MomSpire */
+    --primary: #d6336c;
+    --primary-dark: #b52a5a;
+    --primary-light: rgba(214, 51, 108, 0.08);
+    /* * Warna Secondary - Hijau untuk aksen */
     --secondary: #00b894;
+    /* * Warna Accent - Aqua/Hijau muda */
     --accent: #00d4aa;
+    /* * Warna Purple - Ungu untuk gradient */
     --purple: #6f42c1;
+    /* * Warna Blue Soft - Biru lembut */
     --blue-soft: #60a5fa;
-    
-    /* Backgrounds */
+
+    /* * Background Colors - Latar belakang halaman dan komponen */
     --bg-main: #f8fafc;
     --bg-card: #ffffff;
     --bg-dark: #1a1f36;
     --bg-glass: rgba(255, 255, 255, 0.7);
-    
-    /* Text Colors */
+
+    /* * Text Colors - Warna teks utama dan sekunder */
     --text-main: #1e293b;
     --text-muted: #64748b;
     --text-light: #94a3b8;
     --border: #e2e8f0;
-    
-    /* Gradients (Premium) */
-    --gradient-primary: linear-gradient(135deg, #e63980 0%, #ff6b9d 100%);
+
+    /* * Gradients - Gradient untuk tombol dan elemen dekoratif */
+    --gradient-primary: linear-gradient(135deg, #F23F83 0%, #FA6096 100%);
     --gradient-secondary: linear-gradient(135deg, #00b894 0%, #00d4aa 100%);
     --gradient-accent: linear-gradient(135deg, #6f42c1 0%, #a855f7 100%);
-    --gradient-hero: linear-gradient(135deg, rgba(230, 57, 128, 0.05) 0%, rgba(107, 66, 193, 0.05) 100%);
-    
-    /* Shadows (Premium) */
+    --gradient-hero: linear-gradient(135deg, rgba(242, 63, 131, 0.05) 0%, rgba(250, 96, 150, 0.05) 100%);
+
+    /* * Shadows - Shadow untuk kartu dan elemen elevated */
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
     --shadow-md: 0 4px 15px rgba(0,0,0,0.08);
     --shadow-lg: 0 20px 40px rgba(0,0,0,0.1);
     --shadow-xl: 0 25px 50px rgba(0,0,0,0.12);
-    --shadow-glow: 0 0 40px rgba(230, 57, 128, 0.2);
-    --shadow-glow-md: 0 8px 32px rgba(230, 57, 128, 0.15);
-    
-    /* Border Radius */
+    --shadow-glow: 0 0 40px rgba(214, 51, 108, 0.14);
+    --shadow-glow-md: 0 8px 32px rgba(214, 51, 108, 0.12);
+
+    /* * Border Radius - Radius untuk rounded corners */
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 20px;
@@ -47,12 +53,14 @@
 
 
 
+/* * Reset Styles - Hapus margin/padding default browser */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* * Body Styles - Font utama dan background halaman */
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     background: var(--bg-main);
@@ -61,7 +69,7 @@ body {
     overflow-x: hidden;
 }
 
-/* ==================== CANVAS BACKGROUND ==================== */
+/* * Canvas Background - Partikel animasi di background landing page */
 #bgCanvas {
     position: fixed;
     top: 0;
@@ -72,7 +80,7 @@ body {
     pointer-events: none;
 }
 
-/* ==================== NAVBAR ==================== */
+/* * Navbar - Header navigation dengan efek blur */
 .navbar {
     padding: 1rem 0;
     background: rgba(255, 255, 255, 0.85);
@@ -81,11 +89,13 @@ body {
     transition: all 0.3s ease;
 }
 
+/* * Navbar Scrolled - Efek shadow saat scroll */
 .navbar.scrolled {
     padding: 0.75rem 0;
     box-shadow: var(--shadow-md);
 }
 
+/* * Navbar Brand - Logo dan nama brand */
 .navbar-brand {
     display: flex;
     align-items: center;
@@ -96,6 +106,7 @@ body {
     color: var(--text-main) !important;
 }
 
+/* * Brand Logo - Gambar logo di navbar */
 .brand-logo {
     height: 44px;
     width: auto;
@@ -105,6 +116,7 @@ body {
     box-shadow: none;
 }
 
+/* * Nav Link - Link navigasi dengan hover effect */
 .nav-link {
     font-weight: 500;
     color: var(--text-muted) !important;
@@ -113,11 +125,13 @@ body {
     transition: all 0.3s ease;
 }
 
+/* * Nav Link Hover - Warna pink saat hover/active */
 .nav-link:hover, .nav-link.active {
     color: var(--primary) !important;
     background: var(--primary-light);
 }
 
+/* * Button Login Nav - Tombol login dengan gradient pink */
 .btn-login-nav {
     background: var(--gradient-primary);
     border: none;
@@ -131,21 +145,24 @@ body {
     box-shadow: var(--shadow-glow);
 }
 
+/* * Button Login Nav Hover - Efek hover dengan shadow */
 .btn-login-nav:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(230, 57, 128, 0.35);
     color: white;
 }
 
+/* * Navbar Toggler - Tombol hamburger untuk mobile */
 .navbar-toggler {
     border: none;
     padding: 0.5rem;
     color: var(--text-main);
 }
 
+/* * Navbar Toggler Icon - Ukuran icon hamburger */
 .navbar-toggler i { font-size: 1.5rem; }
 
-/* ==================== HERO SECTION (PREMIUM) ==================== */
+/* * Hero Section - Section utama di landing page */
 .hero-section {
     position: relative;
     padding-top: 120px;
@@ -154,7 +171,7 @@ body {
     overflow: hidden;
 }
 
-/* Animated Blob Background */
+/* * Hero Background - Background dengan animasi blob */
 .hero-background {
     position: absolute;
     top: 0;
@@ -166,6 +183,7 @@ body {
     overflow: hidden;
 }
 
+/* * Hero Blob - Bentuk blob animasi untuk dekorasi */
 .hero-blob {
     position: absolute;
     border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
@@ -173,6 +191,7 @@ body {
     animation: blob-animation 8s infinite;
 }
 
+/* * Blob 1 - Blob pink di kiri atas */
 .blob-1 {
     width: 300px;
     height: 300px;
@@ -182,6 +201,7 @@ body {
     animation-delay: 0s;
 }
 
+/* * Blob 2 - Blob ungu di kanan bawah */
 .blob-2 {
     width: 250px;
     height: 250px;
@@ -191,6 +211,8 @@ body {
     animation-delay: -4s;
 }
 
+
+/* * Blob 3 - Blob hijau di kanan */
 .blob-3 {
     width: 200px;
     height: 200px;
@@ -200,21 +222,25 @@ body {
     animation-delay: -2s;
 }
 
+/* * Blob Animation - Animasi floating untuk blob */
 @keyframes blob-animation {
     0%, 100% { transform: translate(0, 0) scale(1); }
     33% { transform: translate(30px, -30px) scale(1.1); }
     66% { transform: translate(-20px, 20px) scale(0.95); }
 }
 
+/* * Hero Container - Container utama section hero */
 .hero-container {
     position: relative;
     z-index: 1;
 }
 
+/* * Hero Content - Padding untuk konten hero */
 .hero-content {
     padding: 2rem 0;
 }
 
+/* * Hero Badge - Badge pill di atas judul */
 .hero-badge {
     display: inline-flex;
     align-items: center;
@@ -230,10 +256,12 @@ body {
     backdrop-filter: blur(10px);
 }
 
+/* * Hero Badge Icon - Icon di dalam badge */
 .hero-badge i {
     font-size: 1rem;
 }
 
+/* * Hero Title - Judul utama hero section */
 .hero-title {
     font-size: clamp(2.8rem, 6vw, 4.5rem);
     font-weight: 800;
@@ -242,6 +270,7 @@ body {
     color: var(--text-main);
 }
 
+/* * Text Gradient - Teks dengan gradient warna */
 .text-gradient {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
@@ -250,6 +279,7 @@ body {
     position: relative;
 }
 
+/* * Hero Description - Deskripsi di bawah judul */
 .hero-desc {
     font-size: 1.1rem;
     color: var(--text-muted);
@@ -258,6 +288,7 @@ body {
     line-height: 1.8;
 }
 
+/* * Hero Actions - Tombol aksi di hero */
 .hero-actions {
     display: flex;
     gap: 1.5rem;
@@ -265,6 +296,7 @@ body {
     margin-bottom: 3.5rem;
 }
 
+/* * Primary Button Custom - Tombol utama dengan gradient */
 .btn-primary-custom {
     background: var(--gradient-primary);
     border: none;
@@ -282,6 +314,7 @@ body {
     cursor: pointer;
 }
 
+/* * Primary Button Before - Efek shine saat hover */
 .btn-primary-custom::before {
     content: '';
     position: absolute;
@@ -293,20 +326,24 @@ body {
     transition: left 0.5s ease;
 }
 
+/* * Primary Button Hover - Efek shine bergerak saat hover */
 .btn-primary-custom:hover::before {
     left: 100%;
 }
 
+/* * Primary Button Hover State - Transformasi saat hover */
 .btn-primary-custom:hover {
     transform: translateY(-3px);
     box-shadow: 0 15px 40px rgba(230, 57, 128, 0.3);
     color: white;
 }
 
+/* * Primary Button Active State - Transformasi saat diklik */
 .btn-primary-custom:active {
     transform: translateY(-1px);
 }
 
+/* * Outline Button Custom - Tombol dengan border outline */
 .btn-outline-custom {
     background: transparent;
     border: 2px solid var(--border);
@@ -321,6 +358,7 @@ body {
     cursor: pointer;
 }
 
+/* * Outline Button Hover State - Efek hover untuk tombol outline */
 .btn-outline-custom:hover {
     border-color: var(--primary);
     color: var(--primary);
@@ -329,6 +367,7 @@ body {
     transform: translateY(-2px);
 }
 
+/* * Hero Stats - Container statistik di hero */
 .hero-stats {
     display: flex;
     align-items: center;
@@ -336,10 +375,12 @@ body {
     flex-wrap: wrap;
 }
 
+/* * Stat Item - Individual stat container */
 .hero-stats .stat-item {
     text-align: center;
 }
 
+/* * Stat Item Heading - Angka statistik dengan gradient */
 .hero-stats .stat-item h3 {
     font-size: 2rem;
     font-weight: 800;
@@ -350,19 +391,21 @@ body {
     margin-bottom: 0.25rem;
 }
 
+/* * Stat Item Paragraph - Label deskriptif statistik */
 .hero-stats .stat-item p {
     font-size: 0.9rem;
     color: var(--text-muted);
     margin: 0;
 }
 
+/* * Stat Divider - Garis pemisah antar stat */
 .stat-divider {
     width: 2px;
     height: 50px;
     background: linear-gradient(180deg, transparent, var(--border), transparent);
 }
 
-/* Hero Visual with SVG */
+/* * Hero Visual - Container visual/ilustrasi hero */
 .hero-visual {
     position: relative;
     height: 550px;
@@ -371,6 +414,7 @@ body {
     justify-content: center;
 }
 
+/* * Hero Illustration Wrapper - Wrapper untuk animasi floating */
 .hero-illustration-wrapper {
     width: 100%;
     max-width: 420px;
@@ -378,17 +422,20 @@ body {
     animation: hero-float 6s ease-in-out infinite;
 }
 
+/* * Hero Float Animation - Animasi floating untuk ilustrasi */
 @keyframes hero-float {
     0%, 100% { transform: translateY(0px) rotate(0deg); }
     50% { transform: translateY(-20px) rotate(2deg); }
 }
 
+/* * Hero Illustration - Ilustrasi SVG hero */
 .hero-illustration {
     width: 100%;
     height: 100%;
     filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.1));
 }
 
+/* * Floating Card - Card info yang melayang */
 .floating-card {
     position: absolute;
     bottom: 40px;
@@ -403,13 +450,13 @@ body {
     animation: card-float 4s ease-in-out infinite;
 }
 
-
-
+/* * Card Float Animation - Animasi floating untuk card */
 @keyframes card-float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
 }
 
+/* * Card Badge - Badge di dalam floating card */
 .card-badge {
     font-size: 0.75rem;
     font-weight: 700;
@@ -421,6 +468,7 @@ body {
     transition: color 0.3s ease;
 }
 
+/* * Card Badge Before - Dot indicator animasi */
 .card-badge::before {
     content: '';
     display: inline-block;
@@ -431,11 +479,13 @@ body {
     animation: pulse 2s ease-in-out infinite;
 }
 
+/* * Pulse Animation - Animasi pulse untuk dot badge */
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
 }
 
+/* * Card Stat - Item statistik di dalam card */
 .card-stat {
     display: flex;
     align-items: center;
@@ -446,10 +496,12 @@ body {
     font-weight: 600;
 }
 
+/* * Card Stat Last - Hapus margin bottom untuk item terakhir */
 .card-stat:last-child {
     margin-bottom: 0;
 }
 
+/* * Card Stat Icon - Icon di dalam card stat */
 .card-stat i {
     width: 24px;
     height: 24px;
@@ -462,7 +514,7 @@ body {
     font-size: 1.1rem;
 }
 
-/* Wave Divider */
+/* * Wave Divider - Pemisah wave di bawah hero */
 .wave-divider {
     position: relative;
     height: 80px;
@@ -470,14 +522,17 @@ body {
     color: var(--bg-main);
 }
 
+/* * Wave Divider SVG - SVG wave divider */
 .wave-divider svg {
     display: block;
     width: 100%;
     height: 100%;
 }
 
+/* * Hero Content Alt - Padding alternatif konten hero */
 .hero-content { padding: 2rem 0; }
 
+/* * Hero Actions Alt - Tombol aksi alternatif hero */
 .hero-actions {
     display: flex;
     gap: 1.5rem;
@@ -485,12 +540,13 @@ body {
     margin-bottom: 3.5rem;
 }
 
-/* Hero Visual */
+/* * Hero Visual Alt - Container visual alternatif */
 .hero-visual {
     position: relative;
     height: 600px;
 }
 
+/* * Hero Card Main - Card utama di dalam hero visual */
 .hero-card-main {
     position: absolute;
     top: 50%;
@@ -506,6 +562,7 @@ body {
     border: 1px solid var(--border);
 }
 
+/* * Card Icon Wrapper - Wrapper circular untuk icon/logo */
 .card-icon-wrapper {
     width: 150px;
     height: 150px;
@@ -522,17 +579,20 @@ body {
     overflow: hidden;
 }
 
+/* * Hero Card Main Heading - Judul di card utama */
 .hero-card-main h4 {
     font-weight: 700;
     margin-bottom: 0.5rem;
 }
 
+/* * Hero Card Main Paragraph - Deskripsi di card utama */
 .hero-card-main p {
     color: var(--text-muted);
     font-size: 0.9rem;
     margin-bottom: 1.5rem;
 }
 
+/* * Card Action Button - Tombol aksi di dalam card */
 .btn-card-action {
     background: var(--gradient-primary);
     border: none;
@@ -546,12 +606,13 @@ body {
     transition: all 0.3s ease;
 }
 
+/* * Card Action Button Hover - Efek hover tombol card */
 .btn-card-action:hover {
     transform: scale(1.05);
     color: white;
 }
 
-/* Floating Elements */
+/* * Floating Elements - Elemen floating di sekitar card */
 .floating-element {
     position: absolute;
     background: var(--bg-card);
@@ -565,15 +626,20 @@ body {
     animation: float 6s ease-in-out infinite;
 }
 
+/* * Floating Element Position 1 - Posisi atas kiri */
 .fe-1 { top: 10%; left: 0; animation-delay: 0s; }
+/* * Floating Element Position 2 - Posisi bawah kanan */
 .fe-2 { bottom: 15%; right: 0; animation-delay: -2s; }
+/* * Floating Element Position 3 - Posisi bawah kiri */
 .fe-3 { bottom: 20%; left: 5%; animation-delay: -4s; }
 
+/* * Float Animation - Animasi floating untuk element */
 @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-15px); }
 }
 
+/* * Floating Element Icon - Icon di dalam floating element */
 .fe-icon {
     width: 48px;
     height: 48px;
@@ -584,38 +650,51 @@ body {
     font-size: 1.25rem;
 }
 
+/* * Floating Element Icon Pink - Icon pink variant */
 .fe-icon.pink { background: var(--primary-light); color: var(--primary); }
+/* * Floating Element Icon Green - Icon hijau variant */
 .fe-icon.green { background: rgba(0, 212, 170, 0.15); color: var(--accent); }
+/* * Floating Element Icon Blue - Icon biru variant */
 .fe-icon.blue { background: rgba(0, 184, 148, 0.15); color: var(--secondary); }
 
+/* * Floating Element Content - Container konten element */
 .fe-content { display: flex; flex-direction: column; }
+/* * Floating Element Title - Judul element */
 .fe-title { font-weight: 600; font-size: 0.875rem; }
+/* * Floating Element Description - Deskripsi element */
 .fe-desc { font-size: 0.75rem; color: var(--text-muted); }
 
-/* ==================== SECTIONS ==================== */
+/* ========================================================================== *
+ * SECTIONS - Section utama halaman
+ * ========================================================================== */
 .services-section, .articles-section, .team-section {
     padding: 6rem 0;
     position: relative;
 }
 
+/* * Services Section - Section layanan */
 .services-section {
     background: var(--bg-main);
 }
 
+/* * Articles Section - Section artikel */
 .articles-section {
     background: white;
     position: relative;
 }
 
+/* * Team Section - Section tim */
 .team-section {
     background: linear-gradient(180deg, #f8fafc 0%, #f0f4f8 100%);
 }
 
+/* * Section Header - Header untuk setiap section */
 .section-header {
     margin-bottom: 3.5rem;
     text-align: center;
 }
 
+/* * Section Tag - Tag label di atas judul section */
 .section-tag {
     display: inline-block;
     background: linear-gradient(135deg, rgba(230, 57, 128, 0.15) 0%, rgba(107, 66, 193, 0.15) 100%);
@@ -630,6 +709,7 @@ body {
     border: 1px solid rgba(230, 57, 128, 0.1);
 }
 
+/* * Section Title - Judul utama section */
 .section-title {
     font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 800;
@@ -638,6 +718,7 @@ body {
     letter-spacing: -0.5px;
 }
 
+/* * Section Subtitle - Subtitle/deskripsi section */
 .section-subtitle {
     color: var(--text-muted);
     font-size: 1.1rem;
@@ -646,7 +727,11 @@ body {
     line-height: 1.7;
 }
 
-/* Service Card (Premium) */
+/* ========================================================================== *
+ * SERVICE CARDS - Card untuk layanan
+ * ========================================================================== */
+
+/* * Service Card - Card layanan utama */
 .service-card {
     background: var(--bg-card);
     border: 1px solid rgba(230, 57, 128, 0.08);
@@ -660,6 +745,7 @@ body {
     height: 100%;
 }
 
+/* * Service Card Before - Background gradient overlay */
 .service-card::before {
     content: '';
     position: absolute;
@@ -673,16 +759,19 @@ body {
     pointer-events: none;
 }
 
+/* * Service Card Hover - Efek hover untuk card */
 .service-card:hover {
     transform: translateY(-8px);
     box-shadow: var(--shadow-xl);
     border-color: rgba(230, 57, 128, 0.2);
 }
 
+/* * Service Card Hover Before - Tampilkan overlay saat hover */
 .service-card:hover::before {
     opacity: 1;
 }
 
+/* * Service Icon - Icon di dalam service card */
 .service-icon {
     width: 70px;
     height: 70px;
@@ -697,6 +786,7 @@ body {
     transition: all 0.3s ease;
 }
 
+/* * Service Card Hover Icon - Efek transform icon saat hover */
 .service-card:hover .service-icon {
     transform: scale(1.1) rotate(5deg);
     background: var(--gradient-primary);
@@ -704,6 +794,7 @@ body {
     box-shadow: var(--shadow-glow);
 }
 
+/* * Service Card Heading - Judul service card */
 .service-card h4 {
     font-weight: 700;
     font-size: 1.2rem;
@@ -711,6 +802,7 @@ body {
     color: var(--text-main);
 }
 
+/* * Service Card Paragraph - Deskripsi service card */
 .service-card p {
     color: var(--text-muted);
     font-size: 0.95rem;
@@ -718,6 +810,7 @@ body {
     line-height: 1.6;
 }
 
+/* * Service Link - Link untuk detail service */
 .service-link {
     display: inline-flex;
     align-items: center;
@@ -730,20 +823,27 @@ body {
     position: relative;
 }
 
+/* * Service Link Icon - Icon panah di link */
 .service-link i {
     transition: transform 0.3s ease;
 }
 
+/* * Service Link Hover - Efek hover link service */
 .service-link:hover {
     gap: 0.75rem;
     color: var(--primary);
 }
 
+/* * Service Link Hover Icon - Animasi icon saat hover */
 .service-link:hover i {
     transform: translateX(4px);
 }
 
-/* Article Card (Premium) */
+/* ========================================================================== *
+ * ARTICLE CARDS - Card untuk artikel
+ * ========================================================================== */
+
+/* * Article Card - Card artikel utama */
 .article-card {
     background: var(--bg-card);
     border-radius: var(--radius-xl);
@@ -757,12 +857,14 @@ body {
     height: 100%;
 }
 
+/* * Article Card Hover - Efek hover article card */
 .article-card:hover {
     transform: translateY(-8px);
     box-shadow: var(--shadow-xl);
     border-color: rgba(230, 57, 128, 0.2);
 }
 
+/* * Article Image - Container gambar artikel */
 .article-img {
     height: 200px;
     background: linear-gradient(135deg, #e63980 0%, #6f42c1 100%);
@@ -775,6 +877,7 @@ body {
     overflow: hidden;
 }
 
+/* * Article Image Before - Overlay gradient pada gambar */
 .article-img::before {
     content: '';
     position: absolute;
@@ -786,6 +889,7 @@ body {
     pointer-events: none;
 }
 
+/* * Article Body - Container konten artikel */
 .article-body {
     padding: 1.75rem;
     flex: 1;
@@ -793,6 +897,7 @@ body {
     flex-direction: column;
 }
 
+/* * Article Category - Label kategori artikel */
 .article-category {
     display: inline-block;
     background: linear-gradient(135deg, rgba(230, 57, 128, 0.15) 0%, rgba(107, 66, 193, 0.15) 100%);
@@ -805,6 +910,7 @@ body {
     width: fit-content;
 }
 
+/* * Article Card Heading - Judul artikel */
 .article-card h5 {
     font-weight: 700;
     font-size: 1.1rem;
@@ -814,6 +920,7 @@ body {
     flex: 1;
 }
 
+/* * Article Meta - Info meta (tanggal, komentar) */
 .article-meta {
     display: flex;
     gap: 1.25rem;
@@ -822,25 +929,32 @@ body {
     margin-top: auto;
 }
 
+/* * Article Meta Icon - Icon meta info */
 .article-meta i {
     margin-right: 0.35rem;
     color: var(--primary);
     font-size: 0.85rem;
 }
 
-/* ==================== TEAM SECTION ==================== */
+/* ========================================================================== *
+ * TEAM SECTION - Section tim/team
+ * ========================================================================== */
+
+/* * Team Carousel Wrapper - Wrapper carousel tim */
 .team-carousel-wrapper {
     max-width: 500px;
     margin: 0 auto;
     position: relative;
 }
 
+/* * Team Card - Card untuk member tim */
 .team-card {
     background: transparent;
     padding: 2rem;
     text-align: center;
 }
 
+/* * Team Photo - Container foto team member */
 .team-photo {
     width: 300px;
     height: 300px;
@@ -851,6 +965,7 @@ body {
     border: 4px solid white;
 }
 
+/* * Team Photo Image - Gambar team member */
 .team-photo img {
     width: 100%;
     height: 100%;
@@ -858,6 +973,7 @@ body {
     background: var(--bg-main);
 }
 
+/* * Carousel Control Previous - Tombol carousel prev */
 .carousel-control-prev, .carousel-control-next {
     width: 50px;
     height: 50px;
@@ -870,22 +986,29 @@ body {
     opacity: 1;
 }
 
+/* * Carousel Control Previous - Posisi tombol prev */
 .carousel-control-prev { left: -80px; }
+/* * Carousel Control Next - Posisi tombol next */
 .carousel-control-next { right: -80px; }
 
+/* * Carousel Control Hover - Efek hover tombol carousel */
 .carousel-control-prev:hover, .carousel-control-next:hover {
     background: var(--primary);
     border-color: var(--primary);
 }
 
+/* * Carousel Control Icon - Icon tombol carousel */
 .carousel-control-prev i, .carousel-control-next i {
     font-size: 1.5rem;
     color: var(--text-main);
 }
 
+/* * Carousel Control Icon Hover - Warna icon saat hover */
 .carousel-control-prev:hover i, .carousel-control-next:hover i { color: white; }
 
+/* * Carousel Indicators - Indikator dots carousel */
 .carousel-indicators { bottom: -40px; }
+/* * Carousel Indicator Button - Tombol indikator dot */
 .carousel-indicators button {
     width: 10px;
     height: 10px;
@@ -894,15 +1017,21 @@ body {
     border: none;
     margin: 0 4px;
 }
+/* * Carousel Indicator Active - Indikator aktif */
 .carousel-indicators button.active { background: var(--primary); }
 
-/* ==================== FOOTER ==================== */
+/* ========================================================================== *
+ * FOOTER - Footer section
+ * ========================================================================== */
+
+/* * Footer - Container utama footer */
 .footer {
     background: var(--bg-dark);
     color: white;
     padding: 4rem 0 2rem;
 }
 
+/* * Footer Brand - Logo dan nama brand di footer */
 .footer-brand {
     display: flex;
     align-items: center;
@@ -910,32 +1039,41 @@ body {
     margin-bottom: 1rem;
 }
 
+/* * Brand Logo - Logo brand di footer */
 .footer-brand .brand-logo {
     width: 40px;
     height: 40px;
     font-size: 1.1rem;
 }
 
+/* * Footer Brand Name - Nama brand di footer */
 .footer-brand span { font-weight: 700; font-size: 1.25rem; }
 
+/* * Footer Description - Deskripsi tentang brand */
 .footer-desc { color: var(--text-light); font-size: 0.9rem; line-height: 1.7; }
 
+/* * Footer Title - Judul kolom footer */
 .footer-title {
     font-weight: 600;
     font-size: 1rem;
     margin-bottom: 1.25rem;
 }
 
+/* * Footer Links - List link di footer */
 .footer-links { list-style: none; padding: 0; }
+/* * Footer Link Item - Item link footer */
 .footer-links li { margin-bottom: 0.75rem; }
+/* * Footer Link Anchor - Link anchor di footer */
 .footer-links a {
     color: var(--text-light);
     text-decoration: none;
     font-size: 0.9rem;
     transition: all 0.3s ease;
 }
+/* * Footer Link Hover - Efek hover link footer */
 .footer-links a:hover { color: var(--primary); padding-left: 5px; }
 
+/* * Footer Bottom - Baris copyright di footer */
 .footer-bottom {
     border-top: 1px solid rgba(255,255,255,0.1);
     padding-top: 2rem;
@@ -945,7 +1083,11 @@ body {
     font-size: 0.875rem;
 }
 
-/* ==================== AUTH MODAL ==================== */
+/* ========================================================================== *
+ * AUTH MODAL - Modal untuk autentikasi
+ * ========================================================================== */
+
+/* * Modal Content - Container konten modal */
 .modal-content {
     border: none;
     border-radius: var(--radius-xl);
@@ -955,6 +1097,7 @@ body {
     padding: 2rem;
 }
 
+/* * Close Modal Button - Tombol tutup modal */
 .btn-close-modal {
     position: absolute;
     top: 1rem;
@@ -972,10 +1115,13 @@ body {
     z-index: 10;
 }
 
+/* * Close Modal Button Hover - Efek hover tombol close */
 .btn-close-modal:hover { background: var(--primary-light); color: var(--primary); }
 
+/* * Auth Header - Header section autentikasi */
 .auth-header { text-align: center; margin-bottom: 1.5rem; }
 
+/* * Auth Logo - Logo di header auth */
 .auth-logo {
     width: 60px;
     height: 60px;
@@ -989,6 +1135,7 @@ body {
     color: white;
 }
 
+/* * Auth Header Logo - Logo circular di header */
 .auth-header .auth-logo {
     padding: 0;
     overflow: hidden;
@@ -997,6 +1144,7 @@ body {
     box-shadow: 0 10px 22px rgba(255, 95, 145, 0.18);
 }
 
+/* * Auth Header Logo Image - Gambar logo di header */
 .auth-header .auth-logo .brand-logo {
     width: 100%;
     height: 100%;
@@ -1005,19 +1153,36 @@ body {
     display: block;
 }
 
+/* * Auth Header Heading - Judul header auth */
 .auth-header h4 { font-weight: 700; margin-bottom: 0.25rem; }
+/* * Auth Header Paragraph - Subtitle header auth */
 .auth-header p { color: var(--text-muted); font-size: 0.9rem; margin: 0; }
 
+/* * Auth Body - Container body autentikasi */
 .auth-body {
     min-height: 300px;
 }
 
+/* * Alert Error di Modal Login */
+.alert-modal-error {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* * Auth Tabs - Tab switch login/register */
 .auth-tabs {
     background: var(--bg-main);
     border-radius: 50px;
     padding: 4px;
 }
 
+/* * Auth Tabs Alt - Tab alternatif dengan flex */
 .auth-tabs {
     background: var(--bg-main);
     border-radius: 50px;
@@ -1026,10 +1191,12 @@ body {
     gap: 8px;
 }
 
+/* * Auth Tab Item - Item tab */
 .auth-tabs .nav-item {
     flex: 1 1 0;
 }
 
+/* * Auth Tab Link - Link tab */
 .auth-tabs .nav-link {
     display: block;
     width: 100%;
@@ -1043,18 +1210,22 @@ body {
 }
 
 /* Pastikan tab aktif menggunakan warna pink (gradient primary) */
+/* * Auth Tab Link Active - Tab aktif dengan gradient */
 .auth-tabs .nav-link.active {
     background: var(--gradient-primary);
     color: white !important;
     box-shadow: var(--shadow-glow);
 }
 
+/* * Auth Tab Link Hover - Efek hover tab */
 .auth-tabs .nav-link:hover {
     color: var(--primary);
 }
 
+/* * Form Group - Group untuk form input */
 .form-group { margin-bottom: 1.25rem; }
 
+/* * Form Label - Label untuk form input */
 .form-label {
     font-weight: 500;
     font-size: 0.875rem;
@@ -1062,10 +1233,12 @@ body {
     color: var(--text-main);
 }
 
+/* * Input Icon - Container input dengan icon */
 .input-icon {
     position: relative;
 }
 
+/* * Input Icon Icon - Posisi icon di dalam input */
 .input-icon i {
     position: absolute;
     left: 1rem;
@@ -1074,6 +1247,7 @@ body {
     color: var(--text-muted);
 }
 
+/* * Input Icon Control - Style input dengan icon */
 .input-icon .form-control {
     padding-left: 2.75rem;
     border: 2px solid var(--border);
@@ -1083,11 +1257,13 @@ body {
     transition: all 0.3s ease;
 }
 
+/* * Input Icon Control Focus - Style input focus */
 .input-icon .form-control:focus {
     border-color: var(--primary);
     box-shadow: 0 0 0 4px var(--primary-light);
 }
 
+/* * Form Options - Opsi form (remember me, forgot) */
 .form-options {
     display: flex;
     justify-content: space-between;
@@ -1097,6 +1273,7 @@ body {
 
 
 
+/* * Checkbox Wrapper - Wrapper custom checkbox */
 .checkbox-wrapper {
     display: flex;
     align-items: center;
@@ -1106,8 +1283,10 @@ body {
     color: var(--text-muted);
 }
 
+/* * Checkbox Input Hidden - Hide checkbox default */
 .checkbox-wrapper input { display: none; }
 
+/* * Checkmark - Custom checkmark box */
 .checkmark {
     width: 18px;
     height: 18px;
@@ -1117,11 +1296,13 @@ body {
     transition: all 0.3s ease;
 }
 
+/* * Checkbox Checked - Style checkbox saat checked */
 .checkbox-wrapper input:checked + .checkmark {
     background: var(--primary);
     border-color: var(--primary);
 }
 
+/* * Checkbox Checked After - Checkmark icon */
 .checkbox-wrapper input:checked + .checkmark::after {
     content: '';
     position: absolute;
@@ -1134,6 +1315,7 @@ body {
     transform: rotate(45deg);
 }
 
+/* * Forgot Link - Link forgot password */
 .forgot-link {
     font-size: 0.875rem;
     color: var(--primary);
@@ -1141,14 +1323,17 @@ body {
     font-weight: 500;
 }
 
+/* * Forgot Link Hover - Efek hover link forgot */
 .forgot-link:hover { text-decoration: underline; color: var(--primary); }
 
+/* * Forgot Header - Header section forgot password */
 .forgot-header {
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--border);
     margin-bottom: 1.5rem;
 }
 
+/* * Forgot Header Heading - Judul forgot password */
 .forgot-header h5 {
     font-weight: 700;
     color: var(--text-main);
@@ -1156,14 +1341,17 @@ body {
     letter-spacing: -0.5px;
 }
 
+/* * Forgot Form Group - Group input form forgot */
 #forgotForm .form-group {
     margin-bottom: 1.5rem;
 }
 
+/* * Forgot Form Group Last - Group terakhir form forgot */
 #forgotForm .form-group:last-of-type {
     margin-bottom: 1.5rem;
 }
 
+/* * Auth Button - Tombol submit autentikasi */
 .btn-auth {
     background: var(--gradient-primary);
     border: none;
@@ -1176,18 +1364,21 @@ body {
     box-shadow: var(--shadow-glow);
 }
 
+/* * Auth Button Hover - Efek hover tombol auth */
 .btn-auth:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(230, 57, 128, 0.35);
     color: white;
 }
 
+/* * Auth Divider - Pembatas dengan teks di tengah */
 .auth-divider {
     text-align: center;
     position: relative;
     margin: 1.5rem 0;
 }
 
+/* * Auth Divider Before - Garis pembatas */
 .auth-divider::before {
     content: '';
     position: absolute;
@@ -1198,6 +1389,7 @@ body {
     background: var(--border);
 }
 
+/* * Auth Divider Text - Teks di tengah divider */
 .auth-divider span {
     background: var(--bg-card);
     padding: 0 1rem;
@@ -1206,8 +1398,10 @@ body {
     font-size: 0.8rem;
 }
 
+/* * Social Buttons - Container tombol social login */
 .social-buttons { display: flex; gap: 0.75rem; }
 
+/* * Social Button - Tombol login social */
 .btn-social {
     flex: 1;
     background: var(--bg-main);
@@ -1219,23 +1413,26 @@ body {
     transition: all 0.3s ease;
 }
 
+/* * Social Button Hover - Efek hover tombol social */
 .btn-social:hover {
     border-color: var(--primary);
     color: var(--primary);
     background: var(--primary-light);
 }
 
-/* ==================== ADMIN DASHBOARD ==================== */
+/* ========================================================================== *
+ * ADMIN DASHBOARD - Styles untuk dashboard admin
+ * ========================================================================== */
 .admin-body {
     background: var(--bg-main);
 }
 
-/* role-specific sidebar header colors */
+/* * Role Sidebar Tag Colors - Warna tag sidebar berdasarkan role */
 .bidan-body .sidebar-tag { background: var(--secondary); }
 .dokter-body .sidebar-tag { background: var(--accent); }
 .pengguna-body .sidebar-tag { background: var(--primary); }
 
-/* floating element logos */
+/* * Floating Element Icon Image - Gambar icon di floating element */
 .fe-icon-img {
     width: 100%;
     height: 100%;
@@ -1243,7 +1440,11 @@ body {
     display: block;
 }
 
-/* general UI/UX enhancements */
+/* ========================================================================== *
+ * UI/UX ENHANCEMENTS - Enhancements umum UI/UX
+ * ========================================================================== */
+
+/* * General Transition - Transisi umum untuk elemen UI */
 .btn,
 .nav-link,
 .service-card,
@@ -1252,7 +1453,7 @@ body {
     transition: all 0.25s ease;
 }
 
-/* icon image used in hero-card */
+/* * Card Icon Image - Gambar icon di card */
 .card-icon-img {
     width: 100%;
     height: 100%;
@@ -1260,26 +1461,28 @@ body {
     display: block;
 }
 
-/* service icons use primary color for consistency */
+/* * Service Icon Font Awesome - Icon di service card */
 .service-icon i {
     font-size: 2rem;
     color: var(--primary);
 }
 
-
-
+/* * Button Hover State - Efek hover tombol umum */
 .btn:hover {
     transform: translateY(-2px);
 }
 
+/* * Nav Link Active State - Link navigasi aktif */
 .nav-link.active {
     font-weight: 600;
 }
 
+/* * HTML Smooth Scroll - Smooth scroll browser */
 html {
     scroll-behavior: smooth;
 }
 
+/* * Admin Sidebar - Container sidebar admin */
 .admin-sidebar {
     position: fixed;
     left: 0;
@@ -1297,16 +1500,19 @@ html {
     transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
+/* * Admin Sidebar Collapsed - Sidebar tersembunyi */
 .admin-sidebar.collapsed {
     transform: translateX(-100%);
 }
 
+/* * Sidebar Header - Header di sidebar */
 .sidebar-header {
     padding-bottom: 1.5rem;
     border-bottom: 1px solid rgba(255,255,255,0.1);
     margin-bottom: 1.5rem;
 }
 
+/* * Sidebar Brand - Brand/logo di sidebar */
 .sidebar-brand {
     display: flex;
     align-items: center;
@@ -1318,8 +1524,10 @@ html {
     margin-bottom: 0.75rem;
 }
 
+/* * Sidebar Brand Logo - Logo brand di sidebar */
 .sidebar-brand .brand-logo { width: 40px; height: 40px; font-size: 1.1rem; }
 
+/* * Sidebar Brand Logo Image - Gambar logo di sidebar */
 .sidebar-brand .brand-logo-image {
     width: 40px;
     height: 40px;
@@ -1329,6 +1537,7 @@ html {
     border-radius: 0;
 }
 
+/* * Sidebar Tag - Tag role di sidebar */
 .sidebar-tag {
     font-size: 0.75rem;
     color: var(--text-muted);
@@ -1336,10 +1545,13 @@ html {
     letter-spacing: 1px;
 }
 
+/* * Sidebar Navigation - Navigation di sidebar */
 .sidebar-nav { flex: 1; }
 
+/* * Navigation Section - Section navigasi */
 .nav-section { margin-bottom: 1.5rem; }
 
+/* * Navigation Label - Label section nav */
 .nav-label {
     font-size: 0.7rem;
     color: var(--text-light);
@@ -1349,6 +1561,7 @@ html {
     padding-left: 0.75rem;
 }
 
+/* * Sidebar Navigation Link - Link nav di sidebar */
 .sidebar-nav .nav-link {
     display: flex;
     align-items: center;
@@ -1365,11 +1578,13 @@ html {
     border-left: 4px solid transparent;
 }
 
+/* * Sidebar Navigation Link Hover - Hover link nav sidebar */
 .sidebar-nav .nav-link:hover {
     background: var(--bg-main);
     color: var(--text-main);
 }
 
+/* * Sidebar Navigation Link Active - Active link nav sidebar */
 .sidebar-nav .nav-link.active {
     background: rgba(230, 57, 128, 0.06);
     color: var(--text-main);
@@ -1377,10 +1592,13 @@ html {
     box-shadow: none;
 }
 
+/* * Sidebar Navigation Link Icon - Icon di nav link */
 .sidebar-nav .nav-link i { font-size: 1.15rem; }
 
+/* * Sidebar Footer - Footer sidebar */
 .sidebar-footer { padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
 
+/* * Logout Button - Tombol logout */
 .btn-logout {
     display: flex;
     align-items: center;
@@ -1397,23 +1615,26 @@ html {
     transition: all 0.18s ease;
 }
 
+/* * Logout Button Hover - Hover tombol logout */
 .btn-logout:hover {
     background: var(--bg-main);
     border-color: rgba(0,0,0,0.06);
     color: var(--primary);
 }
 
-/* Admin Main */
+/* * Admin Main - Area konten utama admin */
 .admin-main {
     margin-left: 280px;
     padding: 1.5rem 2rem;
     min-height: 100vh;
 }
 
+/* * Admin Main Sidebar Collapsed - Main saat sidebar collapsed */
 .admin-main.sidebar-collapsed {
     margin-left: 0;
 }
 
+/* * Admin Header - Header area admin */
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -1426,6 +1647,7 @@ html {
     box-shadow: var(--shadow-sm);
 }
 
+/* * Admin Main Alt - Area konten utama alternatif */
 .admin-main {
     margin-left: 280px;
     padding: 1.5rem 2rem;
@@ -1433,6 +1655,7 @@ html {
     background: transparent;
 }
 
+/* * Admin Header Alt - Header alternatif */
 .admin-header {
     display: flex;
     justify-content: space-between;
@@ -1446,11 +1669,14 @@ html {
     border: 1px solid var(--border);
 }
 
+/* * Admin Header Subtitle - Subtitle di header admin */
 .admin-header .header-subtitle { color: var(--text-muted); }
 
 
+/* * Header Left - Area kiri header */
 .header-left { display: flex; align-items: center; gap: 1rem; }
 
+/* * Toggle Sidebar Button - Tombol toggle sidebar */
 .btn-toggle-sidebar {
     background: var(--bg-main);
     border: 1px solid var(--border);
@@ -1463,14 +1689,18 @@ html {
     justify-content: center;
 }
 
+/* * Responsive - Responsive breakpoints */
 @media (max-width: 992px) {
+    /* * Admin Sidebar Mobile - Sidebar di mobile */
     .admin-sidebar {
         transform: translateX(-100%);
         transition: transform 0.3s;
     }
+    /* * Admin Sidebar Active - Sidebar aktif di mobile */
     .admin-sidebar.active {
         transform: translateX(0);
     }
+    /* * Admin Main Mobile - Main di mobile */
     .admin-main {
         margin-left: 0;
     }
@@ -1479,8 +1709,10 @@ html {
 .header-title { font-weight: 700; font-size: 1.5rem; margin: 0; }
 .header-subtitle { color: var(--text-muted); margin: 0; font-size: 0.9rem; }
 
+/* * Header Right - Area kanan header */
 .header-right { display: flex; align-items: center; gap: 1rem; }
 
+/* * Notification Button - Tombol notifikasi */
 .btn-notification {
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -1491,6 +1723,7 @@ html {
     position: relative;
 }
 
+/* * Badge Dot - Dot indicator notifikasi */
 .badge-dot {
     position: absolute;
     top: 10px;
@@ -1501,6 +1734,7 @@ html {
     border-radius: 50%;
 }
 
+/* * Profile Avatar - Avatar profil user */
 .profile-avatar {
     width: 44px;
     height: 44px;
@@ -1513,7 +1747,11 @@ html {
     font-size: 1.25rem;
 }
 
-/* Stat Cards */
+/* ========================================================================== *
+ * STAT CARDS - Card statistik
+ * ========================================================================== */
+
+/* * Stat Card - Card untuk menampilkan statistik */
 .stat-card {
     background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255,255,255,0.6) 100%);
     border-radius: 14px;
@@ -1526,12 +1764,14 @@ html {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
-.stat-card:hover { 
-    transform: translateY(-6px); 
+/* * Stat Card Hover - Hover effect stat card */
+.stat-card:hover {
+    transform: translateY(-6px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
     border-color: rgba(226, 232, 240, 1);
 }
 
+/* * Stat Icon - Icon di stat card */
 .stat-icon {
     width: 56px;
     height: 56px;
@@ -1544,10 +1784,12 @@ html {
     transition: all 0.25s ease;
 }
 
+/* * Stat Icon Hover - Hover effect icon */
 .stat-card:hover .stat-icon {
     transform: scale(1.08) rotate(2deg);
 }
 
+/* * Stat Icon Variants - Variants warna icon */
 .stat-icon.pink { background: var(--primary-light); color: var(--primary); }
 .stat-icon.blue { background: rgba(0, 184, 148, 0.15); color: var(--secondary); }
 .stat-icon.green { background: rgba(0, 212, 170, 0.15); color: var(--accent); }
@@ -1556,11 +1798,17 @@ html {
 .stat-icon.teal { background: rgba(0, 200, 200, 0.15); color: #00c8c8; }
 
 
+/* * Stat Value - Nilai statistik */
 .stat-value { font-size: 1.75rem; font-weight: 700; line-height: 1; }
+/* * Stat Label - Label deskriptif statistik */
 .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
 
 
-/* Admin Card */
+/* ========================================================================== *
+ * ADMIN CARD - Card untuk halaman admin
+ * ========================================================================== */
+
+/* * Admin Card - Card container admin */
 .admin-card {
     background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255,255,255,0.5) 100%);
     border-radius: 14px;
@@ -1569,11 +1817,13 @@ html {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
+/* * Admin Card Hover - Hover effect admin card */
 .admin-card:hover {
     border-color: rgba(226, 232, 240, 1);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
+/* * Card Header - Header dalam card */
 .card-header {
     display: flex;
     justify-content: space-between;
@@ -1582,11 +1832,17 @@ html {
     border-bottom: 1px solid rgba(226, 232, 240, 0.5);
 }
 
+/* * Card Header Heading - Judul di header card */
 .card-header h5 { font-weight: 700; margin: 0; font-size: 1.05rem; letter-spacing: -0.3px; }
 
+/* * Card Body - Body/content dalam card */
 .card-body { padding: 1.75rem; }
 
-/* Quick Action */
+/* ========================================================================== *
+ * QUICK ACTION - Tombol aksi cepat
+ * ========================================================================== */
+
+/* * Quick Action - Tombol aksi cepat */
 .quick-action {
     background: linear-gradient(135deg, var(--bg-main) 0%, rgba(248, 250, 252, 0.8) 100%);
     border: 1.5px solid rgba(226, 232, 240, 0.8);
@@ -1599,6 +1855,7 @@ html {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
+/* * Quick Action Hover - Hover effect quick action */
 .quick-action:hover {
     border-color: var(--primary);
     background: linear-gradient(135deg, var(--primary-light) 0%, rgba(230, 57, 128, 0.05) 100%);
@@ -1606,6 +1863,7 @@ html {
     transform: translateY(-4px);
 }
 
+/* * Quick Action Icon - Icon di quick action */
 .qa-icon {
     width: 48px;
     height: 48px;
@@ -1621,18 +1879,21 @@ html {
     transition: all 0.3s ease;
 }
 
+/* * Quick Action Hover Icon - Hover effect icon */
 .quick-action:hover .qa-icon {
     transform: scale(1.12) rotate(-5deg);
     box-shadow: 0 6px 20px rgba(230, 57, 128, 0.4);
 }
 
+/* * Quick Action Text - Teks di quick action */
 .quick-action span { font-weight: 600; font-size: 0.85rem; }
 
 
 
-/* Alert Card */
+/* * Alert Card Body - Body alert card */
 .alert-card .card-body { padding: 1rem; }
 
+/* * Alert Item - Item alert */
 .alert-item {
     display: flex;
     align-items: center;
@@ -1643,8 +1904,10 @@ html {
     margin-bottom: 0.5rem;
 }
 
+/* * Alert Item Last - Item terakhir */
 .alert-item:last-child { margin-bottom: 0; }
 
+/* * Alert Avatar - Avatar di alert item */
 .alert-avatar {
     width: 36px;
     height: 36px;
@@ -1655,21 +1918,28 @@ html {
     font-size: 0.9rem;
 }
 
+/* * Alert Avatar Variants - Variants warna avatar */
 .alert-avatar.pink { background: var(--primary-light); color: var(--primary); }
 .alert-avatar.orange { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
 
+/* * Alert Info Heading - Judul info alert */
 .alert-info h6 { margin: 0; font-size: 0.85rem; font-weight: 600; }
 .alert-info span { font-size: 0.75rem; color: var(--text-muted); }
 
-/* ==================== ACTIVITY LOG ==================== */
+/* ========================================================================== *
+ * ACTIVITY LOG - Log aktivitas
+ * ========================================================================== */
+
+/* * Activity Log Container - Container log aktivitas */
 .activity-log {
     background: transparent;
 }
 
+/* * Activity Item - Item aktivitas */
 .activity-item {
     display: flex;
     align-items: center;
-    gap: 2rem;              /* more space between icon and text */
+    gap: 2rem;
     padding: 1.25rem 2rem;
     background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255,255,255,0.4) 100%);
     border-radius: 12px;
@@ -1678,14 +1948,18 @@ html {
     color: var(--text-main);
     margin-bottom: 0.5rem;
 }
+
+/* * Activity Item Hover - Hover effect item */
 .activity-item:hover {
     background: linear-gradient(135deg, var(--bg-main) 0%, rgba(248, 250, 252, 0.8) 100%);
     transform: translateX(4px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
+/* * Activity Item Last - Item terakhir */
 .activity-item:last-child { border-bottom: none; }
 
+/* * Activity Icon - Icon aktivitas */
 .activity-icon {
     width: 50px;
     height: 50px;
@@ -1702,18 +1976,26 @@ html {
     transition: all 0.25s ease;
 }
 
+/* * Activity Item Hover Icon - Hover effect icon */
 .activity-item:hover .activity-icon {
     transform: scale(1.1);
     box-shadow: 0 5px 15px rgba(230, 57, 128, 0.25);
 }
 
+/* * Activity Content Heading - Judul aktivitas */
 .activity-content h6 { font-size: 0.95rem; color: var(--text-main); }
+/* * Activity Content Paragraph - Deskripsi aktivitas */
 .activity-content p,
+/* * Activity Time - Waktu aktivitas */
 .activity-time { color: var(--text-muted); }
 
 
 
-/* Table */
+/* ========================================================================== *
+ * TABLE - Styles untuk tabel
+ * ========================================================================== */
+
+/* * Table Header - Header kolom tabel */
 .table th {
     background: var(--bg-main);
     font-weight: 600;
@@ -1723,11 +2005,13 @@ html {
     border-bottom: 1px solid var(--border);
 }
 
+/* * Table Data - Data sel tabel */
 .table td { vertical-align: middle; font-size: 0.9rem; }
 
+/* * Table User - Container user di tabel */
 .table-user { display: flex; align-items: center; gap: 0.75rem; }
 
-
+/* * User Avatar - Avatar user */
 .user-avatar {
     width: 36px;
     height: 36px;
@@ -1740,11 +2024,12 @@ html {
     font-size: 0.9rem;
 }
 
-/* Activity Log */
+/* * Activity Log Alt - Log aktivitas alternatif */
 .activity-log {
     padding: 0.5rem 0;
 }
 
+/* * Activity Item Alt - Item aktivitas alternatif */
 .activity-item {
     display: flex;
     gap: 1rem;
@@ -1752,10 +2037,12 @@ html {
     border-bottom: 1px solid var(--border);
 }
 
+/* * Activity Item Last Border - Hapus border item terakhir */
 .activity-item:last-child {
     border-bottom: none;
 }
 
+/* * Activity Icon Alt - Icon aktivitas alternatif */
 .activity-icon {
     width: 48px;
     height: 48px;
@@ -1767,22 +2054,30 @@ html {
     font-size: 1.25rem;
 }
 
+/* * Activity Content Heading Alt - Judul aktivitas alternatif */
 .activity-content h6 {
     margin: 0;
     font-weight: 600;
     font-size: 0.95rem;
 }
 
+/* * Activity Content Paragraph Alt - Deskripsi aktivitas alternatif */
 .activity-content p {
     margin: 0.25rem 0;
 }
 
+/* * Activity Time Alt - Waktu aktivitas alternatif */
 .activity-time {
     display: inline-block;
     font-size: 0.75rem;
     color: var(--text-light);
 }
 
+/* ========================================================================== *
+ * BADGES - Badge styles
+ * ========================================================================== */
+
+/* * Badge - Badge umum */
 .badge {
     padding: 0.35rem 0.75rem;
     border-radius: 50px;
@@ -1790,15 +2085,23 @@ html {
     font-weight: 600;
 }
 
+/* * Badge Success - Badge sukses */
 .badge-success { background: rgba(0, 212, 170, 0.15); color: var(--accent); }
+/* * Badge Warning - Badge warning */
 .badge-warning { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+/* * Badge Danger - Badge danger */
 .badge-danger { background: var(--primary-light); color: var(--primary); }
 
 
 
-/* Account Stats */
+/* ========================================================================== *
+ * ACCOUNT STATS - Statistik akun
+ * ========================================================================== */
+
+/* * Account Stat - Container statistik akun */
 .account-stat { display: flex; flex-direction: column; gap: 1rem; }
 
+/* * Account Item - Item statistik akun */
 .account-item {
     display: flex;
     align-items: center;
@@ -1808,6 +2111,7 @@ html {
     border-radius: var(--radius-md);
 }
 
+/* * Account Icon - Icon statistik akun */
 .account-icon {
     width: 48px;
     height: 48px;
@@ -1818,18 +2122,28 @@ html {
     font-size: 1.25rem;
 }
 
+/* * Account Icon Variants - Variants warna icon */
 .account-icon.pink { background: var(--primary-light); color: var(--primary); }
 .account-icon.blue { background: rgba(0, 184, 148, 0.15); color: var(--secondary); }
 .account-icon.green { background: rgba(0, 212, 170, 0.15); color: var(--accent); }
 
+/* * Account Info Heading - Judul info akun */
 .account-info h4 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+/* * Account Info Label - Label info akun */
 .account-info span { font-size: 0.8rem; color: var(--text-muted); }
 
-/* Modal Admin */
+/* ========================================================================== *
+ * MODAL ADMIN - Modal untuk halaman admin
+ * ========================================================================== */
+
+/* * Modal Header - Header modal */
 .modal-header { border-bottom: 1px solid var(--border); padding: 1.25rem 1.5rem; }
+/* * Modal Title - Judul modal */
 .modal-title { font-weight: 700; font-size: 1.1rem; }
+/* * Modal Body - Body modal */
 .modal-body { padding: 1.5rem; }
 
+/* * Modal Form Control - Input dalam modal */
 .modal .form-control, .modal .form-select {
     border: 2px solid var(--border);
     border-radius: var(--radius-md);
@@ -1837,11 +2151,13 @@ html {
     transition: all 0.3s ease;
 }
 
+/* * Modal Form Control Focus - Focus input modal */
 .modal .form-control:focus, .modal .form-select:focus {
     border-color: var(--primary);
     box-shadow: 0 0 0 4px var(--primary-light);
 }
 
+/* * Modal Secondary Button - Tombol secondary modal */
 .modal .btn-secondary {
     background: var(--bg-main);
     border: 1px solid var(--border);
@@ -1851,60 +2167,87 @@ html {
     font-weight: 600;
 }
 
+/* * Modal Secondary Button Hover - Hover tombol secondary */
 .modal .btn-secondary:hover { background: var(--border); }
 
-/* ==================== RESPONSIVE ==================== */
+/* ========================================================================== *
+ * RESPONSIVE - Styles responsif
+ * ========================================================================== */
+
+/* * Tablet and Below - Styles untuk tablet dan mobile */
 @media (max-width: 991px) {
+    /* * Hide floating elements on mobile */
     .floating-element, .hero-visual { display: none; }
+    /* * Center hero text on mobile */
     .hero-section { text-align: center; }
+    /* * Remove hero padding on mobile */
     .hero-content { padding: 0; }
+    /* * Center hero description */
     .hero-desc { margin-left: auto; margin-right: auto; }
+    /* * Center hero actions */
     .hero-actions { justify-content: center; }
+    /* * Center hero stats */
     .hero-stats { justify-content: center; }
-    
+
+    /* * Hide admin sidebar on mobile */
     .admin-sidebar { transform: translateX(-100%); }
+    /* * Show admin sidebar when active */
     .admin-sidebar.active { transform: translateX(0); }
+    /* * Remove left margin when sidebar hidden */
     .admin-main { margin-left: 0; }
+    /* * Show toggle button on mobile */
     .btn-toggle-sidebar { display: flex; }
-    
+
+    /* * Adjust carousel controls */
     .carousel-control-prev { left: 10px; }
     .carousel-control-next { right: 10px; }
+    /* * Resize team photo on mobile */
     .team-photo { width: 250px; height: 250px; }
 }
 
+/* * Small Mobile - Styles untuk mobile kecil */
 @media (max-width: 576px) {
+    /* * Smaller hero title */
     .hero-title { font-size: 2rem; }
+    /* * Vertical stats layout */
     .hero-stats { flex-direction: column; gap: 1rem; }
+    /* * Hide stat divider on mobile */
     .stat-divider { display: none; }
+    /* * Reduce modal padding */
     .modal-content { padding: 1.5rem; }
 }
 
-/* layout tweaks per user feedback */
+/* * Layout Tweaks - Penyesuaian layout berdasarkan feedback */
 .problem-solution-section {
-    margin-bottom: 5rem; /* extra space before fitur unggulan */
-    scroll-margin-top: 100px; /* spacing untuk navbar saat scroll ke section */
+    margin-bottom: 5rem;
+    scroll-margin-top: 100px;
 }
 
+/* * Features Section - Section fitur */
 .features-section {
-    margin-bottom: 5rem; /* extra space before impact section */
+    margin-bottom: 5rem;
     scroll-margin-top: 100px;
 }
 
+/* * Impact Section - Section impact */
 .impact-section {
-    padding-top: 5rem; /* lift impact downwards */
-    margin-bottom: 6rem; /* space before ecosystem */
+    padding-top: 5rem;
+    margin-bottom: 6rem;
     scroll-margin-top: 100px;
 }
 
+/* * Ecosystem Section - Section ecosystem */
 .ecosystem-section {
-    margin-bottom: 6rem; /* space before testimonials */
+    margin-bottom: 6rem;
     scroll-margin-top: 100px;
 }
 
+/* * Team Section Scroll - Scroll margin untuk team */
 .team-section {
     scroll-margin-top: 100px;
 }
 
+/* * Ecosystem Card - Card ecosystem */
 .ecosystem-card {
     padding: 1.5rem 1rem;
     max-width: 300px;
@@ -1912,11 +2255,17 @@ html {
     transform: scale(0.9);
     transition: transform 0.3s ease;
 }
+
+/* * Ecosystem Card Hover - Hover effect */
 .ecosystem-card:hover {
     transform: scale(0.92);
 }
 
-/* ==================== BENTO GRID LAYOUT ==================== */
+/* ========================================================================== *
+ * BENTO GRID LAYOUT - Layout grid bento
+ * ========================================================================== */
+
+/* * Features Bento Grid - Grid untuk features */
 .features-bento-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -1925,22 +2274,30 @@ html {
     align-items: stretch;
 }
 
-/* Top Row - 3 equal cards */
+/* * Bento Top Row 1 - Card atas kiri */
 .bento-top-1 { grid-column: span 2; grid-row: span 1; }
+/* * Bento Top Row 2 - Card atas tengah */
 .bento-top-2 { grid-column: span 2; grid-row: span 1; }
+/* * Bento Top Row 3 - Card atas kanan */
 .bento-top-3 { grid-column: span 2; grid-row: span 1; }
 
 /* Middle Row - All cards same size as top/bottom */
+/* * Bento Middle Left - Card tengah kiri */
 .bento-mid-left { grid-column: span 2; grid-row: span 1; }
+/* * Bento Middle Hero - Card tengah hero */
 .bento-mid-hero { grid-column: span 2; grid-row: span 1; }
+/* * Bento Middle Right - Card tengah kanan */
 .bento-mid-right { grid-column: span 2; grid-row: span 1; }
 
 /* Bottom Row - 3 equal cards */
+/* * Bento Bottom Row 1 - Card bawah kiri */
 .bento-bottom-1 { grid-column: span 2; grid-row: span 1; }
+/* * Bento Bottom Row 2 - Card bawah tengah */
 .bento-bottom-2 { grid-column: span 2; grid-row: span 1; }
+/* * Bento Bottom Row 3 - Card bawah kanan */
 .bento-bottom-3 { grid-column: span 2; grid-row: span 1; }
 
-/* Feature Card Variants */
+/* * Feature Card Variants - Variants card fitur */
 .feature-small {
     display: flex !important;
     flex-direction: column;
@@ -1950,21 +2307,25 @@ html {
     padding: 2rem 1rem !important;
 }
 
+/* * Feature Small Icon - Icon untuk small feature */
 .feature-small .service-icon {
     margin-bottom: 1rem;
 }
 
+/* * Feature Small Heading - Judul feature small */
 .feature-small h4 {
     font-size: 1rem;
     margin-bottom: 0.5rem;
 }
 
+/* * Feature Small Paragraph - Deskripsi feature small */
 .feature-small p {
     font-size: 0.85rem;
     line-height: 1.4;
     margin-bottom: 1rem;
 }
 
+/* * Feature Hero - Card fitur utama/hero */
 .feature-hero {
     background: linear-gradient(135deg, rgba(230, 57, 128, 0.08) 0%, rgba(107, 66, 193, 0.08) 100%) !important;
     border: 2px solid var(--primary) !important;
@@ -1977,6 +2338,7 @@ html {
     overflow: hidden;
 }
 
+/* * Feature Hero Before - Gradient line di atas */
 .feature-hero::before {
     content: '';
     position: absolute;
@@ -1988,6 +2350,7 @@ html {
     z-index: 1;
 }
 
+/* * Feature Hero Icon - Icon besar di hero feature */
 .feature-hero .hero-icon {
     font-size: 3rem;
     margin-bottom: 1.5rem;
@@ -1995,18 +2358,21 @@ html {
     color: var(--primary);
 }
 
+/* * Feature Hero Heading - Judul hero feature */
 .feature-hero h4 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
     color: var(--primary);
 }
 
+/* * Feature Hero Paragraph - Deskripsi hero feature */
 .feature-hero p {
     font-size: 0.95rem;
     line-height: 1.6;
     margin-bottom: 1.5rem;
 }
 
+/* * Feature Hero Link - Link di hero feature */
 .feature-hero .service-link {
     font-weight: 600;
     color: var(--primary);
@@ -2014,91 +2380,644 @@ html {
     padding-bottom: 0.25rem;
 }
 
+/* * Feature Hero Link Hover - Hover effect link */
 .feature-hero .service-link:hover {
     color: var(--primary-dark);
     border-bottom-color: var(--primary-dark);
 }
 
-/* Tablet Responsiveness (1200px and below) */
+/* * Tablet Responsive Bento - Responsif bento untuk tablet */
 @media (max-width: 1200px) {
+    /* * Features Bento Grid Tablet - Grid tablet */
     .features-bento-grid {
         grid-template-columns: repeat(4, 1fr);
         gap: 1rem;
     }
-    
+
+    /* * Bento tablet adjustments */
     .bento-top-1 { grid-column: span 2; }
     .bento-top-2 { grid-column: span 2; }
     .bento-top-3 { grid-column: span 4; }
-    
+
     .bento-mid-left { grid-column: span 2; grid-row: span 1; }
     .bento-mid-hero { grid-column: span 2; grid-row: span 1; }
     .bento-mid-right { grid-column: span 4; grid-row: span 1; }
-    
+
     .bento-bottom-1 { grid-column: span 2; }
     .bento-bottom-2 { grid-column: span 2; }
     .bento-bottom-3 { grid-column: span 4; }
-    
+
+    /* * Feature Hero Heading Tablet */
     .feature-hero h4 {
         font-size: 1.25rem;
     }
 }
 
-/* Mobile Responsiveness (768px and below) */
+/* * Mobile Responsive Bento - Responsif bento untuk mobile */
 @media (max-width: 768px) {
+    /* * Features Bento Grid Mobile - Grid mobile */
     .features-bento-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-    
+
+    /* * All bento cards full width on mobile */
     .bento-top-1, .bento-top-2, .bento-top-3,
     .bento-mid-left, .bento-mid-hero, .bento-mid-right,
     .bento-bottom-1, .bento-bottom-2, .bento-bottom-3 {
         grid-column: span 1 !important;
         grid-row: span 1 !important;
     }
-    
+
     /* Keep hero card visually prominent on mobile */
     .bento-mid-hero {
         order: 4;
     }
-    
+
+    /* * Feature Hero Mobile */
     .feature-hero {
         padding: 2rem !important;
     }
-    
+
+    /* * Feature Hero Heading Mobile */
     .feature-hero h4 {
         font-size: 1.25rem;
     }
-    
+
+    /* * Feature Hero Paragraph Mobile */
     .feature-hero p {
         font-size: 0.9rem;
     }
-    
+
+    /* * Feature Small Mobile */
     .feature-small {
         padding: 1.5rem !important;
     }
-    
+
+    /* * Feature Small Heading Mobile */
     .feature-small h4 {
         font-size: 0.95rem;
     }
     
+    /* * Feature Small Paragraph Mobile */
     .feature-small p {
         font-size: 0.8rem;
     }
 }
 
-/* When forgot password is open: hide only the title and subtitle, keep the logo visible */
+/* ========================================================================== *
+ * FORGOT PASSWORD MODAL - Styles modal forgot password
+ * ========================================================================== */
+
+/* * Forgot Open Title Hide - Sembunyikan judul saat forgot terbuka */
 .modal-content.forgot-open .auth-header h4,
 .modal-content.forgot-open .auth-header p {
     display: none;
 }
 
+/* * Forgot Open Header - Header saat forgot terbuka */
 .modal-content.forgot-open .auth-header {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
+/* * Forgot Open Body - Body saat forgot terbuka */
 .modal-content.forgot-open .auth-body {
     padding-top: 0.5rem;
+}
+
+/* ========================================================================== *
+ * DASHBOARD POLISH TWEAKS - Penyesuaian polish dashboard
+ * ========================================================================== */
+/* Minimal visual tweaks for dashboard content only (no sidebar width changes) */
+
+/* * Sidebar Nav Link Accent - Accent kiri untuk nav link */
+.sidebar-nav .nav-link {
+    border-left-width: 4px;
+}
+
+/* * Sidebar Nav Link Active State - State aktif nav link */
+.sidebar-nav .nav-link.active {
+    background: rgba(16,24,40,0.02);
+    color: var(--text-main);
+    border-left-color: var(--primary);
+    box-shadow: none;
+}
+
+/* * Card Role Refinements - Perbaikan card role */
+.role-card, .admin-card {
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(249, 246, 252, 0.93) 100%);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 28px rgba(17, 24, 39, 0.06), 0 2px 8px rgba(17, 24, 39, 0.03);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Premium top accent ring for role cards */
+/* * Role Card - Card role */
+.role-card {
+    border-top: none;
+}
+
+/* * Role Card Before - Gradient line di atas (DIHAPUS) *
+.role-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, rgba(214, 51, 108, 0.95) 0%, rgba(139, 92, 246, 0.85) 55%, rgba(214, 51, 108, 0.7) 100%);
+    opacity: 0.72;
+    transition: opacity 0.22s ease, height 0.22s ease;
+} */
+
+/* * Hero Role Variant - Variant role untuk greeting */
+.hero-role {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    box-shadow: 0 18px 34px rgba(214, 51, 108, 0.22);
+}
+
+/* * Hero Role Before Hide - Sembunyikan before untuk hero role */
+.hero-role::before {
+    display: none;
+}
+
+/* * Hero Role Card Body - Card body hero role */
+.hero-role .card-body { padding: 1.75rem 2rem; }
+
+/* Premium soft accents for bidan dashboard content */
+.dash-icon-soft {
+    color: var(--primary);
+    opacity: 0.82;
+}
+
+.badge-soft-primary {
+    background: linear-gradient(135deg, rgba(214, 51, 108, 0.12) 0%, rgba(139, 92, 246, 0.10) 100%);
+    color: #8f1f4d;
+    border: 1px solid rgba(214, 51, 108, 0.15);
+    font-weight: 700;
+}
+
+/* * Role Card List Item - List item dalam role card */
+.admin-body .role-card .list-group-item {
+    background: transparent;
+}
+
+/* * Role Card Text Muted - Text muted dalam role card */
+.admin-body .role-card .text-muted {
+    color: #6b7280 !important;
+}
+
+/* * Role Card Hover - Hover effect role card */
+.role-card:hover, .admin-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(214, 51, 108, 0.2);
+    box-shadow: 0 16px 36px rgba(17, 24, 39, 0.08), 0 6px 14px rgba(214, 51, 108, 0.08);
+}
+
+/* * Role Card Hover Before - Gradient line saat hover (DIHAPUS) *
+.role-card:hover::before {
+    opacity: 0.95;
+    height: 4px;
+} */
+
+/* ========================================================================== *
+ * BIDAN DASHBOARD - Styles khusus dashboard bidan
+ * ========================================================================== */
+
+/* * Bidan Dashboard Container - Container dashboard bidan */
+.bidan-dashboard {
+    --dash-gutter: 1.15rem;
+}
+
+/* * Bidan Dashboard Row - Row dalam dashboard bidan */
+.bidan-dashboard .row {
+    --bs-gutter-x: var(--dash-gutter);
+    --bs-gutter-y: var(--dash-gutter);
+}
+
+/* * Bidan Dashboard Role Card Body - Card body role card */
+.bidan-dashboard .role-card .card-body {
+    padding: 1.2rem 1.25rem !important;
+}
+
+/* * Bidan Dashboard Hero Role Body - Hero role body */
+.bidan-dashboard .hero-role .card-body {
+    padding: 1.65rem 1.8rem !important;
+}
+
+/* * Bidan Dashboard Role Card Heading - Heading role card */
+.bidan-dashboard .role-card h5 {
+    margin-bottom: 1rem !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* * Bidan Dashboard Section Title - Judul section */
+.bidan-dashboard .dash-section-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+/* * Bidan Dashboard Hero Title - Judul hero dashboard */
+.bidan-dashboard .dash-hero-title {
+    font-size: clamp(1.45rem, 2.2vw, 1.8rem);
+}
+
+/* * Bidan Dashboard Item Title - Judul item */
+.bidan-dashboard .dash-item-title {
+    font-size: 0.93rem !important;
+}
+
+/* * Bidan Dashboard Item Sub - Subtitle item */
+.bidan-dashboard .dash-item-sub {
+    font-size: 0.845rem !important;
+    color: #5b6473 !important;
+}
+
+/* * Bidan Dashboard Badge Small - Badge kecil */
+.bidan-dashboard .dash-badge-sm {
+    font-size: 0.72rem;
+    padding: 0.32rem 0.56rem;
+}
+
+/* * Bidan Dashboard Badge Extra Small - Badge extra kecil */
+.bidan-dashboard .dash-badge-xs {
+    font-size: 0.64rem;
+    padding: 0.33rem 0.58rem;
+}
+
+/* * Bidan Dashboard Check Icon - Icon check */
+.bidan-dashboard .dash-check-icon {
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* * Bidan Dashboard Strong Text - Text bold */
+.bidan-dashboard .dash-strong {
+    color: #243041;
+    font-weight: 700;
+}
+
+/* * Bidan Dashboard Note Chip - Chip catatan */
+.bidan-dashboard .dash-note-chip {
+    padding: 0.52rem;
+    border-radius: 8px;
+    background: rgba(248, 250, 252, 0.9);
+    border: 1px solid rgba(226, 232, 240, 0.7);
+}
+
+/* * Bidan Dashboard Empty State - State kosong */
+.bidan-dashboard .dash-empty-state {
+    color: #94a3b8;
+}
+
+/* * Bidan Dashboard Empty Icon - Icon state kosong */
+/* * Bidan Dashboard Empty Icon - Icon state kosong */
+.bidan-dashboard .dash-empty-icon {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+    opacity: 0.55;
+}
+
+/* * Bidan Dashboard Count Wrap - Wrapper count */
+.bidan-dashboard .dash-count-wrap {
+    padding-top: 0.35rem;
+}
+
+/* * Bidan Dashboard Display 4 - Heading besar display */
+.bidan-dashboard .display-4 {
+    font-size: clamp(2rem, 3.6vw, 2.6rem);
+    line-height: 1;
+}
+
+/* * Bidan Dashboard List Item - List item dalam bidan */
+.bidan-dashboard .list-group-item {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    border-color: rgba(226, 232, 240, 0.75) !important;
+}
+
+/* * Bidan Dashboard Textarea - Textarea dalam bidan dashboard */
+.bidan-dashboard textarea.form-control {
+    border: 1px solid rgba(214, 51, 108, 0.12) !important;
+    background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(252,249,253,0.9) 100%);
+}
+
+/* * Bidan Dashboard Note Textarea - Textarea catatan */
+.bidan-dashboard .note-textarea {
+    min-height: 140px;
+    resize: none;
+    border-radius: 10px;
+}
+
+/* * Bidan Dashboard Role Card Focus - Focus state role card */
+.bidan-dashboard .role-card:focus-within {
+    border-color: rgba(214, 51, 108, 0.28);
+    box-shadow: 0 0 0 3px rgba(214, 51, 108, 0.08), 0 16px 36px rgba(17, 24, 39, 0.08);
+}
+
+/* * Bidan Dashboard Focus Visible - Focus visible untuk link/button/textarea */
+.bidan-dashboard a:focus-visible,
+.bidan-dashboard button:focus-visible,
+.bidan-dashboard textarea:focus-visible {
+    outline: 2px solid rgba(214, 51, 108, 0.45);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+/* * Bidan Dashboard Hero Role Text Shadow - Shadow text hero role */
+.bidan-dashboard .hero-role h2,
+.bidan-dashboard .hero-role p {
+    text-shadow: 0 1px 2px rgba(30, 41, 59, 0.2);
+}
+
+/* * Bidan Dashboard Mobile - Responsif mobile untuk bidan */
+@media (max-width: 768px) {
+    /* * Bidan Dashboard Section Title Mobile */
+    .bidan-dashboard .dash-section-title {
+        font-size: 0.86rem;
+        line-height: 1.35;
+    }
+
+    /* * Bidan Dashboard Item Title Mobile */
+    .bidan-dashboard .dash-item-title {
+        font-size: 0.9rem !important;
+    }
+
+    /* * Bidan Dashboard Item Sub Mobile */
+    .bidan-dashboard .dash-item-sub {
+        font-size: 0.82rem !important;
+    }
+
+    /* * Bidan Dashboard Display 4 Mobile */
+    .bidan-dashboard .display-4 {
+        font-size: clamp(1.8rem, 8vw, 2.2rem);
+    }
+}
+
+/* * Bidan Dashboard Textarea Focus - Focus state textarea */
+.bidan-dashboard textarea.form-control:focus {
+    border-color: rgba(214, 51, 108, 0.35) !important;
+    box-shadow: 0 0 0 3px rgba(214, 51, 108, 0.08) !important;
+}
+
+/* * Bidan Dashboard Tablet - Responsif tablet untuk bidan */
+@media (max-width: 992px) {
+    .bidan-dashboard {
+        --dash-gutter: 0.9rem;
+    }
+
+    /* * Bidan Dashboard Tablet Role Card Body */
+    .bidan-dashboard .role-card .card-body {
+        padding: 1rem 1rem !important;
+    }
+}
+
+/* ========================================================================== *
+ * DOKTER DASHBOARD - Styles khusus dashboard dokter
+ * ========================================================================== */
+
+/* * Dokter Dashboard Container - Container dashboard dokter */
+.dokter-dashboard {
+    --dash-gutter: 1.15rem;
+}
+
+/* * Dokter Dashboard Row - Row dalam dashboard dokter */
+.dokter-dashboard .row {
+    --bs-gutter-x: var(--dash-gutter);
+    --bs-gutter-y: var(--dash-gutter);
+}
+
+/* * Dokter Dashboard Role Card Body - Card body role card */
+.dokter-dashboard .role-card .card-body {
+    padding: 1.2rem 1.25rem !important;
+}
+
+/* * Dokter Dashboard Hero Role Body - Hero role body */
+.dokter-dashboard .hero-role .card-body {
+    padding: 1.65rem 1.8rem !important;
+}
+
+/* * Dokter Dashboard Role Card Heading - Heading role card */
+.dokter-dashboard .role-card h5 {
+    margin-bottom: 1rem !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* * Dokter Dashboard Section Title - Judul section */
+.dokter-dashboard .dash-section-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+/* * Dokter Dashboard Hero Title - Judul hero dashboard */
+.dokter-dashboard .dash-hero-title {
+    font-size: clamp(1.45rem, 2.2vw, 1.8rem);
+}
+
+/* * Dokter Dashboard Item Title - Judul item */
+.dokter-dashboard .dash-item-title {
+    font-size: 0.93rem !important;
+}
+
+/* * Dokter Dashboard Item Sub - Subtitle item */
+.dokter-dashboard .dash-item-sub {
+    font-size: 0.845rem !important;
+    color: #5b6473 !important;
+}
+
+/* * Dokter Dashboard Badge Small - Badge kecil */
+.dokter-dashboard .dash-badge-sm {
+    font-size: 0.72rem;
+    padding: 0.32rem 0.56rem;
+}
+
+/* * Dokter Dashboard Badge Extra Small - Badge extra kecil */
+.dokter-dashboard .dash-badge-xs {
+    font-size: 0.64rem;
+    padding: 0.33rem 0.58rem;
+}
+
+/* * Dokter Dashboard Check Icon - Icon check */
+.dokter-dashboard .dash-check-icon {
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* * Dokter Dashboard Strong Text - Text bold */
+.dokter-dashboard .dash-strong {
+    color: #243041;
+    font-weight: 700;
+}
+
+/* * Dokter Dashboard Note Chip - Chip catatan */
+.dokter-dashboard .dash-note-chip {
+    padding: 0.52rem;
+    border-radius: 8px;
+    background: rgba(248, 250, 252, 0.9);
+    border: 1px solid rgba(226, 232, 240, 0.7);
+}
+
+/* * Dokter Dashboard Empty State - State kosong */
+.dokter-dashboard .dash-empty-state {
+    color: #94a3b8;
+}
+
+/* * Dokter Dashboard Empty Icon - Icon state kosong */
+/* * Dokter Dashboard Empty Icon - Icon state kosong */
+.dokter-dashboard .dash-empty-icon {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+    opacity: 0.55;
+}
+
+/* * Dokter Dashboard Count Wrap - Wrapper count */
+.dokter-dashboard .dash-count-wrap {
+    padding-top: 0.35rem;
+}
+
+/* * Dokter Dashboard Display 4 - Heading besar display */
+.dokter-dashboard .display-4 {
+    font-size: clamp(2rem, 3.6vw, 2.6rem);
+    line-height: 1;
+}
+
+/* * Dokter Dashboard List Item - List item dalam dokter */
+.dokter-dashboard .list-group-item {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    border-color: rgba(226, 232, 240, 0.75) !important;
+}
+
+/* * Dokter Dashboard Textarea - Textarea dalam dashboard dokter */
+.dokter-dashboard textarea.form-control {
+    border: 1px solid rgba(214, 51, 108, 0.12) !important;
+    background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(252,249,253,0.9) 100%);
+}
+
+/* * Dokter Dashboard Note Textarea - Textarea catatan */
+.dokter-dashboard .note-textarea {
+    min-height: 140px;
+    resize: none;
+    border-radius: 10px;
+}
+
+/* * Dokter Dashboard Role Card Focus - Focus state role card */
+.dokter-dashboard .role-card:focus-within {
+    border-color: rgba(214, 51, 108, 0.28);
+    box-shadow: 0 0 0 3px rgba(214, 51, 108, 0.08), 0 16px 36px rgba(17, 24, 39, 0.08);
+}
+
+/* * Dokter Dashboard Focus Visible - Focus visible untuk link/button/textarea */
+.dokter-dashboard a:focus-visible,
+.dokter-dashboard button:focus-visible,
+.dokter-dashboard textarea:focus-visible {
+    outline: 2px solid rgba(214, 51, 108, 0.45);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+/* * Dokter Dashboard Hero Role Text Shadow - Shadow text hero role */
+.dokter-dashboard .hero-role h2,
+.dokter-dashboard .hero-role p {
+    text-shadow: 0 1px 2px rgba(30, 41, 59, 0.2);
+}
+
+/* * Dokter Dashboard Mobile - Responsif mobile untuk dokter */
+@media (max-width: 768px) {
+    /* * Dokter Dashboard Section Title Mobile */
+    .dokter-dashboard .dash-section-title {
+        font-size: 0.86rem;
+        line-height: 1.35;
+    }
+
+    /* * Dokter Dashboard Item Title Mobile */
+    .dokter-dashboard .dash-item-title {
+        font-size: 0.9rem !important;
+    }
+
+    /* * Dokter Dashboard Item Sub Mobile */
+    .dokter-dashboard .dash-item-sub {
+        font-size: 0.82rem !important;
+    }
+
+    /* * Dokter Dashboard Display 4 Mobile */
+    .dokter-dashboard .display-4 {
+        font-size: clamp(1.8rem, 8vw, 2.2rem);
+    }
+}
+
+/* * Dokter Dashboard Textarea Focus - Focus state textarea */
+.dokter-dashboard textarea.form-control:focus {
+    border-color: rgba(214, 51, 108, 0.35) !important;
+    box-shadow: 0 0 0 3px rgba(214, 51, 108, 0.08) !important;
+}
+
+/* * Dokter Dashboard Tablet - Responsif tablet untuk dokter */
+@media (max-width: 992px) {
+    .dokter-dashboard {
+        --dash-gutter: 0.9rem;
+    }
+
+    /* * Dokter Dashboard Tablet Role Card Body */
+    .dokter-dashboard .role-card .card-body {
+        padding: 1rem 1rem !important;
+    }
+}
+
+/* ========================================================================== *
+ * HEADER POLISH - Penyesuaian header
+ * ========================================================================== */
+
+/* * Admin Header Polish - Header admin lebih elegant */
+.admin-header {
+    background: linear-gradient(90deg, rgba(96,165,250,0.06), rgba(0,212,170,0.03));
+    color: var(--text-main);
+    border: 1px solid var(--border);
+}
+
+/* * Reduce hero-card size so dashboard feels lighter */
+/* * Hero Card Main Polish - Hero card lebih compact */
+.hero-card-main {
+    padding: 1.25rem 1.5rem;
+    width: auto;
+    max-width: 100%;
+}
+
+/* * Softer primary button shadow */
+/* * Primary Button Custom Polish - Shadow tombol lebih soft */
+.btn-primary-custom {
+    box-shadow: 0 8px 24px rgba(230,57,128,0.12);
+}
+
+/* * Note textarea styling */
+/* * Note Textarea Polish - Textarea catatan styling */
+.note-textarea {
+    min-height: 110px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 0.85rem 1rem;
+    background: var(--bg-card);
+    resize: vertical;
+}
+
+/* * Slightly smaller profile avatar for compact header */
+/* * Profile Avatar Polish - Avatar lebih compact */
+.profile-avatar { width: 40px; height: 40px; font-size: 1rem; }
+
+/* * Admin Responsive Polish - Responsif admin */
+@media (max-width: 992px) {
+    .admin-sidebar { width: 100%; transform: translateX(-100%); }
+    .admin-main { margin-left: 0; padding: 1rem; }
 }

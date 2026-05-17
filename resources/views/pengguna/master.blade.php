@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
 	<title>@yield('title', config('app.name', 'MomSpire'))</title>
 	@php
 		$currentUser = auth()->user();
@@ -90,6 +91,86 @@
 					<i class="bi bi-chat-dots-fill"></i>
 					<span>Konsultasi</span>
 				</a>
+				<a href="{{ route('pengguna.ttd') }}"
+					class="nav-link {{ request()->routeIs('pengguna.ttd') ? 'active' : '' }}">
+					<i class="bi bi-calendar-check-fill"></i>
+					<span>Catat Minum TTD</span>
+				</a>
+				<a href="{{ route('pengguna.pemantauan') }}"
+					class="nav-link {{ request()->routeIs('pengguna.pemantauan') ? 'active' : '' }}">
+					<i class="bi bi-heart-pulse-fill"></i>
+					<span>Pemantauan Ibu Hamil</span>
+				</a>
+				<a href="{{ route('pengguna.kelas_ibu') }}"
+					class="nav-link {{ request()->routeIs('pengguna.kelas_ibu') ? 'active' : '' }}">
+					<i class="bi bi-people-fill"></i>
+					<span>Kelas Ibu Hamil</span>
+				</a>
+				<a href="{{ route('pengguna.persiapan') }}"
+					class="nav-link {{ request()->routeIs('pengguna.persiapan') ? 'active' : '' }}">
+					<i class="bi bi-journal-check"></i>
+					<span>Persiapan Melahirkan</span>
+				</a>
+				<a href="{{ route('pengguna.nifas') }}"
+					class="nav-link {{ request()->routeIs('pengguna.nifas') ? 'active' : '' }}">
+					<i class="bi bi-calendar2-heart"></i>
+					<span>Pemantauan Ibu Nifas</span>
+				</a>
+				<a href="{{ route('pengguna.kb') }}"
+					class="nav-link {{ request()->routeIs('pengguna.kb') ? 'active' : '' }}">
+					<i class="bi bi-people"></i>
+					<span>Keluarga Berencana</span>
+				</a>
+				<a href="{{ route('pengguna.bayi') }}"
+					class="nav-link {{ request()->routeIs('pengguna.bayi') ? 'active' : '' }}">
+					<i class="bi bi-person-hearts"></i>
+					<span>Bayi Baru Lahir</span>
+				</a>
+				<a href="{{ route('pengguna.pemantauan_bayi') }}"
+					class="nav-link {{ request()->routeIs('pengguna.pemantauan_bayi') ? 'active' : '' }}">
+					<i class="bi bi-calendar2-check"></i>
+					<span>Pemantauan Bayi 0-28 Hari</span>
+				</a>
+				<a href="{{ route('pengguna.warna_tinja') }}"
+					class="nav-link {{ request()->routeIs('pengguna.warna_tinja') ? 'active' : '' }}">
+					<i class="bi bi-palette-fill"></i>
+					<span>Warna Tinja Bayi</span>
+				</a>
+				<a href="{{ route('pengguna.kelas_balita') }}"
+					class="nav-link {{ request()->routeIs('pengguna.kelas_balita') ? 'active' : '' }}">
+					<i class="bi bi-people-fill"></i>
+					<span>Kelas Ibu Balita</span>
+				</a>
+				<a href="{{ route('pengguna.mingguan_bayi') }}"
+					class="nav-link {{ request()->routeIs('pengguna.mingguan_bayi') ? 'active' : '' }}">
+					<i class="bi bi-heart-pulse-fill"></i>
+					<span>Bayi 29 Hari - 3 Bulan</span>
+				</a>
+				<a href="{{ route('pengguna.bulanan_bayi') }}"
+					class="nav-link {{ request()->routeIs('pengguna.bulanan_bayi') ? 'active' : '' }}">
+					<i class="bi bi-calendar-heart-fill"></i>
+					<span>Bayi Umur 3 - 6 Bulan</span>
+				</a>
+				<a href="{{ route('pengguna.bulanan_bayi_12') }}"
+					class="nav-link {{ request()->routeIs('pengguna.bulanan_bayi_12') ? 'active' : '' }}">
+					<i class="bi bi-calendar2-check-fill"></i>
+					<span>Bayi Umur 6 - 12 Bulan</span>
+				</a>
+				<a href="{{ route('pengguna.bulanan_anak_24') }}"
+					class="nav-link {{ request()->routeIs('pengguna.bulanan_anak_24') ? 'active' : '' }}">
+					<i class="bi bi-calendar2-star-fill"></i>
+					<span>Anak Umur 1 - 2 Tahun</span>
+				</a>
+				<a href="{{ route('pengguna.bulanan_anak_72') }}"
+					class="nav-link {{ request()->routeIs('pengguna.bulanan_anak_72') ? 'active' : '' }}">
+					<i class="bi bi-calendar3-range-fill"></i>
+					<span>Anak Umur 2 - 6 Tahun</span>
+				</a>
+				<a href="{{ route('pengguna.kesehatan_lingkungan') }}"
+					class="nav-link {{ request()->routeIs('pengguna.kesehatan_lingkungan') ? 'active' : '' }}">
+					<i class="bi bi-house-heart-fill"></i>
+					<span>Kesehatan Lingkungan</span>
+				</a>
 			</div>
 			<div class="nav-section">
 				<span class="nav-label">SISTEM</span>
@@ -162,6 +243,12 @@
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+	<!-- Firebase Realtime Database SDK for Real-time Chat -->
+	<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+	<script src="/js/momspire-firebase.js"></script>
+
 	<script>
 		window.MOMSPIRE_USE_LEGACY_ADMIN_API = false;
 		window.__momspireSidebarOpen = window.__MOMSPIRE_SIDEBAR_OPEN !== undefined ? !!window.__MOMSPIRE_SIDEBAR_OPEN : true;
@@ -218,6 +305,23 @@
 			document.querySelectorAll('.sidebar-nav .nav-link').forEach(function(el){
 				el.addEventListener('mouseenter', function(){ el.classList.add('hovered'); });
 				el.addEventListener('mouseleave', function(){ el.classList.remove('hovered'); });
+			});
+
+			// Animate sidebar when clicking dashboard action cards (close sidebar before navigating)
+			document.querySelectorAll('.action-shell').forEach(function(link){
+				link.addEventListener('click', function(e){
+					const href = link.getAttribute('href');
+					const target = link.getAttribute('target');
+					if (!href || target === '_blank') return; // ignore external/new-tab links
+					// Keep mobile behaviour (sidebar overlays) unchanged
+					if (window.matchMedia('(max-width: 991px)').matches) return;
+					if (window.__momspireSidebarOpen) {
+						e.preventDefault();
+						window.__momspireSidebarOpen = false;
+						window.__momspireSyncSidebar();
+						setTimeout(function(){ window.location.href = href; }, 340);
+					}
+				});
 			});
 		});
 	</script>

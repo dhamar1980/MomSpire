@@ -81,8 +81,12 @@ class FortifyServiceProvider extends ServiceProvider
                         if ($user->role === 'dokter') {
                             return redirect()->to(url('/dokter/dashboard'));
                         }
+                        if ($user->role === 'pengguna') {
+                            return redirect()->route('pengguna.dashboard');
+                        }
                     }
-                    return redirect()->to(url('/dashboard'));
+                    // If no valid role, redirect to login
+                    return redirect()->route('login');
                 }
             };
         });

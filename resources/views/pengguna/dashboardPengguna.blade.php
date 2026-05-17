@@ -1,7 +1,7 @@
 @extends('pengguna.master')
 
 @section('title', 'Dashboard Pengguna - MomSpire')
-@section('header_title', 'Dashboard Pengguna')
+@section('header_title', 'Dashboard')
 @section('header_subtitle', '')
 
 @push('head')
@@ -474,6 +474,106 @@
 		transform: scale(1.12) translateY(-6px);
 		opacity: 0.9;
 	}
+
+	.calendar-day-btn {
+		border: 1px solid #eef2f6;
+		border-radius: 12px;
+		background: #fff;
+		transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+		min-height: 72px;
+	}
+
+	.calendar-day-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+	}
+
+	.calendar-day-btn.is-today {
+		background: linear-gradient(180deg, rgba(230, 57, 128, 0.16), rgba(255, 255, 255, 0.96));
+		border-color: rgba(230, 57, 128, 0.55);
+		box-shadow: 0 0 0 2px rgba(230, 57, 128, 0.16);
+	}
+
+	.calendar-day-btn.is-weekend {
+		color: #dc2626;
+	}
+
+	.calendar-day-btn.is-holiday {
+		background: linear-gradient(180deg, rgba(255, 235, 238, 0.96), rgba(255, 255, 255, 0.98));
+		border-color: rgba(244, 63, 94, 0.4);
+	}
+
+	.calendar-day-btn.is-control {
+		background: linear-gradient(180deg, rgba(219, 234, 254, 0.95), rgba(255, 255, 255, 0.98));
+		border-color: rgba(59, 130, 246, 0.42);
+	}
+
+	.calendar-day-btn.is-immunization {
+		background: linear-gradient(180deg, rgba(220, 252, 231, 0.95), rgba(255, 255, 255, 0.98));
+		border-color: rgba(34, 197, 94, 0.42);
+	}
+
+	.calendar-day-btn.is-selected {
+		border-color: rgba(230, 57, 128, 0.75);
+		box-shadow: 0 12px 24px rgba(230, 57, 128, 0.18);
+	}
+
+	.calendar-marker {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.15rem 0.45rem;
+		border-radius: 999px;
+		font-size: 0.65rem;
+		font-weight: 700;
+		line-height: 1;
+	}
+
+	.calendar-marker.holiday {
+		background: rgba(244, 63, 94, 0.12);
+		color: #dc2626;
+	}
+
+	.calendar-marker.control {
+		background: rgba(59, 130, 246, 0.12);
+		color: #2563eb;
+	}
+
+	.calendar-marker.immunization {
+		background: rgba(34, 197, 94, 0.12);
+		color: #16a34a;
+	}
+
+	.detail-item {
+		border: 1px solid #e2e8f0;
+		border-radius: 14px;
+		padding: .75rem .85rem;
+		background: #fff;
+	}
+
+	.detail-item + .detail-item {
+		margin-top: .6rem;
+	}
+
+	.detail-item .time {
+		font-size: .78rem;
+		font-weight: 700;
+		color: var(--pengguna-muted);
+	}
+
+	.detail-item.control {
+		border-color: rgba(59, 130, 246, 0.25);
+		background: linear-gradient(180deg, rgba(239, 246, 255, 0.95), #fff);
+	}
+
+	.detail-item.immunization {
+		border-color: rgba(34, 197, 94, 0.25);
+		background: linear-gradient(180deg, rgba(240, 253, 244, 0.95), #fff);
+	}
+
+	.detail-item.meal {
+		border-color: rgba(148, 163, 184, 0.22);
+	}
 </style>
 @endpush
 
@@ -582,72 +682,67 @@
 				<div class="card-header border-bottom-light bg-white" style="border-bottom: 1px solid #e2e8f0; border-radius: 20px 20px 0 0;">
 					<div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
 						<h5 class="mb-0 fw-bold">JADWAL</h5>
+						@if(count($jadwalList) > 0)
+							<span class="badge bg-pink-light text-pink-primary rounded-pill">
+								<i class="bi bi-calendar-check"></i> {{ count($jadwalList) }} jadwal
+							</span>
+						@endif
 					</div>
 				</div>
 				<div class="card-body p-4">
-					<!-- Month Year Navigation (spaced) -->
-					<div class="row align-items-center justify-content-center mb-4">
-						<div class="col-12 d-flex align-items-center justify-content-center gap-3 flex-wrap">
-							<div class="flex-shrink-0">
-								<button class="btn btn-sm btn-outline-pink" id="monthPrev" type="button">
-									<i class="bi bi-chevron-left"></i> <span class="d-none d-sm-inline">Bulan Sebelumnya</span>
-								</button>
-							</div>
-							<div class="text-center mx-2">
-								<div class="text-muted small mb-1">Bulan</div>
-								<div class="h6 fw-bold mb-0" id="displayMonth">{{ \Carbon\Carbon::today()->translatedFormat('F') }}</div>
-							</div>
-							<div class="text-center mx-2">
-								<div class="text-muted small mb-1">Tahun</div>
-								<div class="h6 fw-bold mb-0" id="displayYear">{{ \Carbon\Carbon::today()->format('Y') }}</div>
-							</div>
-							<div class="flex-shrink-0">
-								<button class="btn btn-sm btn-outline-pink" id="monthNext" type="button">
-									<span class="d-none d-sm-inline">Bulan Berikutnya</span> <i class="bi bi-chevron-right"></i>
-								</button>
-							</div>
-						</div>
-					</div>
+					@php
+						$holidays = [];
+					@endphp
 
-					<!-- Date Navigation (prev/timeline/next on one line) -->
-					<div class="row align-items-center justify-content-center mb-4">
-						<div class="col-12">
-							<div class="d-flex align-items-center justify-content-center gap-3">
-								<div class="flex-shrink-0">
-									<button class="btn btn-sm btn-outline-pink" id="datePrev" type="button">
-										<i class="bi bi-chevron-left"></i> <span class="d-none d-sm-inline">7 Hari Sebelumnya</span>
-									</button>
+					<!-- Kalender dan Detail Jadwal -->
+					<div class="row">
+						<div class="col-12 col-md-5">
+							<div class="d-flex align-items-center justify-content-between mb-3">
+								<div>
+									<button class="btn btn-sm btn-outline-pink" id="calPrev"><i class="bi bi-chevron-left"></i></button>
 								</div>
-								<div class="flex-fill" style="min-width:0;">
-									<div class="schedule-timeline-responsive overflow-x-auto mb-0" id="scheduleTimeline">
-										@php
-											$days = collect();
-											for ($i = 0; $i < 7; $i++) {
-												$days->push(\Carbon\Carbon::today()->addDays($i));
-											}
-										@endphp
-										@foreach($days as $d)
-											<button class="btn btn-sm schedule-day-btn text-center flex-shrink-0" data-date="{{ $d->toDateString() }}" data-label="{{ $d->translatedFormat('l, d F Y') }}" style="min-width: 100px;">
-												<div class="small text-muted mb-1">{{ $d->translatedFormat('D') }}</div>
-												<div class="h5 fw-bold mb-1" style="color: #1e293b;">{{ $d->format('d') }}</div>
-												<div class="tiny text-muted">{{ $d->translatedFormat('M') }}</div>
-											</button>
-										@endforeach
-									</div>
+								<div class="text-center">
+									<div class="h5 fw-bold mb-0"><span id="displayMonth">April</span>&nbsp;<span id="displayYear">2026</span></div>
 								</div>
-								<div class="flex-shrink-0">
-									<button class="btn btn-sm btn-outline-pink" id="dateNext" type="button">
-										<span class="d-none d-sm-inline">7 Hari Berikutnya</span> <i class="bi bi-chevron-right"></i>
-									</button>
+								<div>
+									<button class="btn btn-sm btn-outline-pink" id="calNext"><i class="bi bi-chevron-right"></i></button>
+								</div>
+							</div>
+							<div class="border rounded p-3">
+								<div class="d-flex" style="gap:.5rem; font-weight:700;">
+									<div class="text-center text-danger" style="width:14.28%;">Min</div>
+									<div class="text-center" style="width:14.28%;">Sen</div>
+									<div class="text-center" style="width:14.28%;">Sel</div>
+									<div class="text-center" style="width:14.28%;">Rab</div>
+									<div class="text-center" style="width:14.28%;">Kam</div>
+									<div class="text-center" style="width:14.28%;">Jum</div>
+									<div class="text-center" style="width:14.28%;">Sab</div>
+								</div>
+								<div id="calendarGrid" class="mt-2"></div>
+							</div>
+
+							<!-- Legend -->
+							<div class="mt-3 d-flex gap-3 flex-wrap">
+								<div class="d-flex align-items-center gap-2">
+									<div style="width: 12px; height: 12px; border-radius: 4px; background: rgba(59, 130, 246, 0.25); border: 2px solid #3b82f6;"></div>
+									<span class="small text-muted">Kontrol</span>
+								</div>
+								<div class="d-flex align-items-center gap-2">
+									<div style="width: 12px; height: 12px; border-radius: 4px; background: rgba(34, 197, 94, 0.25); border: 2px solid #22c55e;"></div>
+									<span class="small text-muted">Imunisasi</span>
 								</div>
 							</div>
 						</div>
-					</div>
-
-					<!-- Schedule Detail -->
-					<div class="alert alert-light border-0 rounded-3" role="alert">
-						<h6 class="fw-semibold mb-2 text-pink-primary">Detail Kegiatan</h6>
-						<p id="scheduleDetail" class="text-muted mb-0">Pilih tanggal untuk melihat jadwal dan rincian kegiatan Anda.</p>
+						<div class="col-12 col-md-7">
+							<div class="alert alert-light border rounded-3" role="alert" style="background: linear-gradient(180deg, #fdf2f8 0%, #fff 100%);">
+								<h6 class="fw-semibold mb-3 text-pink-primary d-flex align-items-center gap-2">
+									<i class="bi bi-calendar-event"></i>
+									Detail Kegiatan
+								</h6>
+								<div id="selectedDateLabel" class="fw-bold mb-3" style="color: var(--pengguna-ink);"></div>
+								<div id="eventsList" class="text-muted">Klik tanggal di kalender untuk melihat detail jadwal.</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -656,123 +751,242 @@
 
 @push('scripts')
 <script>
-// Initialize date navigation
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
-let startDate = new Date();
-const todayStr = new Date().toISOString().split('T')[0];
+	// Calendar month view with detail pane
+	const holidays = @json($holidays ?? []);
+	const monthNames = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+	const dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
 
-// Month names in Indonesian
-const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+	// Jadwal dari database (dari bidan/dokter) - sudah dalam format Y-m-d
+	const jadwalList = @json($jadwalList ?? []);
 
-function updateScheduleTimeline() {
-	const timeline = document.getElementById('scheduleTimeline');
-	timeline.innerHTML = '';
-	
-	for (let i = 0; i < 7; i++) {
-		const date = new Date(startDate);
-		date.setDate(date.getDate() + i);
-		
-		const dateStr = date.toISOString().split('T')[0];
-		const dayName = dayNames[date.getDay()];
-		const dayNum = String(date.getDate()).padStart(2, '0');
-		const monthName = monthNamesShort[date.getMonth()];
-		
-		const btn = document.createElement('button');
-		btn.className = 'btn btn-sm schedule-day-btn text-center flex-shrink-0';
-		btn.type = 'button';
-		btn.setAttribute('data-date', dateStr);
-		btn.setAttribute('data-label', date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
-		btn.style.minWidth = '100px';
-		
-		// Add 'today' class if it's today
-		if (dateStr === todayStr) {
-			btn.classList.add('today');
+	// Build specialDayEvents dari jadwal database
+	const specialDayEvents = {};
+	jadwalList.forEach(function(jadwal) {
+		const dateKey = jadwal.tanggal; // Sudah format Y-m-d dari PHP
+		if (!specialDayEvents[dateKey]) {
+			specialDayEvents[dateKey] = [];
 		}
-		
-		btn.innerHTML = `
-			<div class="small text-muted mb-1">${dayName}</div>
-			<div class="h5 fw-bold mb-1" style="color: var(--pengguna-ink);">${dayNum}</div>
-			<div class="tiny text-muted">${monthName}</div>
-		`;
-		
-		btn.addEventListener('click', function() {
-			document.querySelectorAll('.schedule-day-btn').forEach(b => b.classList.remove('active'));
-			btn.classList.add('active');
-			const label = btn.getAttribute('data-label');
-			document.getElementById('scheduleDetail').textContent = 'Menampilkan detail untuk: ' + label;
+		specialDayEvents[dateKey].push({
+			kind: jadwal.jenis, // 'kontrol' atau 'imunisasi'
+			title: jadwal.judul,
+			time: jadwal.waktu || '',
+			note: jadwal.catatan || '',
+			bidan: jadwal.bidan ? jadwal.bidan.name : (jadwal.dokter ? jadwal.dokter.name : ''),
 		});
-		
-		timeline.appendChild(btn);
+	});
+
+	const mealSchedule = [
+		{ kind: 'meal', title: 'Makan pagi', time: '07:00', note: 'Sarapan bergizi untuk mulai hari dengan baik.' },
+		{ kind: 'meal', title: 'Makan siang', time: '12:00', note: 'Makan siang seimbang untuk menjaga energi.' },
+		{ kind: 'meal', title: 'Makan malam', time: '18:00', note: 'Makan malam ringan dan cukup agar tetap nyaman.' },
+	];
+
+	function padNumber(value) {
+		return String(value).padStart(2, '0');
 	}
-}
 
-function updateMonthYearDisplay() {
-	document.getElementById('displayMonth').textContent = monthNames[currentMonth];
-	document.getElementById('displayYear').textContent = currentYear;
-}
-
-// Month navigation
-document.getElementById('monthPrev').addEventListener('click', function() {
-	currentMonth--;
-	if (currentMonth < 0) {
-		currentMonth = 11;
-		currentYear--;
+	function toIsoDate(year, month, day) {
+		return `${year}-${padNumber(month + 1)}-${padNumber(day)}`;
 	}
-	startDate = new Date(currentYear, currentMonth, 1);
-	updateMonthYearDisplay();
-	updateScheduleTimeline();
-});
 
-document.getElementById('monthNext').addEventListener('click', function() {
-	currentMonth++;
-	if (currentMonth > 11) {
-		currentMonth = 0;
-		currentYear++;
+	function formatDateLabel(dateIso) {
+		return new Date(`${dateIso}T00:00:00`).toLocaleDateString('id-ID', {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+		});
 	}
-	startDate = new Date(currentYear, currentMonth, 1);
-	updateMonthYearDisplay();
-	updateScheduleTimeline();
-});
 
-// Date navigation (7 days at a time)
-document.getElementById('datePrev').addEventListener('click', function() {
-	startDate.setDate(startDate.getDate() - 7);
-	currentMonth = startDate.getMonth();
-	currentYear = startDate.getFullYear();
-	updateMonthYearDisplay();
-	updateScheduleTimeline();
-});
+	function getTodayIso() {
+		const today = new Date();
+		return toIsoDate(today.getFullYear(), today.getMonth(), today.getDate());
+	}
 
-document.getElementById('dateNext').addEventListener('click', function() {
-	startDate.setDate(startDate.getDate() + 7);
-	currentMonth = startDate.getMonth();
-	currentYear = startDate.getFullYear();
-	updateMonthYearDisplay();
-	updateScheduleTimeline();
-});
+	function getSpecialEvents(dateIso) {
+		const events = specialDayEvents[dateIso] ? [...specialDayEvents[dateIso]] : [];
+		return events.sort((left, right) => {
+			const priority = { kontrol: 0, imunisasi: 1, control: 1, immunization: 1, holiday: 2, meal: 3 };
+			return (priority[left.kind] ?? 9) - (priority[right.kind] ?? 9);
+		});
+	}
 
-// Initial setup
-document.querySelectorAll('.schedule-day-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){
-        document.querySelectorAll('.schedule-day-btn').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-		const label = btn.getAttribute('data-label') || btn.getAttribute('data-date');
-		document.getElementById('scheduleDetail').textContent = 'Menampilkan detail untuk: ' + label;
-    });
-});
+	let now = new Date();
+	let currentYear = now.getFullYear();
+	let currentMonth = now.getMonth(); // 0-based
+	let selectedDateIso = getTodayIso();
 
-// Dragging for timeline on desktop
-const scrollers = document.querySelectorAll('#scheduleTimeline');
-scrollers.forEach(function(el){
-    let isDown=false, startX, scrollLeft;
-    el.addEventListener('mousedown', (e)=>{ isDown=true; el.classList.add('dragging'); startX=e.pageX - el.offsetLeft; scrollLeft=el.scrollLeft; });
-    el.addEventListener('mouseleave', ()=>{ isDown=false; el.classList.remove('dragging'); });
-    el.addEventListener('mouseup', ()=>{ isDown=false; el.classList.remove('dragging'); });
-    el.addEventListener('mousemove', (e)=>{ if(!isDown) return; e.preventDefault(); const x=e.pageX - el.offsetLeft; const walk=(x-startX)*2; el.scrollLeft=scrollLeft-walk; });
-});
+	function getDateMeta(dateIso) {
+		const specialEvents = getSpecialEvents(dateIso);
+		return {
+			isHoliday: Boolean(holidays && holidays[dateIso]),
+			holidayNote: holidays[dateIso] || '',
+			hasControl: specialEvents.some((event) => event.kind === 'kontrol'),
+			hasImmunization: specialEvents.some((event) => event.kind === 'imunisasi'),
+			specialEvents,
+		};
+	}
+
+	function renderCalendar(year, month) {
+		const grid = document.getElementById('calendarGrid');
+		grid.innerHTML = '';
+		document.getElementById('displayMonth').textContent = monthNames[month];
+		document.getElementById('displayYear').textContent = year;
+
+		const firstDay = new Date(year, month, 1);
+		const startDay = firstDay.getDay(); // 0-6 (Sun-Sat)
+		const daysInMonth = new Date(year, month + 1, 0).getDate();
+		const todayIso = getTodayIso();
+
+		// Create 6 rows of 7 days
+		let day = 1 - startDay;
+		for (let week = 0; week < 6; week++) {
+			const row = document.createElement('div');
+			row.className = 'd-flex';
+			for (let dow = 0; dow < 7; dow++, day++) {
+				const cell = document.createElement('div');
+				cell.style.width = '14.28%';
+				cell.style.padding = '6px';
+				cell.style.boxSizing = 'border-box';
+				cell.className = 'text-center';
+
+				if (day < 1 || day > daysInMonth) {
+					cell.innerHTML = '&nbsp;';
+				} else {
+					const dateObj = new Date(year, month, day);
+					const iso = toIsoDate(year, month, day);
+					const weekdayIndex = dateObj.getDay();
+					const meta = getDateMeta(iso);
+
+					const btn = document.createElement('button');
+					btn.type = 'button';
+					btn.className = 'btn w-100 p-2 calendar-day-btn';
+					btn.dataset.date = iso;
+
+					const isSunday = weekdayIndex === 0;
+
+					let inner = `<div class="small mb-1 ${isSunday ? 'text-danger' : 'text-muted'}">${dayNames[weekdayIndex]}</div>`;
+					inner += `<div class="h6 fw-bold mb-0">${day}</div>`;
+					// Tampilkan marker untuk setiap jenis jadwal
+					if (meta.hasControl) inner += `<div class="calendar-marker control">Kontrol</div>`;
+					if (meta.hasImmunization) inner += `<div class="calendar-marker immunization">Imunisasi</div>`;
+					if (meta.isHoliday && !meta.hasControl && !meta.hasImmunization) inner += `<div class="calendar-marker holiday">Libur</div>`;
+
+					btn.innerHTML = inner;
+
+					if (isSunday) {
+						btn.classList.add('text-danger');
+						btn.classList.add('is-weekend');
+					}
+					if (meta.isHoliday) {
+						btn.classList.add('is-holiday');
+					}
+					if (meta.hasControl) {
+						btn.classList.add('is-control');
+					}
+					if (meta.hasImmunization) {
+						btn.classList.add('is-immunization');
+					}
+
+					// mark today
+					if (iso === todayIso) {
+						btn.classList.add('is-today');
+					}
+
+					if (selectedDateIso && iso === selectedDateIso) {
+						btn.classList.add('is-selected');
+						btn.classList.add('active');
+					}
+
+					btn.addEventListener('click', function(){
+						selectedDateIso = iso;
+						renderCalendar(currentYear, currentMonth);
+						showDetails(iso);
+					});
+
+					if (meta.isHoliday) {
+						btn.title = meta.holidayNote;
+					} else if (meta.hasControl || meta.hasImmunization) {
+						btn.title = meta.specialEvents.map((event) => `${event.title} ${event.time}`).join(' | ');
+					}
+
+					cell.appendChild(btn);
+				}
+				row.appendChild(cell);
+			}
+			grid.appendChild(row);
+		}
+	}
+
+	function showDetails(dateIso) {
+		const label = formatDateLabel(dateIso);
+		document.getElementById('selectedDateLabel').textContent = label;
+		const meta = getDateMeta(dateIso);
+
+		const eventsContainer = document.getElementById('eventsList');
+
+		// Gabungkan jadwal dari database (kontrol/imunisasi) + jadwal makan
+		const kontrolImunisasi = meta.specialEvents.map((event) => {
+			const eventClass = event.kind === 'kontrol' || event.kind === 'control' ? 'control' : 'immunization';
+			const badgeText = event.kind === 'kontrol' || event.kind === 'control' ? 'Kontrol' : 'Imunisasi';
+			const badgeClass = event.kind === 'kontrol' || event.kind === 'control' ? 'bg-primary-subtle text-primary' : 'bg-success-subtle text-success';
+			let eventHtml = `
+				<div class="detail-item ${eventClass}">
+					<div class="d-flex align-items-start justify-content-between gap-2">
+						<div>
+							<div class="time">${event.time ? event.time + ' WIB' : 'Waktu belum ditentukan'}</div>
+							<div class="fw-bold">${event.title}</div>
+						</div>
+						<span class="badge rounded-pill ${badgeClass}">${badgeText}</span>
+					</div>`;
+			if (event.bidan) {
+				eventHtml += `<div class="text-muted small mt-2"><i class="bi bi-person"></i> ${event.bidan}</div>`;
+			}
+			if (event.note) {
+				eventHtml += `<div class="text-muted small mt-1">${event.note}</div>`;
+			}
+			eventHtml += `</div>`;
+			return eventHtml;
+		});
+
+		// Jadwal makan untuk setiap hari
+		const mealEvents = mealSchedule.map((meal) => {
+			const badgeClass = 'bg-light text-secondary';
+			return `
+				<div class="detail-item meal">
+					<div class="d-flex align-items-start justify-content-between gap-2">
+						<div>
+							<div class="time">${meal.time}</div>
+							<div class="fw-bold">${meal.title}</div>
+						</div>
+						<span class="badge rounded-pill ${badgeClass}">Makan</span>
+					</div>
+					<div class="text-muted small mt-2">${meal.note}</div>
+				</div>
+			`;
+		});
+
+		// Kontrol/imunisasi di atas, kemudian jadwal makan
+		if (kontrolImunisasi.length > 0) {
+			eventsContainer.innerHTML = kontrolImunisasi.join('') + mealEvents.join('');
+		} else {
+			eventsContainer.innerHTML = mealEvents.join('');
+		}
+	}
+
+	document.getElementById('calPrev').addEventListener('click', function(){
+		currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+		renderCalendar(currentYear, currentMonth);
+	});
+	document.getElementById('calNext').addEventListener('click', function(){
+		currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+		renderCalendar(currentYear, currentMonth);
+	});
+
+	// Initial render
+	renderCalendar(currentYear, currentMonth);
+	// Show today's details by default
+	showDetails(getTodayIso());
 </script>
 @endpush
 
