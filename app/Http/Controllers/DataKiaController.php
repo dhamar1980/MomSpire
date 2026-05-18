@@ -15,7 +15,37 @@ class DataKiaController extends Controller
         $dataKia = DataKia::with(['ibu', 'suami', 'anak', 'layanan', 'riwayat'])
             ->firstOrCreate(['user_id' => auth()->id()]);
 
-        return view('pengguna.kia-wizard', compact('dataKia'));
+        // Build bukuKiaCards - one card per DataKia record
+        // Users can have multiple DataKia records for multiple pregnancies/children
+        $allDataKia = DataKia::where('user_id', auth()->id())
+            ->with(['ibu', 'anak'])
+            ->get();
+
+        $bukuKiaCards = [];
+        foreach ($allDataKia as $kia) {
+            $label = 'Buku KIA Utama';
+            $namaAnak = null;
+            $status = 'Draft';
+
+            if ($kia->ibu) {
+                $label = $kia->ibu->nama ? 'Buku KIA - ' . $kia->ibu->nama : 'Buku KIA Utama';
+                $namaAnak = $kia->anak->nama ?? null;
+                if ($kia->ibu->tanggal_lahir) {
+                    $status = 'Aktif';
+                }
+            }
+
+            $bukuKiaCards[] = [
+                'id' => $kia->id,
+                'label' => $label,
+                'status' => $status,
+                'nama_anak' => $namaAnak,
+            ];
+        }
+
+        $totalBukuKia = count($bukuKiaCards);
+
+        return view('pengguna.bukuKIA', compact('dataKia', 'bukuKiaCards', 'totalBukuKia'));
     }
 
     public function saveWizard(Request $request)
@@ -123,10 +153,15 @@ class DataKiaController extends Controller
             'trimester_3' => $clean($request->trimester_3),
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data berhasil disimpan secara terpisah.'
-        ]);
+        // Check if AJAX request
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Data berhasil disimpan.'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Data berhasil disimpan.');
     }
 
     public function exportPdf($id)

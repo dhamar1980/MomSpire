@@ -1,18 +1,16 @@
-@extends('pengguna.master')
-
-@section('title', 'Buku KIA - MomSpire')
-@section('header_title')
+<?php $__env->startSection('title', 'Buku KIA - MomSpire'); ?>
+<?php $__env->startSection('header_title'); ?>
     Buku KIA
-@endsection
-@section('header_subtitle', '')
-@section('header_action')
-    <a href="{{ route('pengguna.dashboard') }}" class="btn btn-back-page">
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('header_subtitle', ''); ?>
+<?php $__env->startSection('header_action'); ?>
+    <a href="<?php echo e(route('pengguna.dashboard')); ?>" class="btn btn-back-page">
         <i class="bi bi-arrow-left"></i>
         <span>Kembali</span>
     </a>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('head')
+<?php $__env->startPush('head'); ?>
 <script>
     window.__MOMSPIRE_SIDEBAR_OPEN = false;
     window.__MOMSPIRE_HEADER_TITLE_LOCK = 'Buku KIA';
@@ -437,9 +435,9 @@
         }
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="buku-kia-shell">
     <!-- Hero Section -->
     <div class="kia-hero">
@@ -462,14 +460,14 @@
         <div class="kia-preview-body">
             <div class="kia-book-preview">
                 <i class="bi bi-book"></i>
-                <h5>Buku KIA - {{ $dataKia->ibu->nama ?? 'Data Pengguna' }}</h5>
+                <h5>Buku KIA - <?php echo e($dataKia->ibu->nama ?? 'Data Pengguna'); ?></h5>
                 <p>Buku Kesehatan Ibu dan Anak (KIA) berisi catatan kesehatan ibu hamil, persalinan, dan tumbuh kembang anak.</p>
                 <div class="kia-book-actions">
                     <button class="btn-preview btn-preview-outline" onclick="openPdfInline()">
                         <i class="bi bi-eye"></i>
                         Lihat Buku KIA
                     </button>
-                    <a href="{{ route('pengguna.kia.download') }}" class="btn-preview btn-preview-filled">
+                    <a href="<?php echo e(route('pengguna.kia.download')); ?>" class="btn-preview btn-preview-filled">
                         <i class="bi bi-download"></i>
                         Download PDF
                     </a>
@@ -487,8 +485,8 @@
             </h4>
         </div>
         <div class="kia-form-body">
-            <form id="kiaForm" action="{{ route('pengguna.kia.save_wizard') }}" method="POST">
-                @csrf
+            <form id="kiaForm" action="<?php echo e(route('pengguna.kia.save_wizard')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
 
                 <!-- Category Tabs -->
                 <div class="category-tabs">
@@ -530,22 +528,22 @@
                             <div>
                                 <label class="form-label-custom">Faskes Dikeluarkan</label>
                                 <input type="text" class="form-control form-control-custom" name="faskes_dikeluarkan"
-                                    value="{{ $dataKia->faskes_dikeluarkan ?? old('faskes_dikeluarkan') }}" placeholder="Nama faskes">
+                                    value="<?php echo e($dataKia->faskes_dikeluarkan ?? old('faskes_dikeluarkan')); ?>" placeholder="Nama faskes">
                             </div>
                             <div>
                                 <label class="form-label-custom">Tanggal Dikeluarkan</label>
                                 <input type="date" class="form-control form-control-custom" name="tanggal_dikeluarkan"
-                                    value="{{ $dataKia->tanggal_dikeluarkan ?? old('tanggal_dikeluarkan') }}">
+                                    value="<?php echo e($dataKia->tanggal_dikeluarkan ?? old('tanggal_dikeluarkan')); ?>">
                             </div>
                             <div>
                                 <label class="form-label-custom">Kabupaten/Kota</label>
                                 <input type="text" class="form-control form-control-custom" name="kab_kota_dikeluarkan"
-                                    value="{{ $dataKia->kab_kota_dikeluarkan ?? old('kab_kota_dikeluarkan') }}" placeholder="Kabupaten/Kota">
+                                    value="<?php echo e($dataKia->kab_kota_dikeluarkan ?? old('kab_kota_dikeluarkan')); ?>" placeholder="Kabupaten/Kota">
                             </div>
                             <div>
                                 <label class="form-label-custom">Provinsi</label>
                                 <input type="text" class="form-control form-control-custom" name="provinsi_dikeluarkan"
-                                    value="{{ $dataKia->provinsi_dikeluarkan ?? old('provinsi_dikeluarkan') }}" placeholder="Provinsi">
+                                    value="<?php echo e($dataKia->provinsi_dikeluarkan ?? old('provinsi_dikeluarkan')); ?>" placeholder="Provinsi">
                             </div>
                         </div>
                     </div>
@@ -559,37 +557,37 @@
                             <div>
                                 <label class="form-label-custom">Nama Lengkap</label>
                                 <input type="text" class="form-control form-control-custom" name="nama_ibu"
-                                    value="{{ $dataKia->ibu->nama ?? old('nama_ibu') }}" placeholder="Nama lengkap">
+                                    value="<?php echo e($dataKia->ibu->nama ?? old('nama_ibu')); ?>" placeholder="Nama lengkap">
                             </div>
                             <div>
                                 <label class="form-label-custom">NIK</label>
                                 <input type="text" class="form-control form-control-custom" name="nik"
-                                    value="{{ $dataKia->ibu->nik ?? old('nik') }}" placeholder="16 digit NIK" maxlength="16">
+                                    value="<?php echo e($dataKia->ibu->nik ?? old('nik')); ?>" placeholder="16 digit NIK" maxlength="16">
                             </div>
                             <div>
                                 <label class="form-label-custom">No. JKN / BPJS</label>
                                 <input type="text" class="form-control form-control-custom" name="no_jkn_ibu"
-                                    value="{{ $dataKia->ibu->no_jkn ?? old('no_jkn_ibu') }}" placeholder="No. JKN/BPJS">
+                                    value="<?php echo e($dataKia->ibu->no_jkn ?? old('no_jkn_ibu')); ?>" placeholder="No. JKN/BPJS">
                             </div>
                         </div>
                         <div class="form-row-custom">
                             <div>
                                 <label class="form-label-custom">Tempat Lahir</label>
                                 <input type="text" class="form-control form-control-custom" name="tempat_lahir"
-                                    value="{{ $dataKia->ibu->tempat_lahir ?? old('tempat_lahir') }}" placeholder="Kota kelahiran">
+                                    value="<?php echo e($dataKia->ibu->tempat_lahir ?? old('tempat_lahir')); ?>" placeholder="Kota kelahiran">
                             </div>
                             <div>
                                 <label class="form-label-custom">Tanggal Lahir</label>
                                 <input type="date" class="form-control form-control-custom" name="tanggal_lahir"
-                                    value="{{ $dataKia->ibu->tanggal_lahir ?? old('tanggal_lahir') }}">
+                                    value="<?php echo e($dataKia->ibu->tanggal_lahir ?? old('tanggal_lahir')); ?>">
                             </div>
                             <div>
                                 <label class="form-label-custom">Golongan Darah</label>
                                 <select class="form-select form-select-custom" name="golongan_darah">
                                     <option value="">Pilih</option>
-                                    @foreach(['A', 'B', 'AB', 'O'] as $goldar)
-                                        <option value="{{ $goldar }}" {{ ($dataKia->ibu->golongan_darah ?? old('golongan_darah')) == $goldar ? 'selected' : '' }}>{{ $goldar }}</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = ['A', 'B', 'AB', 'O']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $goldar): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($goldar); ?>" <?php echo e(($dataKia->ibu->golongan_darah ?? old('golongan_darah')) == $goldar ? 'selected' : ''); ?>><?php echo e($goldar); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                         </div>
@@ -598,27 +596,27 @@
                                 <label class="form-label-custom">Pendidikan</label>
                                 <select class="form-select form-select-custom" name="pendidikan">
                                     <option value="">Pilih</option>
-                                    @foreach(['Tidak Sekolah', 'SD', 'SMP', 'SMA/SMK', 'D1-D3', 'S1', 'S2', 'S3'] as $pend)
-                                        <option value="{{ $pend }}" {{ ($dataKia->ibu->pendidikan ?? old('pendidikan')) == $pend ? 'selected' : '' }}>{{ $pend }}</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = ['Tidak Sekolah', 'SD', 'SMP', 'SMA/SMK', 'D1-D3', 'S1', 'S2', 'S3']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pend): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($pend); ?>" <?php echo e(($dataKia->ibu->pendidikan ?? old('pendidikan')) == $pend ? 'selected' : ''); ?>><?php echo e($pend); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                             <div>
                                 <label class="form-label-custom">Pekerjaan</label>
                                 <input type="text" class="form-control form-control-custom" name="pekerjaan"
-                                    value="{{ $dataKia->ibu->pekerjaan ?? old('pekerjaan') }}" placeholder="Pekerjaan">
+                                    value="<?php echo e($dataKia->ibu->pekerjaan ?? old('pekerjaan')); ?>" placeholder="Pekerjaan">
                             </div>
                             <div>
                                 <label class="form-label-custom">Telepon/HP</label>
                                 <input type="tel" class="form-control form-control-custom" name="telepon_ibu"
-                                    value="{{ $dataKia->ibu->telepon ?? old('telepon_ibu') }}" placeholder="08xxxxxxxxxx">
+                                    value="<?php echo e($dataKia->ibu->telepon ?? old('telepon_ibu')); ?>" placeholder="08xxxxxxxxxx">
                             </div>
                         </div>
                         <div class="form-row-custom">
                             <div>
                                 <label class="form-label-custom">Alamat Lengkap</label>
                                 <input type="text" class="form-control form-control-custom" name="alamat"
-                                    value="{{ $dataKia->ibu->alamat ?? old('alamat') }}" placeholder="Alamat lengkap">
+                                    value="<?php echo e($dataKia->ibu->alamat ?? old('alamat')); ?>" placeholder="Alamat lengkap">
                             </div>
                         </div>
                     </div>
@@ -628,12 +626,12 @@
                             <div>
                                 <label class="form-label-custom">Faskes TK1</label>
                                 <input type="text" class="form-control form-control-custom" name="faskes_tk1_ibu"
-                                    value="{{ $dataKia->ibu->faskes_tk1 ?? old('faskes_tk1_ibu') }}" placeholder="Faskes Tingkat Pertama">
+                                    value="<?php echo e($dataKia->ibu->faskes_tk1 ?? old('faskes_tk1_ibu')); ?>" placeholder="Faskes Tingkat Pertama">
                             </div>
                             <div>
                                 <label class="form-label-custom">Faskes Rujukan</label>
                                 <input type="text" class="form-control form-control-custom" name="faskes_rujukan_ibu"
-                                    value="{{ $dataKia->ibu->faskes_rujukan ?? old('faskes_rujukan_ibu') }}" placeholder="Faskes Rujukan">
+                                    value="<?php echo e($dataKia->ibu->faskes_rujukan ?? old('faskes_rujukan_ibu')); ?>" placeholder="Faskes Rujukan">
                             </div>
                         </div>
                     </div>
@@ -647,37 +645,37 @@
                             <div>
                                 <label class="form-label-custom">Nama Lengkap Suami</label>
                                 <input type="text" class="form-control form-control-custom" name="nama_suami"
-                                    value="{{ $dataKia->suami->nama ?? old('nama_suami') }}" placeholder="Nama lengkap suami">
+                                    value="<?php echo e($dataKia->suami->nama ?? old('nama_suami')); ?>" placeholder="Nama lengkap suami">
                             </div>
                             <div>
                                 <label class="form-label-custom">NIK Suami</label>
                                 <input type="text" class="form-control form-control-custom" name="nik_suami"
-                                    value="{{ $dataKia->suami->nik ?? old('nik_suami') }}" placeholder="16 digit NIK" maxlength="16">
+                                    value="<?php echo e($dataKia->suami->nik ?? old('nik_suami')); ?>" placeholder="16 digit NIK" maxlength="16">
                             </div>
                             <div>
                                 <label class="form-label-custom">No. JKN / BPJS Suami</label>
                                 <input type="text" class="form-control form-control-custom" name="no_jkn_suami"
-                                    value="{{ $dataKia->suami->no_jkn ?? old('no_jkn_suami') }}" placeholder="No. JKN/BPJS">
+                                    value="<?php echo e($dataKia->suami->no_jkn ?? old('no_jkn_suami')); ?>" placeholder="No. JKN/BPJS">
                             </div>
                         </div>
                         <div class="form-row-custom">
                             <div>
                                 <label class="form-label-custom">Tempat Lahir</label>
                                 <input type="text" class="form-control form-control-custom" name="tempat_lahir_suami"
-                                    value="{{ $dataKia->suami->tempat_lahir ?? old('tempat_lahir_suami') }}" placeholder="Kota kelahiran">
+                                    value="<?php echo e($dataKia->suami->tempat_lahir ?? old('tempat_lahir_suami')); ?>" placeholder="Kota kelahiran">
                             </div>
                             <div>
                                 <label class="form-label-custom">Tanggal Lahir</label>
                                 <input type="date" class="form-control form-control-custom" name="tanggal_lahir_suami"
-                                    value="{{ $dataKia->suami->tanggal_lahir ?? old('tanggal_lahir_suami') }}">
+                                    value="<?php echo e($dataKia->suami->tanggal_lahir ?? old('tanggal_lahir_suami')); ?>">
                             </div>
                             <div>
                                 <label class="form-label-custom">Golongan Darah</label>
                                 <select class="form-select form-select-custom" name="golongan_darah_suami">
                                     <option value="">Pilih</option>
-                                    @foreach(['A', 'B', 'AB', 'O'] as $goldar)
-                                        <option value="{{ $goldar }}" {{ ($dataKia->suami->golongan_darah ?? old('golongan_darah_suami')) == $goldar ? 'selected' : '' }}>{{ $goldar }}</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = ['A', 'B', 'AB', 'O']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $goldar): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($goldar); ?>" <?php echo e(($dataKia->suami->golongan_darah ?? old('golongan_darah_suami')) == $goldar ? 'selected' : ''); ?>><?php echo e($goldar); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                         </div>
@@ -686,27 +684,27 @@
                                 <label class="form-label-custom">Pendidikan</label>
                                 <select class="form-select form-select-custom" name="pendidikan_suami">
                                     <option value="">Pilih</option>
-                                    @foreach(['Tidak Sekolah', 'SD', 'SMP', 'SMA/SMK', 'D1-D3', 'S1', 'S2', 'S3'] as $pend)
-                                        <option value="{{ $pend }}" {{ ($dataKia->suami->pendidikan ?? old('pendidikan_suami')) == $pend ? 'selected' : '' }}>{{ $pend }}</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = ['Tidak Sekolah', 'SD', 'SMP', 'SMA/SMK', 'D1-D3', 'S1', 'S2', 'S3']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pend): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($pend); ?>" <?php echo e(($dataKia->suami->pendidikan ?? old('pendidikan_suami')) == $pend ? 'selected' : ''); ?>><?php echo e($pend); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                             <div>
                                 <label class="form-label-custom">Pekerjaan</label>
                                 <input type="text" class="form-control form-control-custom" name="pekerjaan_suami"
-                                    value="{{ $dataKia->suami->pekerjaan ?? old('pekerjaan_suami') }}" placeholder="Pekerjaan">
+                                    value="<?php echo e($dataKia->suami->pekerjaan ?? old('pekerjaan_suami')); ?>" placeholder="Pekerjaan">
                             </div>
                             <div>
                                 <label class="form-label-custom">Telepon/HP</label>
                                 <input type="tel" class="form-control form-control-custom" name="telepon_suami"
-                                    value="{{ $dataKia->suami->telepon ?? old('telepon_suami') }}" placeholder="08xxxxxxxxxx">
+                                    value="<?php echo e($dataKia->suami->telepon ?? old('telepon_suami')); ?>" placeholder="08xxxxxxxxxx">
                             </div>
                         </div>
                         <div class="form-row-custom">
                             <div>
                                 <label class="form-label-custom">Alamat Rumah</label>
                                 <input type="text" class="form-control form-control-custom" name="alamat_rumah_suami"
-                                    value="{{ $dataKia->suami->alamat ?? old('alamat_rumah_suami') }}" placeholder="Alamat rumah">
+                                    value="<?php echo e($dataKia->suami->alamat ?? old('alamat_rumah_suami')); ?>" placeholder="Alamat rumah">
                             </div>
                         </div>
                     </div>
@@ -716,12 +714,12 @@
                             <div>
                                 <label class="form-label-custom">Faskes TK1 Suami</label>
                                 <input type="text" class="form-control form-control-custom" name="faskes_tk1_suami"
-                                    value="{{ $dataKia->suami->faskes_tk1 ?? old('faskes_tk1_suami') }}" placeholder="Faskes TK1">
+                                    value="<?php echo e($dataKia->suami->faskes_tk1 ?? old('faskes_tk1_suami')); ?>" placeholder="Faskes TK1">
                             </div>
                             <div>
                                 <label class="form-label-custom">Faskes Rujukan Suami</label>
                                 <input type="text" class="form-control form-control-custom" name="faskes_rujukan_suami"
-                                    value="{{ $dataKia->suami->faskes_rujukan ?? old('faskes_rujukan_suami') }}" placeholder="Faskes Rujukan">
+                                    value="<?php echo e($dataKia->suami->faskes_rujukan ?? old('faskes_rujukan_suami')); ?>" placeholder="Faskes Rujukan">
                             </div>
                         </div>
                     </div>
@@ -735,62 +733,62 @@
                             <div>
                                 <label class="form-label-custom">Nama Lengkap Anak</label>
                                 <input type="text" class="form-control form-control-custom" name="nama_anak"
-                                    value="{{ $dataKia->anak->nama ?? old('nama_anak') }}" placeholder="Nama lengkap anak">
+                                    value="<?php echo e($dataKia->anak->nama ?? old('nama_anak')); ?>" placeholder="Nama lengkap anak">
                             </div>
                             <div>
                                 <label class="form-label-custom">NIK Anak</label>
                                 <input type="text" class="form-control form-control-custom" name="nik_anak"
-                                    value="{{ $dataKia->anak->nik ?? old('nik_anak') }}" placeholder="16 digit NIK" maxlength="16">
+                                    value="<?php echo e($dataKia->anak->nik ?? old('nik_anak')); ?>" placeholder="16 digit NIK" maxlength="16">
                             </div>
                             <div>
                                 <label class="form-label-custom">No. JKN / BPJS Anak</label>
                                 <input type="text" class="form-control form-control-custom" name="no_jkn_anak"
-                                    value="{{ $dataKia->anak->no_jkn ?? old('no_jkn_anak') }}" placeholder="No. JKN/BPJS">
+                                    value="<?php echo e($dataKia->anak->no_jkn ?? old('no_jkn_anak')); ?>" placeholder="No. JKN/BPJS">
                             </div>
                         </div>
                         <div class="form-row-custom">
                             <div>
                                 <label class="form-label-custom">Tempat Lahir</label>
                                 <input type="text" class="form-control form-control-custom" name="tempat_lahir_anak"
-                                    value="{{ $dataKia->anak->tempat_lahir ?? old('tempat_lahir_anak') }}" placeholder="Kota kelahiran">
+                                    value="<?php echo e($dataKia->anak->tempat_lahir ?? old('tempat_lahir_anak')); ?>" placeholder="Kota kelahiran">
                             </div>
                             <div>
                                 <label class="form-label-custom">Tanggal Lahir</label>
                                 <input type="date" class="form-control form-control-custom" name="tanggal_lahir_anak"
-                                    value="{{ $dataKia->anak->tanggal_lahir ?? old('tanggal_lahir_anak') }}">
+                                    value="<?php echo e($dataKia->anak->tanggal_lahir ?? old('tanggal_lahir_anak')); ?>">
                             </div>
                             <div>
                                 <label class="form-label-custom">Anak ke-</label>
                                 <input type="number" class="form-control form-control-custom" name="anak_ke" min="1"
-                                    value="{{ $dataKia->anak->anak_ke ?? old('anak_ke') }}" placeholder="1">
+                                    value="<?php echo e($dataKia->anak->anak_ke ?? old('anak_ke')); ?>" placeholder="1">
                             </div>
                         </div>
                         <div class="form-row-custom">
                             <div>
                                 <label class="form-label-custom">No. Akta Kelahiran</label>
                                 <input type="text" class="form-control form-control-custom" name="no_akta_kelahiran_anak"
-                                    value="{{ $dataKia->anak->no_akta_kelahiran ?? old('no_akta_kelahiran_anak') }}" placeholder="No. Akta">
+                                    value="<?php echo e($dataKia->anak->no_akta_kelahiran ?? old('no_akta_kelahiran_anak')); ?>" placeholder="No. Akta">
                             </div>
                             <div>
                                 <label class="form-label-custom">Golongan Darah</label>
                                 <select class="form-select form-select-custom" name="golongan_darah_anak">
                                     <option value="">Pilih</option>
-                                    @foreach(['A', 'B', 'AB', 'O'] as $goldar)
-                                        <option value="{{ $goldar }}" {{ ($dataKia->anak->golongan_darah ?? old('golongan_darah_anak')) == $goldar ? 'selected' : '' }}>{{ $goldar }}</option>
-                                    @endforeach
+                                    <?php $__currentLoopData = ['A', 'B', 'AB', 'O']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $goldar): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($goldar); ?>" <?php echo e(($dataKia->anak->golongan_darah ?? old('golongan_darah_anak')) == $goldar ? 'selected' : ''); ?>><?php echo e($goldar); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                             <div>
                                 <label class="form-label-custom">Telepon</label>
                                 <input type="tel" class="form-control form-control-custom" name="telepon_anak"
-                                    value="{{ $dataKia->anak->telepon ?? old('telepon_anak') }}" placeholder="08xxxxxxxxxx">
+                                    value="<?php echo e($dataKia->anak->telepon ?? old('telepon_anak')); ?>" placeholder="08xxxxxxxxxx">
                             </div>
                         </div>
                         <div class="form-row-custom">
                             <div>
                                 <label class="form-label-custom">Alamat Rumah Anak</label>
                                 <input type="text" class="form-control form-control-custom" name="alamat_anak"
-                                    value="{{ $dataKia->anak->alamat ?? old('alamat_anak') }}" placeholder="Alamat (kosongkan jika sama dengan ibu)">
+                                    value="<?php echo e($dataKia->anak->alamat ?? old('alamat_anak')); ?>" placeholder="Alamat (kosongkan jika sama dengan ibu)">
                             </div>
                         </div>
                     </div>
@@ -800,12 +798,12 @@
                             <div>
                                 <label class="form-label-custom">Faskes TK1 Anak</label>
                                 <input type="text" class="form-control form-control-custom" name="faskes_tk1_anak"
-                                    value="{{ $dataKia->anak->faskes_tk1 ?? old('faskes_tk1_anak') }}" placeholder="Faskes TK1">
+                                    value="<?php echo e($dataKia->anak->faskes_tk1 ?? old('faskes_tk1_anak')); ?>" placeholder="Faskes TK1">
                             </div>
                             <div>
                                 <label class="form-label-custom">Faskes Rujukan Anak</label>
                                 <input type="text" class="form-control form-control-custom" name="faskes_rujukan_anak"
-                                    value="{{ $dataKia->anak->faskes_rujukan ?? old('faskes_rujukan_anak') }}" placeholder="Faskes Rujukan">
+                                    value="<?php echo e($dataKia->anak->faskes_rujukan ?? old('faskes_rujukan_anak')); ?>" placeholder="Faskes Rujukan">
                             </div>
                         </div>
                     </div>
@@ -819,29 +817,29 @@
                             <div>
                                 <label class="form-label-custom">Puskesmas Domisili</label>
                                 <input type="text" class="form-control form-control-custom" name="puskesmas_domisili"
-                                    value="{{ $dataKia->layanan->puskesmas_domisili ?? old('puskesmas_domisili') }}" placeholder="Puskesmas domisili">
+                                    value="<?php echo e($dataKia->layanan->puskesmas_domisili ?? old('puskesmas_domisili')); ?>" placeholder="Puskesmas domisili">
                             </div>
                             <div>
                                 <label class="form-label-custom">No. Reg Kohort Ibu</label>
                                 <input type="text" class="form-control form-control-custom" name="no_reg_kohort_ibu"
-                                    value="{{ $dataKia->layanan->no_reg_kohort_ibu ?? old('no_reg_kohort_ibu') }}" placeholder="No. Reg">
+                                    value="<?php echo e($dataKia->layanan->no_reg_kohort_ibu ?? old('no_reg_kohort_ibu')); ?>" placeholder="No. Reg">
                             </div>
                         </div>
                         <div class="form-row-custom">
                             <div>
                                 <label class="form-label-custom">No. Reg Kohort Bayi</label>
                                 <input type="text" class="form-control form-control-custom" name="no_reg_kohort_bayi"
-                                    value="{{ $dataKia->layanan->no_reg_kohort_bayi ?? old('no_reg_kohort_bayi') }}" placeholder="No. Reg Kohort Bayi">
+                                    value="<?php echo e($dataKia->layanan->no_reg_kohort_bayi ?? old('no_reg_kohort_bayi')); ?>" placeholder="No. Reg Kohort Bayi">
                             </div>
                             <div>
                                 <label class="form-label-custom">No. Reg Kohort Balita</label>
                                 <input type="text" class="form-control form-control-custom" name="no_reg_kohort_balita"
-                                    value="{{ $dataKia->layanan->no_reg_kohort_balita ?? old('no_reg_kohort_balita') }}" placeholder="No. Reg Kohort Balita">
+                                    value="<?php echo e($dataKia->layanan->no_reg_kohort_balita ?? old('no_reg_kohort_balita')); ?>" placeholder="No. Reg Kohort Balita">
                             </div>
                             <div>
                                 <label class="form-label-custom">No. Catatan Medik RS</label>
                                 <input type="text" class="form-control form-control-custom" name="no_catatan_medik_rs"
-                                    value="{{ $dataKia->layanan->no_catatan_medik_rs ?? old('no_catatan_medik_rs') }}" placeholder="No. Catatan Medik RS">
+                                    value="<?php echo e($dataKia->layanan->no_catatan_medik_rs ?? old('no_catatan_medik_rs')); ?>" placeholder="No. Catatan Medik RS">
                             </div>
                         </div>
                     </div>
@@ -851,12 +849,12 @@
                             <div>
                                 <label class="form-label-custom">Puskesmas Domisili Suami</label>
                                 <input type="text" class="form-control form-control-custom" name="puskesmas_domisili_suami"
-                                    value="{{ $dataKia->layanan->puskesmas_domisili_suami ?? old('puskesmas_domisili_suami') }}" placeholder="Puskesmas domisili">
+                                    value="<?php echo e($dataKia->layanan->puskesmas_domisili_suami ?? old('puskesmas_domisili_suami')); ?>" placeholder="Puskesmas domisili">
                             </div>
                             <div>
                                 <label class="form-label-custom">No. Catatan Medik RS Suami</label>
                                 <input type="text" class="form-control form-control-custom" name="no_catatan_medik_rs_suami"
-                                    value="{{ $dataKia->layanan->no_catatan_medik_rs_suami ?? old('no_catatan_medik_rs_suami') }}" placeholder="No. Catatan Medik RS">
+                                    value="<?php echo e($dataKia->layanan->no_catatan_medik_rs_suami ?? old('no_catatan_medik_rs_suami')); ?>" placeholder="No. Catatan Medik RS">
                             </div>
                         </div>
                     </div>
@@ -866,12 +864,12 @@
                             <div>
                                 <label class="form-label-custom">Puskesmas Domisili Anak</label>
                                 <input type="text" class="form-control form-control-custom" name="puskesmas_domisili_anak"
-                                    value="{{ $dataKia->layanan->puskesmas_domisili_anak ?? old('puskesmas_domisili_anak') }}" placeholder="Puskesmas domisili">
+                                    value="<?php echo e($dataKia->layanan->puskesmas_domisili_anak ?? old('puskesmas_domisili_anak')); ?>" placeholder="Puskesmas domisili">
                             </div>
                             <div>
                                 <label class="form-label-custom">No. Catatan Medik RS Anak</label>
                                 <input type="text" class="form-control form-control-custom" name="no_catatan_medik_rs_anak"
-                                    value="{{ $dataKia->layanan->no_catatan_medik_rs_anak ?? old('no_catatan_medik_rs_anak') }}" placeholder="No. Catatan Medik RS">
+                                    value="<?php echo e($dataKia->layanan->no_catatan_medik_rs_anak ?? old('no_catatan_medik_rs_anak')); ?>" placeholder="No. Catatan Medik RS">
                             </div>
                         </div>
                     </div>
@@ -885,17 +883,17 @@
                             <div>
                                 <label class="form-label-custom">Nama Asuransi</label>
                                 <input type="text" class="form-control form-control-custom" name="asuransi_lain"
-                                    value="{{ $dataKia->layanan->asuransi_lain ?? old('asuransi_lain') }}" placeholder="Nama asuransi">
+                                    value="<?php echo e($dataKia->layanan->asuransi_lain ?? old('asuransi_lain')); ?>" placeholder="Nama asuransi">
                             </div>
                             <div>
                                 <label class="form-label-custom">No. Kartu Asuransi</label>
                                 <input type="text" class="form-control form-control-custom" name="no_asuransi_lain"
-                                    value="{{ $dataKia->layanan->no_asuransi_lain ?? old('no_asuransi_lain') }}" placeholder="No. Kartu">
+                                    value="<?php echo e($dataKia->layanan->no_asuransi_lain ?? old('no_asuransi_lain')); ?>" placeholder="No. Kartu">
                             </div>
                             <div>
                                 <label class="form-label-custom">Tanggal Berlaku</label>
                                 <input type="date" class="form-control form-control-custom" name="tanggal_berlaku_asuransi_lain"
-                                    value="{{ $dataKia->layanan->tanggal_berlaku_asuransi_lain ?? old('tanggal_berlaku_asuransi_lain') }}">
+                                    value="<?php echo e($dataKia->layanan->tanggal_berlaku_asuransi_lain ?? old('tanggal_berlaku_asuransi_lain')); ?>">
                             </div>
                         </div>
                     </div>
@@ -905,17 +903,17 @@
                             <div>
                                 <label class="form-label-custom">Nama Asuransi Suami</label>
                                 <input type="text" class="form-control form-control-custom" name="asuransi_suami"
-                                    value="{{ $dataKia->layanan->asuransi_suami ?? old('asuransi_suami') }}" placeholder="Nama asuransi">
+                                    value="<?php echo e($dataKia->layanan->asuransi_suami ?? old('asuransi_suami')); ?>" placeholder="Nama asuransi">
                             </div>
                             <div>
                                 <label class="form-label-custom">No. Kartu Asuransi Suami</label>
                                 <input type="text" class="form-control form-control-custom" name="no_asuransi_suami"
-                                    value="{{ $dataKia->layanan->no_asuransi_suami ?? old('no_asuransi_suami') }}" placeholder="No. Kartu">
+                                    value="<?php echo e($dataKia->layanan->no_asuransi_suami ?? old('no_asuransi_suami')); ?>" placeholder="No. Kartu">
                             </div>
                             <div>
                                 <label class="form-label-custom">Tanggal Berlaku Suami</label>
                                 <input type="date" class="form-control form-control-custom" name="tanggal_berlaku_asuransi_suami"
-                                    value="{{ $dataKia->layanan->tanggal_berlaku_asuransi_suami ?? old('tanggal_berlaku_asuransi_suami') }}">
+                                    value="<?php echo e($dataKia->layanan->tanggal_berlaku_asuransi_suami ?? old('tanggal_berlaku_asuransi_suami')); ?>">
                             </div>
                         </div>
                     </div>
@@ -925,17 +923,17 @@
                             <div>
                                 <label class="form-label-custom">Nama Asuransi Anak</label>
                                 <input type="text" class="form-control form-control-custom" name="asuransi_anak"
-                                    value="{{ $dataKia->layanan->asuransi_anak ?? old('asuransi_anak') }}" placeholder="Nama asuransi">
+                                    value="<?php echo e($dataKia->layanan->asuransi_anak ?? old('asuransi_anak')); ?>" placeholder="Nama asuransi">
                             </div>
                             <div>
                                 <label class="form-label-custom">No. Kartu Asuransi Anak</label>
                                 <input type="text" class="form-control form-control-custom" name="no_asuransi_anak"
-                                    value="{{ $dataKia->layanan->no_asuransi_anak ?? old('no_asuransi_anak') }}" placeholder="No. Kartu">
+                                    value="<?php echo e($dataKia->layanan->no_asuransi_anak ?? old('no_asuransi_anak')); ?>" placeholder="No. Kartu">
                             </div>
                             <div>
                                 <label class="form-label-custom">Tanggal Berlaku Anak</label>
                                 <input type="date" class="form-control form-control-custom" name="tanggal_berlaku_asuransi_anak"
-                                    value="{{ $dataKia->layanan->tanggal_berlaku_asuransi_anak ?? old('tanggal_berlaku_asuransi_anak') }}">
+                                    value="<?php echo e($dataKia->layanan->tanggal_berlaku_asuransi_anak ?? old('tanggal_berlaku_asuransi_anak')); ?>">
                             </div>
                         </div>
                     </div>
@@ -949,24 +947,24 @@
                             <div>
                                 <label class="form-label-custom">HPHT (Hari Pertama Haid Terakhir)</label>
                                 <input type="date" class="form-control form-control-custom" name="hpht"
-                                    value="{{ $dataKia->riwayat->hpht ?? old('hpht') }}">
+                                    value="<?php echo e($dataKia->riwayat->hpht ?? old('hpht')); ?>">
                             </div>
                             <div>
                                 <label class="form-label-custom">HTP (Hari Perkiraan Lahir)</label>
                                 <input type="date" class="form-control form-control-custom" name="htp"
-                                    value="{{ $dataKia->riwayat->htp ?? old('htp') }}">
+                                    value="<?php echo e($dataKia->riwayat->htp ?? old('htp')); ?>">
                             </div>
                             <div>
                                 <label class="form-label-custom">Tinggi Badan (cm)</label>
                                 <input type="number" class="form-control form-control-custom" name="tinggi_badan"
-                                    value="{{ $dataKia->riwayat->tinggi_badan ?? old('tinggi_badan') }}" placeholder="150">
+                                    value="<?php echo e($dataKia->riwayat->tinggi_badan ?? old('tinggi_badan')); ?>" placeholder="150">
                             </div>
                         </div>
                         <div class="form-row-custom">
                             <div>
                                 <label class="form-label-custom">Lingkar Lengan Atas (cm)</label>
                                 <input type="number" class="form-control form-control-custom" name="lingkar_lengan_atas" step="0.1"
-                                    value="{{ $dataKia->riwayat->lingkar_lengan_atas ?? old('lingkar_lengan_atas') }}" placeholder="23.5">
+                                    value="<?php echo e($dataKia->riwayat->lingkar_lengan_atas ?? old('lingkar_lengan_atas')); ?>" placeholder="23.5">
                             </div>
                         </div>
                     </div>
@@ -1001,9 +999,9 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
     // Show category tab content
     function showCategory(category) {
@@ -1024,7 +1022,7 @@
 
     // Open PDF inline in modal
     function openPdfInline() {
-        const pdfUrl = '{{ route('pengguna.kia.pdf') }}';
+        const pdfUrl = '<?php echo e(route('pengguna.kia.pdf')); ?>';
         document.getElementById('pdfFrame').src = pdfUrl;
         const modal = new bootstrap.Modal(document.getElementById('pdfModal'));
         modal.show();
@@ -1077,4 +1075,5 @@
         });
     });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+<?php echo $__env->make('pengguna.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\MomSpire\resources\views/pengguna/bukuKIA.blade.php ENDPATH**/ ?>

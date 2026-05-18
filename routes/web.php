@@ -1691,53 +1691,10 @@ Route::middleware(['auth'])->group(function () {
         abort_unless(auth()->check() && auth()->user()->role === $role, 403);
     };
 
-    Route::get('/pengguna/buku-kia', function () use ($ensureUserRole) {
-        $ensureUserRole('pengguna');
-
-        $user = auth()->user();
-        $pengguna = \App\Models\Pengguna::with('anak')->find($user->id);
-
-        if (!$pengguna) {
-            abort(404, 'Pengguna tidak ditemukan.');
-        }
-
-        $isHamil = (bool) ($pengguna->is_hamil ?? false);
-        $daftarAnak = $pengguna->anak ?? [];
-
-        $bukuKiaCards = [];
-
-        // Add child records from database
-        foreach ($daftarAnak as $index => $anak) {
-            $bukuKiaCards[] = [
-                'anak_ke' => $anak->anak_ke,
-                'nama_anak' => $anak->nama_anak,
-                'label' => $anak->nama_anak ? "Anak ke-{$anak->anak_ke} - {$anak->nama_anak}" : "Anak ke-{$anak->anak_ke}",
-                'status' => $anak->status === 'dalam_kandungan' ? 'Dalam kandungan' : 'Data anak',
-                'tanggal_lahir' => $anak->tanggal_lahir,
-            ];
-        }
-
-        // Add current pregnancy if is_hamil = true
-        if ($isHamil) {
-            $maxAnakKe = $daftarAnak->max('anak_ke') ?? 0;
-            $nextAnakKe = $maxAnakKe + 1;
-
-            $bukuKiaCards[] = [
-                'anak_ke' => $nextAnakKe,
-                'nama_anak' => null,
-                'label' => "Kehamilan ke-{$nextAnakKe}",
-                'status' => 'Dalam kandungan',
-                'tanggal_lahir' => null,
-            ];
-        }
-
-        $totalBukuKia = count($bukuKiaCards);
-
-        return view('pengguna.bukuKIA', [
-            'bukuKiaCards' => $bukuKiaCards,
-            'totalBukuKia' => $totalBukuKia,
-        ]);
-    })->name('pengguna.buku_kia');
+    Route::get('/pengguna/buku-kia', [\App\Http\Controllers\DataKiaController::class, 'wizard'])
+        ->middleware('auth')->name('pengguna.buku_kia');
+    Route::post('/pengguna/buku-kia/save', [\App\Http\Controllers\DataKiaController::class, 'saveWizard'])
+        ->middleware('auth')->name('pengguna.kia.save_wizard');
 
     Route::get('/pengguna/kia/pdf', function () use ($ensureUserRole) {
         $ensureUserRole('pengguna');
@@ -1826,9 +1783,6 @@ Route::get('/dokter/kia/{id}/edit-trimester1', [\App\Http\Controllers\DataKiaCon
 Route::post('/dokter/kia/{id}/save-trimester1', [\App\Http\Controllers\DataKiaController::class, 'saveTrimester1'])->name('dokter.kia.save_trimester1');
 Route::get('/dokter/kia/{id}/edit-trimester2', [\App\Http\Controllers\DataKiaController::class, 'editTrimester2'])->name('dokter.kia.edit_trimester2');
 Route::post('/dokter/kia/{id}/save-trimester2', [\App\Http\Controllers\DataKiaController::class, 'saveTrimester2'])->name('dokter.kia.save_trimester2');
-
-Route::get('/pengguna/buku-kia', [\App\Http\Controllers\DataKiaController::class, 'wizard'])
-    ->middleware('auth')->name('pengguna.buku_kia');
 
 Route::get('/pengguna/ttd', [\App\Http\Controllers\DataKiaController::class, 'ttdIndex'])
     ->middleware('auth')->name('pengguna.ttd');

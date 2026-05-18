@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('title', 'Detail Pengguna - MomSpire'); ?>
 <?php $__env->startSection('header_title', 'Detail Pengguna'); ?>
 <?php $__env->startSection('header_subtitle', 'Lihat dan kelola data pengguna yang sedang ditangani.'); ?>
