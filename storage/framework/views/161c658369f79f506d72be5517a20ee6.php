@@ -694,7 +694,7 @@
 
 					<!-- Kalender dan Detail Jadwal -->
 					<div class="row">
-						<div class="col-12 col-md-5">
+						<div class="col-12 col-md-6">
 							<div class="d-flex align-items-center justify-content-between mb-3">
 								<div>
 									<button class="btn btn-sm btn-outline-pink" id="calPrev"><i class="bi bi-chevron-left"></i></button>
@@ -731,7 +731,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-12 col-md-7">
+						<div class="col-12 col-md-6">
 							<div class="alert alert-light border rounded-3" role="alert" style="background: linear-gradient(180deg, #fdf2f8 0%, #fff 100%);">
 								<h6 class="fw-semibold mb-3 text-pink-primary d-flex align-items-center gap-2">
 									<i class="bi bi-calendar-event"></i>

@@ -62,6 +62,8 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
+            // Set MySQL session timezone agar sesuai dengan APP_TIMEZONE
+            'timezone' => env('DB_TIMEZONE', '+07:00'),
         ],
 
         'mariadb' => [

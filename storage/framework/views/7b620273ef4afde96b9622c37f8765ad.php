@@ -10,10 +10,36 @@
         --pengguna-purple: #6f42c1;
     }
 
-    /* Background: inherit dari body admin-body yang sudah punya background #f6f9fc */
+    /* Background: sama kayak dashboard pengguna */
     .pengguna-konsultasi-shell {
+        position: relative;
+        isolation: isolate;
         min-height: calc(100vh - 80px);
         padding: 0;
+        background: linear-gradient(180deg, #ffffff 0%, #f0f4f8 100%);
+    }
+
+    .pengguna-konsultasi-shell::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(circle at 12% 8%, rgba(230, 57, 128, 0.15), transparent 28%),
+            radial-gradient(circle at 92% 14%, rgba(107, 66, 193, 0.12), transparent 26%),
+            radial-gradient(circle at 20% 80%, rgba(0, 184, 148, 0.08), transparent 32%);
+        z-index: -2;
+        pointer-events: none;
+    }
+
+    .pengguna-konsultasi-shell::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: linear-gradient(rgba(15, 23, 42, 0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 23, 42, 0.015) 1px, transparent 1px);
+        background-size: 42px 42px;
+        opacity: .3;
+        pointer-events: none;
+        z-index: -1;
     }
 
     /* Main container - FULL width ke kiri-kanan */
@@ -692,6 +718,9 @@
         // Setup input handlers
         setupInputHandlers();
 
+        // Debug: log what we're about to send
+        console.log('[Konsultasi] Starting conversation with:', { type, id, name });
+
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
@@ -707,31 +736,65 @@
                 })
             });
 
-            const data = await response.json();
+            // Debug: log raw response status
+            console.log('[Konsultasi] Start response status:', response.status);
+
+            const text = await response.text();
+            console.log('[Konsultasi] Start response text:', text);
+
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (parseError) {
+                console.error('[Konsultasi] JSON parse error:', parseError);
+                alert('Error parsing response from server');
+                return;
+            }
 
             if (data.success) {
+                console.log('[Konsultasi] Conversation started, ID:', data.conversation_id);
                 currentConversation = data.conversation_id;
                 currentProfessional = { type, id, name };
                 await loadMessages();
             } else {
+                console.error('[Konsultasi] Start failed:', data);
                 alert('Gagal: ' + (data.message || 'Unknown error'));
             }
         } catch (error) {
             console.error('[Konsultasi] Error:', error);
-            alert('Gagal memulai konsultasi');
+            alert('Gagal memulai konsultasi: ' + error.message);
         }
     }
 
     // Load messages
     async function loadMessages() {
-        if (!currentConversation) return;
+        if (!currentConversation) {
+            console.log('[Konsultasi] loadMessages: no conversation ID, skipping');
+            return;
+        }
 
         try {
-            const response = await fetch(`/pengguna/konsultasi/${currentConversation}/messages`);
-            const data = await response.json();
+            const url = `/pengguna/konsultasi/${currentConversation}/messages`;
+            console.log('[Konsultasi] Loading messages from:', url);
+            const response = await fetch(url);
+            console.log('[Konsultasi] Messages response status:', response.status);
+
+            const text = await response.text();
+            console.log('[Konsultasi] Messages response:', text.substring(0, 500));
+
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (parseError) {
+                console.error('[Konsultasi] JSON parse error:', parseError);
+                return;
+            }
 
             if (data.success) {
+                console.log('[Konsultasi] Loaded', (data.messages || []).length, 'messages');
                 renderMessages(data.messages || []);
+            } else {
+                console.error('[Konsultasi] Load failed:', data);
             }
         } catch (error) {
             console.error('[Konsultasi] Load error:', error);
@@ -741,7 +804,12 @@
     // Render messages
     function renderMessages(messages) {
         const messageList = document.getElementById('messageList');
-        if (!messageList) return;
+        if (!messageList) {
+            console.error('[Konsultasi] messageList element not found');
+            return;
+        }
+
+        console.log('[Konsultasi] Rendering', messages.length, 'messages');
 
         let html = '';
         let lastDate = '';
@@ -757,13 +825,42 @@
                 </div>
             `;
         } else {
+            let renderedCount = 0;
             messages.forEach((msg) => {
                 const isOwn = msg.sender_type === 'pengguna';
-                const msgDate = new Date(msg.created_at).toDateString();
-                const time = new Date(msg.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+                // Parse jam langsung dari string "HH:mm:ss" di created_at tanpa timezone conversion
+                // Ini agar jam tampil PERSIS seperti yang disimpan di database
+                let time = '--:--';
+                let msgDate = '';
+                try {
+                    // Ambil bagian waktu saja dari "YYYY-MM-DD HH:mm:ss"
+                    const timeStr = msg.created_at ? msg.created_at.split(' ')[1] : '';
+                    if (timeStr && timeStr.includes(':')) {
+                        const parts = timeStr.split(':');
+                        const hour = parseInt(parts[0], 10);
+                        const minute = parseInt(parts[1], 10);
+                        // Tampilkan persis jam dan menit dari database
+                        time = String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0');
+                    }
 
-                if (msgDate !== lastDate) {
-                    const dateStr = formatDateSeparator(msg.created_at);
+                    // Parse tanggal untuk date separator (tanpa timezone)
+                    const dateStrOnly = msg.created_at ? msg.created_at.split(' ')[0] : '';
+                    if (dateStrOnly) {
+                        const dp = dateStrOnly.split('-');
+                        const year = parseInt(dp[0], 10);
+                        const month = (parseInt(dp[1], 10) || 1) - 1;
+                        const day = parseInt(dp[2], 10) || 1;
+                        const localDate = new Date(year, month, day);
+                        msgDate = localDate.toDateString();
+                    }
+                } catch (e) {
+                    const now = new Date();
+                    msgDate = now.toDateString();
+                    time = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+                }
+
+                if (msgDate && msgDate !== lastDate) {
+                    const dateStr = formatDateSeparator(msg.created_at || new Date().toISOString());
                     html += `<div class="wa-date-separator"><span>${dateStr}</span></div>`;
                     lastDate = msgDate;
                 }
@@ -771,7 +868,7 @@
                 html += `
                     <div class="wa-message ${isOwn ? 'sent' : 'received'}">
                         <div class="wa-message-bubble">
-                            <div class="wa-message-text">${escapeHtml(msg.message).replace(/\n/g, '<br>')}</div>
+                            <div class="wa-message-text">${escapeHtml(msg.message || '').replace(/\n/g, '<br>')}</div>
                             <div class="wa-message-meta">
                                 <span>${time}</span>
                                 ${isOwn ? '<i class="bi bi-check2-all wa-read-check"></i>' : ''}
@@ -779,7 +876,9 @@
                         </div>
                     </div>
                 `;
+                renderedCount++;
             });
+            console.log('[Konsultasi] Rendered', renderedCount, 'messages');
         }
 
         messageList.innerHTML = html;
@@ -799,9 +898,10 @@
 
         isLoading = true;
 
-        // Optimistic UI
+        // Optimistic UI - gunakan waktu lokal yang benar (WIB/UTC+7)
         const messageList = document.getElementById('messageList');
-        const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+        const now = new Date();
+        const time = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
         const optMsg = document.createElement('div');
         optMsg.className = 'wa-message sent';
         optMsg.innerHTML = `
@@ -893,20 +993,23 @@
     }
 
     function formatDateSeparator(dateStr) {
-        // Parse date string dan convert ke WIB
-        const date = new Date(dateStr);
+        // Parse date parts manually - jam PERSIS sesuai database tanpa timezone shift
+        const parts = dateStr ? dateStr.split(' ') : [];
+        if (parts.length < 2) return dateStr || '';
+        const dateParts = parts[0].split('-');
+        const year = parseInt(dateParts[0], 10);
+        const month = (parseInt(dateParts[1], 10) || 1) - 1;
+        const day = parseInt(dateParts[2], 10) || 1;
+
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
 
-        // Reset hours untuk perbandingan tanggal saja
-        const dateOnly = new Date(date.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }));
-        const todayOnly = new Date(today.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }));
-        const yesterdayOnly = new Date(yesterday.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }));
+        if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) return 'Hari ini';
+        if (year === yesterday.getFullYear() && month === yesterday.getMonth() && day === yesterday.getDate()) return 'Kemarin';
 
-        if (dateOnly.getTime() === todayOnly.getTime()) return 'Hari ini';
-        if (dateOnly.getTime() === yesterdayOnly.getTime()) return 'Kemarin';
-        return new Date(dateStr).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric' });
+        const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+        return day + ' ' + bulan[month] + ' ' + year;
     }
 
     function scrollToBottom() {

@@ -234,7 +234,7 @@
                         </div>
                         <h4>Buku KIA Digital</h4>
                         <p>Buku KIA Digital terintegrasi dalam satu platform terpercaya.</p>
-                        <a href="#" class="service-link">Pelajari <i class="bi bi-arrow-right"></i></a>
+                        <a href="#" class="service-link d-none">Pelajari <i class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
 
@@ -245,7 +245,7 @@
                         </div>
                         <h4>Konsultasi Online</h4>
                         <p>Konsultasi chat real-time dengan tenaga kesehatan.</p>
-                        <a href="#" class="service-link">Pelajari <i class="bi bi-arrow-right"></i></a>
+                        <a href="#" class="service-link d-none">Pelajari <i class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
 
@@ -256,7 +256,7 @@
                         </div>
                         <h4>Status Kehamilan</h4>
                         <p>Status kesehatan secara detail dan deteksi resiko.</p>
-                        <a href="#" class="service-link">Pelajari <i class="bi bi-arrow-right"></i></a>
+                        <a href="#" class="service-link d-none">Pelajari <i class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
 
@@ -268,7 +268,7 @@
                         </div>
                         <h4>Kalkulator Gizi</h4>
                         <p>Kalkulator untuk menghitung status gizi ibu dan anak sesuai berat badan ideal.</p>
-                        <a href="#" class="service-link">Pelajari <i class="bi bi-arrow-right"></i></a>
+                        <a href="#" class="service-link d-none">Pelajari <i class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
 
@@ -279,7 +279,7 @@
                         </div>
                         <h4>Artikel Edukasi</h4>
                         <p>Artikel edukatif tentang kehamilan, menyusui, dan perawatan anak.</p>
-                        <a href="#" class="service-link">Pelajari <i class="bi bi-arrow-right"></i></a>
+                        <a href="#" class="service-link d-none">Pelajari <i class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
 
@@ -290,7 +290,7 @@
                         </div>
                         <h4>Jadwal Imunisasi & Kontrol</h4>
                         <p>Jadwal vaksinasi dan kontrol dengan notifikasi pengingat lengkap.</p>
-                        <a href="#" class="service-link">Pelajari <i class="bi bi-arrow-right"></i></a>
+                        <a href="#" class="service-link d-none">Pelajari <i class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
             </div>

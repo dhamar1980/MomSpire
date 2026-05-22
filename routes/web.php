@@ -15,6 +15,15 @@ use Illuminate\Support\Facades\Password;
 use Laravel\Fortify\Features;
 use Laravel\Jetstream\Agent;
 use App\Http\Controllers\Auth\CustomLoginController;
+use App\Http\Controllers\PasswordConfirmController;
+
+// Custom password confirmation routes (bypass Fortify guard issues)
+Route::get('/user/confirmed-password-status', function (\Illuminate\Http\Request $request) {
+    return response()->json(['confirmed' => $request->session()->has('auth.password_confirmed_at')]);
+})->middleware('auth')->name('password.confirmation');
+
+Route::post('/user/confirm-password', [PasswordConfirmController::class, 'confirm'])
+    ->middleware('auth')->name('password.confirm.store');
 
 Route::get('/', function () {
     session()->regenerateToken();
@@ -153,6 +162,7 @@ Route::middleware(['auth'])->group(function () {
             'dokterCount' => $dokter->count(),
             'adminCount' => $admin->count(),
             'ibuHamilAktifCount' => $pengguna->where('is_hamil', 1)->count(),
+            'articleCount' => ArtikelEdukasi::count(),
             'dashboardUsers' => $allUsers,
         ]);
     })->name('admin.dashboard');
@@ -598,7 +608,7 @@ Route::middleware(['auth'])->group(function () {
                     'sender_type' => $msg->sender_type,
                     'sender_id' => $msg->sender_id,
                     'message' => $msg->message,
-                    'created_at' => $msg->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => $msg->created_at,
                     'is_read' => $msg->is_read,
                 ];
             });
@@ -636,13 +646,14 @@ Route::middleware(['auth'])->group(function () {
             'last_message_at' => now(),
         ]);
 
+        // created_at dari accessor Model (sudah otomatis WIB karena getCreatedAtAttribute)
         return response()->json([
             'success' => true,
             'message' => [
                 'id' => $message->id,
                 'sender_type' => $message->sender_type,
                 'message' => $message->message,
-                'created_at' => $message->created_at->format('Y-m-d H:i:s'),
+                'created_at' => $message->created_at,
             ],
         ]);
     })->name('bidan.konsultasi.send_message');
@@ -671,7 +682,7 @@ Route::middleware(['auth'])->group(function () {
                     'sender_type' => $msg->sender_type,
                     'sender_id' => $msg->sender_id,
                     'message' => $msg->message,
-                    'created_at' => $msg->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => $msg->created_at,
                     'is_read' => $msg->is_read,
                 ];
             }),
@@ -950,7 +961,7 @@ Route::middleware(['auth'])->group(function () {
                     'sender_type' => $msg->sender_type,
                     'sender_id' => $msg->sender_id,
                     'message' => $msg->message,
-                    'created_at' => $msg->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => $msg->created_at,
                     'is_read' => $msg->is_read,
                 ];
             });
@@ -988,13 +999,14 @@ Route::middleware(['auth'])->group(function () {
             'last_message_at' => now(),
         ]);
 
+        // created_at dari accessor Model (sudah otomatis WIB karena getCreatedAtAttribute)
         return response()->json([
             'success' => true,
             'message' => [
                 'id' => $message->id,
                 'sender_type' => $message->sender_type,
                 'message' => $message->message,
-                'created_at' => $message->created_at->format('Y-m-d H:i:s'),
+                'created_at' => $message->created_at,
             ],
         ]);
     })->name('dokter.konsultasi.send_message');
@@ -1023,7 +1035,7 @@ Route::middleware(['auth'])->group(function () {
                     'sender_type' => $msg->sender_type,
                     'sender_id' => $msg->sender_id,
                     'message' => $msg->message,
-                    'created_at' => $msg->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => $msg->created_at,
                     'is_read' => $msg->is_read,
                 ];
             }),
@@ -1237,6 +1249,24 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         $jadwalList = collect();
         $usedPenggunaId = $penggunaLogin ? $penggunaLogin->id : null;
 
+        // Fallback: jika tidak ada di tabel pengguna, coba cari berdasarkan user_id
+        if (!$usedPenggunaId) {
+            $penggunaByUserId = \App\Models\Pengguna::where('user_id', auth()->id())->first();
+            if ($penggunaByUserId) {
+                $usedPenggunaId = $penggunaByUserId->id;
+            }
+        }
+
+        // Debug: Log untuk troubleshooting
+        \Log::info('Jadwal Debug', [
+            'user_id' => auth()->id(),
+            'user_email' => $user->email,
+            'penggunaLogin_id' => $penggunaLogin?->id,
+            'penggunaByUserId_id' => $penggunaByUserId?->id ?? null,
+            'usedPenggunaId' => $usedPenggunaId,
+            'table_exists' => Schema::hasTable('jadwal_pemantauan'),
+        ]);
+
         if ($usedPenggunaId && Schema::hasTable('jadwal_pemantauan')) {
             // Ambil data jadwal dan convert tanggal ke format string biasa
             $jadwalRaw = \App\Models\JadwalPemantauan::with(['bidan', 'dokter'])
@@ -1246,11 +1276,18 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
                 ->orderBy('waktu', 'asc')
                 ->get();
 
+            // Debug: Log jadwal yang ditemukan
+            \Log::info('Jadwal Raw', [
+                'count' => $jadwalRaw->count(),
+                'items' => $jadwalRaw->toArray(),
+            ]);
+
             // Convert ke format yang aman untuk JavaScript (abaikan timezone)
             $jadwalList = $jadwalRaw->map(function($j) {
                 // Parse sebagai tanggal biasa (abaikan timezone) agar tidak terjadi penggeseran hari
-                $tanggalStr = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $j->tanggal)->format('Y-m-d');
-                $waktuStr = $j->waktu ? substr((string)$j->waktu, 0, 5) : null;
+                // $j->tanggal adalah column date (Y-m-d), bukan datetime
+                $tanggalStr = \Carbon\Carbon::parse($j->tanggal)->format('Y-m-d');
+                $waktuStr = $j->waktu ? (is_string($j->waktu) ? substr($j->waktu, 0, 5) : $j->waktu->format('H:i')) : null;
 
                 return [
                     'id' => $j->id,
@@ -1352,13 +1389,39 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
         $user = auth()->user();
 
+        // Debug log
+        \Log::info('Konsultasi Start Debug', [
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+            'user_role' => $user->role,
+            'professional_type' => $validated['professional_type'],
+            'professional_id' => $validated['professional_id'],
+        ]);
+
+        // Cek apakah pengguna ada di tabel pengguna
+        $penggunaLogin = \App\Models\Pengguna::where('email', $user->email)->first();
+        if (!$penggunaLogin) {
+            // Fallback: cari berdasarkan user_id
+            $penggunaLogin = \App\Models\Pengguna::where('user_id', $user->id)->first();
+        }
+
+        \Log::info('Konsultasi Start - Pengguna lookup', [
+            'penggunaLogin_id' => $penggunaLogin?->id,
+        ]);
+
+        $penggunaId = $penggunaLogin ? $penggunaLogin->id : $user->id;
+
         $conversation = \App\Models\Conversation::firstOrCreate(
             [
-                'pengguna_id' => $user->id,
+                'pengguna_id' => $penggunaId,
                 'professional_type' => $validated['professional_type'],
                 'professional_id' => $validated['professional_id'],
             ]
         );
+
+        \Log::info('Konsultasi Start - Conversation created', [
+            'conversation_id' => $conversation->id,
+        ]);
 
         return response()->json([
             'success' => true,
@@ -1392,13 +1455,14 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
             'last_message_at' => now(),
         ]);
 
+        // created_at dari accessor Model (sudah otomatis WIB karena getCreatedAtAttribute)
         return response()->json([
             'success' => true,
             'message' => [
                 'id' => $message->id,
                 'sender_type' => $message->sender_type,
                 'message' => $message->message,
-                'created_at' => $message->created_at->format('Y-m-d H:i:s'),
+                'created_at' => $message->created_at,
             ],
         ]);
     })->name('pengguna.konsultasi.send_message');
@@ -1420,7 +1484,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
                     'sender_type' => $msg->sender_type,
                     'sender_id' => $msg->sender_id,
                     'message' => $msg->message,
-                    'created_at' => $msg->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => $msg->created_at,
                     'is_read' => $msg->is_read,
                 ];
             });
@@ -1693,9 +1757,111 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/pengguna/buku-kia', [\App\Http\Controllers\DataKiaController::class, 'wizard'])
         ->middleware('auth')->name('pengguna.buku_kia');
+    Route::get('/pengguna/buku-kia/{id}', [\App\Http\Controllers\DataKiaController::class, 'wizard'])
+        ->middleware('auth')->name('pengguna.buku_kia.show');
+    Route::post('/pengguna/buku-kia/tambah', [\App\Http\Controllers\DataKiaController::class, 'tambahBukuKia'])
+        ->middleware('auth')->name('pengguna.buku_kia.tambah');
     Route::post('/pengguna/buku-kia/save', [\App\Http\Controllers\DataKiaController::class, 'saveWizard'])
         ->middleware('auth')->name('pengguna.kia.save_wizard');
 
+//     Route::get('/pengguna/kia/{id}/pdf', function ($id) use ($ensureUserRole) {
+//         $ensureUserRole('pengguna');
+
+//         // Verifikasi buku KIA milik user
+//         $dataKia = \App\Models\DataKia::where('id', $id)
+//             ->where('user_id', auth()->id())
+//             ->first();
+//         abort_unless($dataKia, 403, 'Akses ditolak.');
+
+//         $pdfPath = resource_path('views/buku/Buku KIA (Permenkes).pdf');
+//         abort_unless(file_exists($pdfPath), 404, 'File Buku KIA tidak ditemukan.');
+
+//         return response()->file($pdfPath, [
+//             'Content-Type' => 'application/pdf',
+//             'Content-Disposition' => 'inline; filename="Buku KIA (Permenkes).pdf"',
+//         ]);
+//     })->name('pengguna.kia.pdf');
+
+//     Route::get('/pengguna/kia/{id}/download', function ($id) use ($ensureUserRole) {
+//         $ensureUserRole('pengguna');
+
+//         // Verifikasi buku KIA milik user
+//         $dataKia = \App\Models\DataKia::where('id', $id)
+//             ->where('user_id', auth()->id())
+//             ->first();
+//         abort_unless($dataKia, 403, 'Akses ditolak.');
+
+//         $pdfPath = resource_path('views/buku/Buku KIA (Permenkes).pdf');
+//         abort_unless(file_exists($pdfPath), 404, 'File Buku KIA tidak ditemukan.');
+
+//         return response()->download($pdfPath, 'Buku KIA (Permenkes).pdf');
+//     })->name('pengguna.kia.download');
+// });
+
+Route::get('/pengguna/kia/Buku-KIA', function () use ($ensureUserRole) {
+        $ensureUserRole('pengguna');
+
+        $dataKia = \App\Models\DataKia::with([
+            'ibu', 'suami', 'anak', 'layanan', 'riwayat',
+            'ttdTrackings', 'pemantauanMingguans', 'absenKelasIbuHamils',
+            'persiapanMelahirkan', 'pemantauanIbuNifas', 'keluargaBerencana',
+            'bayiBaruLahir', 'pemantauanBayis', 'warnaTinja', 'absenKelasBalitas',
+            'pemantauanMingguanBayis', 'perkembanganBayi', 'pemantauanBulananBayis',
+            'perkembanganBayi6Bulan', 'pemantauanBulananBayi12s', 'perkembanganBayi9Bulan',
+            'perkembanganBayi12Bulan', 'pemantauanBulananAnak24s', 'perkembanganBayi18Bulan',
+            'perkembanganBayi24Bulan', 'pemantauanBulananAnak72s', 'perkembanganAnak36Bulan',
+            'perkembanganAnak48Bulan', 'perkembanganAnak60Bulan', 'perkembanganAnak72Bulan',
+            'kesehatanLingkungan', 'pelayananKesehatanIbu', 'evaluasiKesehatanIbu',
+            'pemeriksaanTrimester1', 'catatanPelayananTrimester1',
+            'pemeriksaanTrimester2', 'catatanPelayananTrimester2',
+        ])->where('user_id', auth()->id())->first();
+
+        abort_unless($dataKia, 404, 'Data Buku KIA tidak ditemukan. Silakan isi data terlebih dahulu.');
+
+        $pdfService = new \App\Services\KiaPdfService();
+        $pdfContent = $pdfService->generate($dataKia);
+
+        $namaIbu = $dataKia->ibu->nama ?? 'KIA';
+
+        return response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="Buku_KIA_' . $namaIbu . '.pdf"',
+        ]);
+    })->name('pengguna.kia.Buku-KIA');
+
+    // Route download PDF terisi data pengguna
+    Route::get('/pengguna/kia/download', function () use ($ensureUserRole) {
+        $ensureUserRole('pengguna');
+
+        $dataKia = \App\Models\DataKia::with([
+            'ibu', 'suami', 'anak', 'layanan', 'riwayat',
+            'ttdTrackings', 'pemantauanMingguans', 'absenKelasIbuHamils',
+            'persiapanMelahirkan', 'pemantauanIbuNifas', 'keluargaBerencana',
+            'bayiBaruLahir', 'pemantauanBayis', 'warnaTinja', 'absenKelasBalitas',
+            'pemantauanMingguanBayis', 'perkembanganBayi', 'pemantauanBulananBayis',
+            'perkembanganBayi6Bulan', 'pemantauanBulananBayi12s', 'perkembanganBayi9Bulan',
+            'perkembanganBayi12Bulan', 'pemantauanBulananAnak24s', 'perkembanganBayi18Bulan',
+            'perkembanganBayi24Bulan', 'pemantauanBulananAnak72s', 'perkembanganAnak36Bulan',
+            'perkembanganAnak48Bulan', 'perkembanganAnak60Bulan', 'perkembanganAnak72Bulan',
+            'kesehatanLingkungan', 'pelayananKesehatanIbu', 'evaluasiKesehatanIbu',
+            'pemeriksaanTrimester1', 'catatanPelayananTrimester1',
+            'pemeriksaanTrimester2', 'catatanPelayananTrimester2',
+        ])->where('user_id', auth()->id())->first();
+
+        abort_unless($dataKia, 404, 'Data Buku KIA tidak ditemukan. Silakan isi data terlebih dahulu.');
+
+        $pdfService = new \App\Services\KiaPdfService();
+        $pdfContent = $pdfService->generate($dataKia);
+
+        $namaIbu = $dataKia->ibu->nama ?? 'KIA';
+
+        return response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="Buku_KIA_' . $namaIbu . '.pdf"',
+        ]);
+    })->name('pengguna.kia.download');
+
+    // Route PDF template kosong (untuk referensi)
     Route::get('/pengguna/kia/pdf', function () use ($ensureUserRole) {
         $ensureUserRole('pengguna');
 
@@ -1708,16 +1874,6 @@ Route::middleware(['auth'])->group(function () {
             'Content-Disposition' => 'inline; filename="Buku KIA (Permenkes).pdf"',
         ]);
     })->name('pengguna.kia.pdf');
-
-    Route::get('/pengguna/kia/download', function () use ($ensureUserRole) {
-        $ensureUserRole('pengguna');
-
-        $pdfPath = resource_path('views/buku/Buku KIA (Permenkes).pdf');
-
-        abort_unless(file_exists($pdfPath), 404, 'File Buku KIA tidak ditemukan.');
-
-        return response()->download($pdfPath, 'Buku KIA (Permenkes).pdf');
-    })->name('pengguna.kia.download');
 });
 
 // Forgot password routes (simple UI + send reset link)

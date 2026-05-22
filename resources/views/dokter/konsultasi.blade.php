@@ -538,8 +538,32 @@
         } else {
             messages.forEach((msg) => {
                 const isOwn = msg.sender_type === 'dokter';
-                const msgDate = new Date(msg.created_at).toDateString();
-                const time = new Date(msg.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+                // Parse jam langsung dari string "HH:mm:ss" di created_at tanpa timezone conversion
+                // Ini agar jam tampil PERSIS seperti yang disimpan di database
+                let time = '--:--';
+                let msgDate = '';
+                try {
+                    const timeStr = msg.created_at ? msg.created_at.split(' ')[1] : '';
+                    if (timeStr && timeStr.includes(':')) {
+                        const parts = timeStr.split(':');
+                        const hour = parseInt(parts[0], 10);
+                        const minute = parseInt(parts[1], 10);
+                        time = String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0');
+                    }
+                    const dateStrOnly = msg.created_at ? msg.created_at.split(' ')[0] : '';
+                    if (dateStrOnly) {
+                        const dp = dateStrOnly.split('-');
+                        const year = parseInt(dp[0], 10);
+                        const month = (parseInt(dp[1], 10) || 1) - 1;
+                        const day = parseInt(dp[2], 10) || 1;
+                        const localDate = new Date(year, month, day);
+                        msgDate = localDate.toDateString();
+                    }
+                } catch (e) {
+                    const now = new Date();
+                    msgDate = now.toDateString();
+                    time = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+                }
 
                 if (msgDate !== lastDate) {
                     html += `<div class="wa-date-separator"><span>${formatDateSeparator(msg.created_at)}</span></div>`;
@@ -573,7 +597,8 @@
         input.style.height = 'auto';
 
         const messageList = document.getElementById('messageList');
-        const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' });
+        const now = new Date();
+        const time = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
         const optMsg = document.createElement('div');
         optMsg.className = 'wa-message sent';
         optMsg.innerHTML = `
@@ -650,18 +675,23 @@
     }
 
     function formatDateSeparator(dateStr) {
-        const date = new Date(dateStr);
+        // Parse date parts manually - jam PERSIS sesuai database tanpa timezone shift
+        const parts = dateStr ? dateStr.split(' ') : [];
+        if (parts.length < 2) return dateStr || '';
+        const dateParts = parts[0].split('-');
+        const year = parseInt(dateParts[0], 10);
+        const month = (parseInt(dateParts[1], 10) || 1) - 1;
+        const day = parseInt(dateParts[2], 10) || 1;
+
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
 
-        const dateOnly = new Date(date.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }));
-        const todayOnly = new Date(today.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }));
-        const yesterdayOnly = new Date(yesterday.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }));
+        if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) return 'Hari ini';
+        if (year === yesterday.getFullYear() && month === yesterday.getMonth() && day === yesterday.getDate()) return 'Kemarin';
 
-        if (dateOnly.getTime() === todayOnly.getTime()) return 'Hari ini';
-        if (dateOnly.getTime() === yesterdayOnly.getTime()) return 'Kemarin';
-        return new Date(dateStr).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric' });
+        const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+        return day + ' ' + bulan[month] + ' ' + year;
     }
 
     function scrollToBottom() {

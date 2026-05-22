@@ -170,7 +170,7 @@ return [
         Features::twoFactorAuthentication([
             'confirm' => true,
             // Allow enabling 2FA without re-submitting the password from the UI
-            'confirmPassword' => false,
+            'confirmPassword' => true,
             // 'window' => 0,
         ]),
         Features::passkeys([

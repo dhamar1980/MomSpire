@@ -38,6 +38,37 @@
 		color: #0f172a;
 	}
 
+	/* Background page wrapper - sama kayak dashboard pengguna */
+	.kalkulator-page-shell {
+		position: relative;
+		isolation: isolate;
+		min-height: calc(100vh - 80px);
+		background: linear-gradient(180deg, #ffffff 0%, #f0f4f8 100%);
+	}
+
+	.kalkulator-page-shell::before {
+		content: '';
+		position: fixed;
+		inset: 0;
+		background:
+			radial-gradient(circle at 12% 8%, rgba(230, 57, 128, 0.15), transparent 28%),
+			radial-gradient(circle at 92% 14%, rgba(107, 66, 193, 0.12), transparent 26%),
+			radial-gradient(circle at 20% 80%, rgba(0, 184, 148, 0.08), transparent 32%);
+		z-index: -2;
+		pointer-events: none;
+	}
+
+	.kalkulator-page-shell::after {
+		content: '';
+		position: fixed;
+		inset: 0;
+		background-image: linear-gradient(rgba(15, 23, 42, 0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 23, 42, 0.015) 1px, transparent 1px);
+		background-size: 42px 42px;
+		opacity: .3;
+		pointer-events: none;
+		z-index: -1;
+	}
+
 	.kalkulator-shell {
 		background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
 		border: 1px solid rgba(15, 23, 42, .05);
@@ -232,6 +263,7 @@
 @endpush
 
 @section('content')
+	<div class="kalkulator-page-shell">
 	<div class="kalkulator-shell">
 		<div class="kalkulator-hero">
 			<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 position-relative" style="z-index: 1;">
@@ -314,6 +346,7 @@
 				</div>
 			</div>
 		</div>
+	</div>
 	</div>
 @endsection
 

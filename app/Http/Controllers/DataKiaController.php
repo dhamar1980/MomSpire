@@ -8,19 +8,44 @@ use App\Models\DataKia;
 
 class DataKiaController extends Controller
 {
-    public function wizard()
+    public function wizard(Request $request, $id = null)
     {
         abort_unless(auth()->check() && auth()->user()->role === 'pengguna', 403);
 
-        $dataKia = DataKia::with(['ibu', 'suami', 'anak', 'layanan', 'riwayat'])
-            ->firstOrCreate(['user_id' => auth()->id()]);
-
-        // Build bukuKiaCards - one card per DataKia record
-        // Users can have multiple DataKia records for multiple pregnancies/children
+        // Ambil semua buku KIA untuk list selector
         $allDataKia = DataKia::where('user_id', auth()->id())
             ->with(['ibu', 'anak'])
             ->get();
 
+        // Jika tidak ada buku KIA, buat baru
+        if ($allDataKia->isEmpty()) {
+            $dataKia = DataKia::create(['user_id' => auth()->id()]);
+            $allDataKia = DataKia::where('user_id', auth()->id())
+                ->with(['ibu', 'anak'])
+                ->get();
+        }
+
+        // Tentukan buku KIA yang aktif
+        $activeKia = null;
+        if ($id) {
+            // Cari berdasarkan ID dari parameter
+            $activeKia = $allDataKia->firstWhere('id', $id);
+            // Pastikan buku ini milik user yang login
+            if ($activeKia && $activeKia->user_id !== auth()->id()) {
+                abort(403);
+            }
+        }
+
+        // Jika tidak ada ID yang dipilih atau ID tidak valid, gunakan yang pertama
+        if (!$activeKia) {
+            $activeKia = $allDataKia->first();
+        }
+
+        // Load relasi untuk buku yang aktif
+        $activeKia = DataKia::with(['ibu', 'suami', 'anak', 'layanan', 'riwayat', 'ttdTrackings', 'absenKelasIbuHamils', 'persiapanMelahirkan', 'pemantauanIbuNifas', 'keluargaBerencana', 'bayiBaruLahir', 'pemantauanBayis', 'warnaTinja', 'absenKelasBalitas', 'pemantauanMingguanBayis', 'perkembanganBayi', 'pemantauanBulananBayis', 'perkembanganBayi6Bulan', 'pemantauanBulananBayi12s', 'perkembanganBayi9Bulan', 'perkembanganBayi12Bulan', 'pemantauanBulananAnak24s', 'perkembanganBayi18Bulan', 'perkembanganBayi24Bulan', 'pemantauanBulananAnak72s', 'kesehatanLingkungan', 'pelayananKesehatanIbu', 'evaluasiKesehatanIbu'])
+            ->find($activeKia->id);
+
+        // Build bukuKiaCards - untuk selector
         $bukuKiaCards = [];
         foreach ($allDataKia as $kia) {
             $label = 'Buku KIA Utama';
@@ -33,6 +58,8 @@ class DataKiaController extends Controller
                 if ($kia->ibu->tanggal_lahir) {
                     $status = 'Aktif';
                 }
+            } else if ($kia->anak) {
+                $namaAnak = $kia->anak->nama;
             }
 
             $bukuKiaCards[] = [
@@ -40,18 +67,47 @@ class DataKiaController extends Controller
                 'label' => $label,
                 'status' => $status,
                 'nama_anak' => $namaAnak,
+                'is_active' => ($kia->id === $activeKia->id),
             ];
         }
 
         $totalBukuKia = count($bukuKiaCards);
 
-        return view('pengguna.bukuKIA', compact('dataKia', 'bukuKiaCards', 'totalBukuKia'));
+        // Alias untuk backward compatibility dengan view yang sudah ada
+        $dataKia = $activeKia;
+
+        return view('pengguna.bukuKIA', compact('dataKia', 'bukuKiaCards', 'totalBukuKia', 'activeKia'));
+    }
+
+    public function tambahBukuKia(Request $request)
+    {
+        abort_unless(auth()->check() && auth()->user()->role === 'pengguna', 403);
+
+        // Buat buku KIA baru
+        $dataKia = DataKia::create(['user_id' => auth()->id()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Buku KIA baru berhasil dibuat',
+            'id' => $dataKia->id,
+        ]);
     }
 
     public function saveWizard(Request $request)
     {
         abort_unless(auth()->check() && auth()->user()->role === 'pengguna', 403);
-        $dataKia = DataKia::firstOrCreate(['user_id' => auth()->id()]);
+
+        // Ambil ID buku KIA dari request atau gunakan yang pertama
+        $kiaId = $request->input('data_kia_id');
+
+        if ($kiaId) {
+            $dataKia = DataKia::where('id', $kiaId)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+        } else {
+            // Fallback: buat baru jika tidak ada
+            $dataKia = DataKia::firstOrCreate(['user_id' => auth()->id()]);
+        }
 
         // Helper to convert empty strings to null
         $clean = function ($val) {
@@ -152,6 +208,254 @@ class DataKiaController extends Controller
             'trimester_2' => $clean($request->trimester_2),
             'trimester_3' => $clean($request->trimester_3),
         ]);
+
+        // 7. Catatan TTD (Tablet Tambah Darah)
+        for ($bulan = 1; $bulan <= 9; $bulan++) {
+            $ttdData = [
+                'usia_kehamilan' => $clean($request->input("ttd_bulan_{$bulan}_usia")),
+                'bulan_tahun' => $clean($request->input("ttd_bulan_{$bulan}_bulan_tahun")),
+            ];
+            for ($hari = 1; $hari <= 31; $hari++) {
+                $ttdData["h{$hari}"] = $request->has("ttd_bulan_{$bulan}_h{$hari}");
+            }
+            $dataKia->ttdTrackings()->updateOrCreate(
+                ['bulan_ke' => $bulan],
+                $ttdData
+            );
+        }
+
+        // 8. Pemantauan Mingguan
+        $pemantauanFields = [
+            'pemeriksaan_kehamilan', 'kelas_ibu_hamil', 'demam_lebih_2_hari',
+            'pusing_sakit_kepala', 'sulit_tidur_cemas', 'risiko_tb',
+            'gerakan_bayi', 'nyeri_perut_hebat', 'keluar_cairan_lahir',
+            'sakit_saat_kencing', 'diare_berulang'
+        ];
+        for ($minggu = 1; $minggu <= 42; $minggu++) {
+            $data = [];
+            $colIndex = 1;
+            foreach ($pemantauanFields as $field) {
+                $data[$field] = $request->has("pemantauan_minggu_{$minggu}_{$colIndex}");
+                $colIndex++;
+            }
+            $dataKia->pemantauanMingguans()->updateOrCreate(
+                ['minggu_ke' => $minggu],
+                $data
+            );
+        }
+
+        // 9. Kelas Ibu Hamil
+        for ($sesi = 1; $sesi <= 9; $sesi++) {
+            $dataKia->absenKelasIbuHamils()->updateOrCreate(
+                ['kehadiran_ke' => $sesi],
+                [
+                    'tanggal' => $clean($request->input("kelas_ibu_tanggal_{$sesi}")),
+                    'kader_info' => $clean($request->input("kelas_ibu_kader_{$sesi}")),
+                ]
+            );
+        }
+
+        // 10. Persiapan Melahirkan
+        $persiapanFields = [
+            'tanya_tanggal_perkiraan', 'minta_dampingi', 'siap_tabungan',
+            'kartu_jkn', 'tempat_melahirkan', 'siap_ktp_kk',
+            'siap_pendonor', 'siap_kendaraan', 'sepakat_stiker_p4k', 'rencana_kb'
+        ];
+        $persiapanData = [
+            'hpl_tanggal' => $clean($request->hpl_tanggal),
+            'hpl_bulan' => $clean($request->hpl_bulan),
+            'hpl_tahun' => $clean($request->hpl_tahun),
+        ];
+        foreach ($persiapanFields as $field) {
+            $persiapanData[$field] = $request->has($field);
+        }
+        $persiapanData['metode_kb'] = $clean($request->metode_kb);
+        $dataKia->persiapanMelahirkan()->updateOrCreate(
+            ['data_kia_id' => $dataKia->id],
+            $persiapanData
+        );
+
+        // 11. Pemantauan Nifas
+        $nifasFields = [
+            'pemeriksaan_nifas', 'konsumsi_vitamin_a', 'konsumsi_ttd',
+            'pemenuhan_gizi', 'masalah_jiwa', 'demam', 'sakit_kepala',
+            'pandangan_kabur', 'nyeri_ulu_hati', 'jantung_berdebar',
+            'keluar_cairan_lahir', 'napas_pendek', 'payudara_bengkak',
+            'gangguan_bak', 'kelamin_bengkak', 'darah_nifas_berbau',
+            'pendarahan_hebat', 'keputihan'
+        ];
+        for ($hari = 1; $hari <= 42; $hari++) {
+            $data = [];
+            $colIndex = 1;
+            foreach ($nifasFields as $field) {
+                $data[$field] = $request->has("nifas_hari_{$hari}_{$colIndex}");
+                $colIndex++;
+            }
+            $data['paraf_kader_nakes'] = $clean($request->input("nifas_paraf_{$hari}"));
+            $dataKia->pemantauanIbuNifas()->updateOrCreate(
+                ['hari_ke' => $hari],
+                $data
+            );
+        }
+
+        // 12. KB
+        $dataKia->keluargaBerencana()->updateOrCreate(
+            ['data_kia_id' => $dataKia->id],
+            [
+                'metode_kb' => $clean($request->metode_kb),
+                'paraf_ibu' => $clean($request->paraf_ibu),
+            ]
+        );
+
+        // 13. Bayi Baru Lahir
+        $dataKia->bayiBaruLahir()->updateOrCreate(
+            ['data_kia_id' => $dataKia->id],
+            [
+                'jam_0_6' => $request->has('bayi_0_6_jam'),
+                'jam_6_48' => $request->has('bayi_6_48_jam'),
+                'hari_3_7' => $request->has('bayi_hari_3_7'),
+                'hari_8_28' => $request->has('bayi_hari_8_28'),
+            ]
+        );
+
+        // 14. Pemantauan Bayi Harian
+        $bayiFields = [
+            'sesak_napas', 'aktivitas_lemah', 'warna_kulit_biru', 'hisapan_lemah',
+            'kejang', 'suhu_abnormal', 'bab_abnormal', 'kencing_sedikit',
+            'tali_pusat_merah', 'mata_merah', 'kulit_bintil', 'belum_imunisasi'
+        ];
+        for ($hari = 1; $hari <= 28; $hari++) {
+            $data = [];
+            $colIndex = 1;
+            foreach ($bayiFields as $field) {
+                $data[$field] = $request->has("bayi_hari_{$hari}_{$colIndex}");
+                $colIndex++;
+            }
+            $data['paraf_kader_nakes'] = $clean($request->input("bayi_paraf_{$hari}"));
+            $dataKia->pemantauanBayis()->updateOrCreate(
+                ['data_kia_id' => $dataKia->id, 'hari_ke' => $hari],
+                $data
+            );
+        }
+
+        // 15. Warna Tinja
+        $dataKia->warnaTinja()->updateOrCreate(
+            ['data_kia_id' => $dataKia->id],
+            [
+                'tanggal_2_minggu' => $clean($request->tinja_2_minggu_tanggal),
+                'nomor_2_minggu' => $clean($request->tinja_2_minggu_nomor),
+                'tanggal_1_bulan' => $clean($request->tinja_1_bulan_tanggal),
+                'nomor_1_bulan' => $clean($request->tinja_1_bulan_nomor),
+                'tanggal_2_4_bulan' => $clean($request->tinja_2_4_bulan_tanggal),
+                'nomor_2_4_bulan' => $clean($request->tinja_2_4_bulan_nomor),
+            ]
+        );
+
+        // 16. Kelas Balita
+        for ($sesi = 1; $sesi <= 9; $sesi++) {
+            $dataKia->absenKelasBalitas()->updateOrCreate(
+                ['data_kia_id' => $dataKia->id, 'kehadiran_ke' => $sesi],
+                [
+                    'tanggal' => $clean($request->input("kelas_balita_tanggal_{$sesi}")),
+                    'kader_info' => $clean($request->input("kelas_balita_kader_{$sesi}")),
+                ]
+            );
+        }
+
+        // 17. Perkembangan Bayi - Mingguan
+        $mingguanBayiFields = [
+            'sesak_napas', 'batuk', 'suhu_abnormal', 'bab_sering',
+            'kencing_sedikit', 'kulit_biru', 'aktivitas_lemah',
+            'hisapan_lemah', 'tidak_makan'
+        ];
+        for ($minggu = 1; $minggu <= 8; $minggu++) {
+            $data = [];
+            $colIndex = 1;
+            foreach ($mingguanBayiFields as $field) {
+                $data[$field] = $request->has("mingguan_bayi_{$minggu}_{$colIndex}");
+                $colIndex++;
+            }
+            $data['paraf_kader_nakes'] = $clean($request->input("mingguan_bayi_paraf_{$minggu}"));
+            $dataKia->pemantauanMingguanBayis()->updateOrCreate(
+                ['data_kia_id' => $dataKia->id, 'minggu_ke' => $minggu],
+                $data
+            );
+        }
+
+        // Perkembangan Bayi 0-2 bulan
+        $dataKia->perkembanganBayi()->updateOrCreate(
+            ['data_kia_id' => $dataKia->id],
+            [
+                'angkat_kepala_45' => $request->has('bayi_angkat_kepala_45') ? ($request->bayi_angkat_kepala_45 === '1') : null,
+                'gerak_kepala' => $request->has('bayi_gerakkan_kepala') ? ($request->bayi_gerakkan_kepala === '1') : null,
+                'tatap_wajah' => $request->has('bayi_tatap_wajah') ? ($request->bayi_tatap_wajah === '1') : null,
+                'ngoceh' => $request->has('bayi_ngoceh') ? ($request->bayi_ngoceh === '1') : null,
+                'tertawa_keras' => $request->has('bayi_tertawa_keras') ? ($request->bayi_tertawa_keras === '1') : null,
+                'terkejut_suara' => $request->has('bayi_terkejut_suara') ? ($request->bayi_terkejut_suara === '1') : null,
+                'tersenyum' => $request->has('bayi_tersenyum') ? ($request->bayi_tersenyum === '1') : null,
+                'mengenal_ibu' => $request->has('bayi_mengenal_ibu') ? ($request->bayi_mengenal_ibu === '1') : null,
+            ]
+        );
+
+        // Perkembangan Bayi 3-6 bulan
+        $dataKia->perkembanganBayi6Bulan()->updateOrCreate(
+            ['data_kia_id' => $dataKia->id],
+            [
+                'berbalik' => $request->has('bayi_berbalik') ? ($request->bayi_berbalik === '1') : null,
+                'kepala_tegak_90' => $request->has('bayi_kepala_tegak_90') ? ($request->bayi_kepala_tegak_90 === '1') : null,
+                'kepala_stabil' => $request->has('bayi_kepala_stabil') ? ($request->bayi_kepala_stabil === '1') : null,
+                'genggam_mainan' => $request->has('bayi_genggam_mainan') ? ($request->bayi_genggam_mainan === '1') : null,
+                'raih_benda' => $request->has('bayi_raih_benda') ? ($request->bayi_raih_benda === '1') : null,
+                'amati_tangan' => $request->has('bayi_amati_tangan') ? ($request->bayi_amati_tangan === '1') : null,
+                'luas_pandang' => $request->has('bayi_luas_pandang') ? ($request->bayi_luas_pandang === '1') : null,
+                'arah_mata' => $request->has('bayi_arah_mata') ? ($request->bayi_arah_mata === '1') : null,
+                'suara_gembira' => $request->has('bayi_suara_gembira') ? ($request->bayi_suara_gembira === '1') : null,
+                'senyum_mainan' => $request->has('bayi_senyum_mainan') ? ($request->bayi_senyum_mainan === '1') : null,
+            ]
+        );
+
+        // 18. Pemantauan Bulanan Bayi (2-6 bulan)
+        $bulananBayiFields = [
+            'sesak_napas', 'batuk', 'suhu_abnormal', 'bab_sering',
+            'kencing_sedikit', 'kulit_biru', 'aktivitas_lemah',
+            'hisapan_lemah', 'tidak_makan'
+        ];
+        for ($bulan = 1; $bulan <= 6; $bulan++) {
+            $data = [];
+            $colIndex = 1;
+            foreach ($bulananBayiFields as $field) {
+                $data[$field] = $request->has("bulanan_bayi_{$bulan}_{$colIndex}");
+                $colIndex++;
+            }
+            $data['paraf_kader_nakes'] = $clean($request->input("bulanan_bayi_paraf_{$bulan}"));
+            $dataKia->pemantauanBulananBayis()->updateOrCreate(
+                ['data_kia_id' => $dataKia->id, 'bulan_ke' => $bulan],
+                $data
+            );
+        }
+
+        // 19. Kesehatan Lingkungan
+        $kesehatanLingkunganFields = [
+            'bab_sembarangan', 'bab_jamban_sendiri', 'penampung_tangki_septik',
+            'penampung_cubluk', 'penampung_drainase', 'kloset_leher_angsa',
+            'ctps_sarana', 'ctps_air_mengalir', 'ctps_sabun',
+            'ctps_sebelum_makan', 'ctps_sebelum_mengolah', 'ctps_sebelum_menyusui', 'ctps_setelah_bab',
+            'sumber_air_pipa', 'sumber_air_kran', 'sumber_air_sumur', 'sumber_air_mata_air',
+            'sumber_air_sungai', 'sumber_air_danau', 'sumber_air_hujan', 'sumber_air_kolam',
+            'kelola_air_rebus', 'kelola_air_endap_saring', 'kelola_air_wadah_tertutup',
+            'kelola_makanan_tertutup', 'kelola_makanan_jauh', 'kelola_makanan_baik',
+            'sampah_tidak_berserakan', 'sampah_tempat_tertutup', 'sampah_dipilah', 'sampah_tidak_dibakar',
+            'limbah_tidak_menggenang', 'limbah_saluran_tertutup', 'limbah_terhubung_resapan'
+        ];
+        $lingkunganData = [];
+        foreach ($kesehatanLingkunganFields as $field) {
+            // Checkbox unchecked = not in request = false, checked = 'on' = true
+            $lingkunganData[$field] = $request->has($field) ? true : false;
+        }
+        $dataKia->kesehatanLingkungan()->updateOrCreate(
+            ['data_kia_id' => $dataKia->id],
+            $lingkunganData
+        );
 
         // Check if AJAX request
         if ($request->expectsJson()) {

@@ -18,91 +18,123 @@
     window.__MOMSPIRE_HEADER_TITLE_LOCK = 'Buku KIA';
 </script>
 <style>
+    :root {
+        --pengguna-primary: #e63980;
+        --pengguna-primary-dark: #c41e5c;
+        --pengguna-secondary: #00b894;
+        --pengguna-purple: #6f42c1;
+        --pengguna-ink: #1e293b;
+        --pengguna-muted: #64748b;
+        --gradient-primary: linear-gradient(135deg, #e63980 0%, #ff6b9d 100%);
+        --gradient-secondary: linear-gradient(135deg, #00b894 0%, #00d4aa 100%);
+        --shadow-sm: 0 2px 8px rgba(230, 57, 128, 0.08);
+        --shadow-md: 0 4px 15px rgba(230, 57, 128, 0.12);
+        --shadow-lg: 0 8px 25px rgba(230, 57, 128, 0.15);
+    }
+
+    /* Background - SAMA dengan dashboard */
+    .buku-kia-shell {
+        position: relative;
+        isolation: isolate;
+        background: linear-gradient(180deg, #ffffff 0%, #f0f4f8 100%);
+        min-height: 100vh;
+    }
+
+    .buku-kia-shell::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(circle at 12% 8%, rgba(230, 57, 128, 0.12), transparent 28%),
+            radial-gradient(circle at 88% 14%, rgba(230, 57, 128, 0.08), transparent 26%),
+            radial-gradient(circle at 20% 80%, rgba(0, 184, 148, 0.06), transparent 32%);
+        z-index: -2;
+        pointer-events: none;
+    }
+
+    .buku-kia-shell::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: linear-gradient(rgba(230, 57, 128, 0.012) 1px, transparent 1px), linear-gradient(90deg, rgba(230, 57, 128, 0.012) 1px, transparent 1px);
+        background-size: 42px 42px;
+        opacity: .3;
+        pointer-events: none;
+        z-index: -1;
+    }
+
     .btn-back-page {
         background: #fff;
-        border: 1px solid rgba(15, 23, 42, .12);
+        border: 1px solid rgba(230, 57, 128, 0.2);
         border-radius: 999px;
-        color: #0f172a;
+        color: var(--pengguna-primary);
         font-weight: 700;
         padding: 10px 16px;
-        box-shadow: 0 10px 20px rgba(15, 23, 42, .05);
+        box-shadow: var(--shadow-sm);
         transition: all .2s ease;
         transform: translateX(8px);
         margin-right: 6px;
     }
 
     .btn-back-page:hover {
-        transform: translateX(8px) translateY(-1px);
-        border-color: rgba(15, 23, 42, .25);
-        box-shadow: 0 14px 24px rgba(15, 23, 42, .12);
-        color: #0f172a;
+        transform: translateX(8px) translateY(-2px);
+        border-color: var(--pengguna-primary);
+        box-shadow: var(--shadow-md);
+        color: var(--pengguna-primary);
+        background: #fff;
     }
 
-    /* Main Container */
-    .buku-kia-shell {
-        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-        border: 1px solid rgba(15, 23, 42, .05);
-        border-radius: 28px;
-        box-shadow: 0 18px 40px rgba(15, 23, 42, .06);
-        padding: 28px;
+    /* Main Container - soft pink card style */
+    .buku-kia-container {
+        padding: 28px 0;
     }
 
     .kia-hero {
-        background: linear-gradient(135deg, #fff1f7 0%, #fef3c7 100%);
-        border: 1px solid rgba(236, 72, 153, .2);
-        border-radius: 24px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
         padding: 24px;
         margin-bottom: 24px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .kia-hero::after {
-        content: '';
-        position: absolute;
-        inset: auto -100px -110px auto;
-        width: 220px;
-        height: 220px;
-        border-radius: 50%;
-        background: rgba(244, 114, 182, .12);
-        pointer-events: none;
+        box-shadow: var(--shadow-sm);
     }
 
     .kia-hero h2 {
-        font-size: 30px;
+        font-size: 26px;
         font-weight: 800;
-        margin-bottom: 8px;
-        color: #be185d;
+        margin-bottom: 4px;
+        color: var(--pengguna-primary);
     }
 
     .kia-hero p {
         margin-bottom: 0;
-        color: #334155;
+        color: var(--pengguna-muted);
+        font-size: .9rem;
     }
 
     /* Buku KIA Preview Section */
     .kia-preview-section {
         background: #fff;
-        border: 1px solid rgba(236, 72, 153, .15);
-        border-radius: 24px;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
         margin-bottom: 24px;
         overflow: hidden;
+        box-shadow: var(--shadow-sm);
     }
 
     .kia-preview-header {
-        background: linear-gradient(135deg, #fff1f7 0%, #fef3c7 100%);
-        padding: 20px 24px;
+        background: linear-gradient(135deg, rgba(230, 57, 128, 0.06) 0%, rgba(230, 57, 128, 0.03) 100%);
+        padding: 18px 24px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-bottom: 1px solid rgba(236, 72, 153, .1);
+        border-bottom: 1px solid rgba(230, 57, 128, 0.1);
     }
 
     .kia-preview-header h4 {
         margin: 0;
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 800;
-        color: #be185d;
+        color: var(--pengguna-primary);
         display: flex;
         align-items: center;
         gap: 10px;
@@ -113,8 +145,8 @@
     }
 
     .kia-book-preview {
-        background: linear-gradient(135deg, #fef3c7 0%, #fff1f7 100%);
-        border: 2px solid rgba(236, 72, 153, .2);
+        background: linear-gradient(135deg, rgba(230, 57, 128, 0.05) 0%, rgba(230, 57, 128, 0.02) 100%);
+        border: 2px solid rgba(230, 57, 128, 0.12);
         border-radius: 16px;
         padding: 32px;
         text-align: center;
@@ -127,18 +159,18 @@
 
     .kia-book-preview i {
         font-size: 4rem;
-        color: #fda4af;
+        color: var(--pengguna-primary);
         margin-bottom: 16px;
     }
 
     .kia-book-preview h5 {
         font-weight: 800;
-        color: #be185d;
+        color: var(--pengguna-primary);
         margin-bottom: 8px;
     }
 
     .kia-book-preview p {
-        color: #64748b;
+        color: var(--pengguna-muted);
         max-width: 400px;
         margin: 0 auto;
     }
@@ -164,48 +196,49 @@
 
     .btn-preview-outline {
         background: transparent;
-        border: 2px solid #e63980;
-        color: #e63980;
+        border: 2px solid var(--pengguna-primary);
+        color: var(--pengguna-primary);
     }
 
     .btn-preview-outline:hover {
-        background: rgba(230, 57, 128, .08);
+        background: rgba(230, 57, 128, 0.08);
     }
 
     .btn-preview-filled {
-        background: linear-gradient(135deg, #be185d 0%, #e63980 100%);
+        background: var(--gradient-primary);
         border: none;
         color: #fff;
     }
 
     .btn-preview-filled:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(230, 57, 128, .35);
+        box-shadow: var(--shadow-lg);
     }
 
     /* Form Section Styles */
     .kia-form-section {
         background: #fff;
-        border: 1px solid rgba(236, 72, 153, .15);
-        border-radius: 24px;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
         margin-bottom: 24px;
         overflow: hidden;
+        box-shadow: var(--shadow-sm);
     }
 
     .kia-form-header {
-        background: linear-gradient(135deg, #fff1f7 0%, #fef3c7 100%);
-        padding: 20px 24px;
+        background: linear-gradient(135deg, rgba(230, 57, 128, 0.06) 0%, rgba(230, 57, 128, 0.03) 100%);
+        padding: 18px 24px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-bottom: 1px solid rgba(236, 72, 153, .1);
+        border-bottom: 1px solid rgba(230, 57, 128, 0.1);
     }
 
     .kia-form-header h4 {
         margin: 0;
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 800;
-        color: #be185d;
+        color: var(--pengguna-primary);
         display: flex;
         align-items: center;
         gap: 10px;
@@ -222,7 +255,7 @@
         gap: 8px;
         margin-bottom: 24px;
         padding-bottom: 20px;
-        border-bottom: 2px solid #f1f5f9;
+        border-bottom: 2px solid rgba(230, 57, 128, 0.08);
     }
 
     .category-tab {
@@ -230,9 +263,9 @@
         border-radius: 12px;
         font-size: .82rem;
         font-weight: 700;
-        color: #64748b;
-        background: #f8fafc;
-        border: 2px solid #e2e8f0;
+        color: var(--pengguna-primary);
+        background: rgba(230, 57, 128, 0.06);
+        border: 2px solid transparent;
         cursor: pointer;
         transition: all .2s ease;
         display: flex;
@@ -241,21 +274,22 @@
     }
 
     .category-tab:hover {
-        background: #f1f5f9;
-        border-color: #cbd5e1;
+        background: rgba(230, 57, 128, 0.12);
+        border-color: rgba(230, 57, 128, 0.2);
     }
 
     .category-tab.active {
-        background: linear-gradient(135deg, #be185d 0%, #e63980 100%);
+        background: var(--gradient-primary);
         color: #fff;
         border-color: transparent;
+        box-shadow: var(--shadow-md);
     }
 
     /* Form Cards */
     .form-card {
-        background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
-        border: 1px solid #e2e8f0;
-        border-radius: 18px;
+        background: linear-gradient(180deg, #fdfafc 0%, #fff 100%);
+        border: 1px solid rgba(230, 57, 128, 0.08);
+        border-radius: 16px;
         padding: 24px;
         margin-bottom: 20px;
     }
@@ -267,7 +301,7 @@
     .form-card-title {
         font-size: .9rem;
         font-weight: 800;
-        color: #be185d;
+        color: var(--pengguna-primary);
         margin-bottom: 16px;
         display: flex;
         align-items: center;
@@ -280,20 +314,20 @@
         content: '';
         width: 4px;
         height: 18px;
-        background: linear-gradient(180deg, #be185d, #e63980);
+        background: var(--gradient-primary);
         border-radius: 2px;
     }
 
     .form-label-custom {
         font-size: .82rem;
         font-weight: 700;
-        color: #475569;
+        color: var(--pengguna-primary);
         margin-bottom: 6px;
         display: block;
     }
 
     .form-control-custom {
-        border: 1.5px solid #e2e8f0;
+        border: 1.5px solid rgba(230, 57, 128, 0.15);
         border-radius: 10px;
         padding: 10px 14px;
         font-size: .9rem;
@@ -302,13 +336,13 @@
     }
 
     .form-control-custom:focus {
-        border-color: #e63980;
-        box-shadow: 0 0 0 3px rgba(230, 57, 128, .15);
+        border-color: var(--pengguna-primary);
+        box-shadow: 0 0 0 3px rgba(230, 57, 128, 0.1);
         outline: none;
     }
 
     .form-select-custom {
-        border: 1.5px solid #e2e8f0;
+        border: 1.5px solid rgba(230, 57, 128, 0.15);
         border-radius: 10px;
         padding: 10px 14px;
         font-size: .9rem;
@@ -319,8 +353,8 @@
     }
 
     .form-select-custom:focus {
-        border-color: #e63980;
-        box-shadow: 0 0 0 3px rgba(230, 57, 128, .15);
+        border-color: var(--pengguna-primary);
+        box-shadow: 0 0 0 3px rgba(230, 57, 128, 0.1);
         outline: none;
     }
 
@@ -333,7 +367,7 @@
 
     /* Action Buttons */
     .btn-save-form {
-        background: linear-gradient(135deg, #be185d 0%, #e63980 100%);
+        background: var(--gradient-primary);
         border: none;
         color: #fff;
         font-size: .95rem;
@@ -348,7 +382,7 @@
 
     .btn-save-form:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(230, 57, 128, .35);
+        box-shadow: var(--shadow-lg);
     }
 
     /* Toast */
@@ -436,6 +470,363 @@
             white-space: nowrap;
         }
     }
+
+    /* Buku KIA Selector Styles */
+    .kia-selector-section {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        margin-bottom: 24px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .kia-selector-header {
+        background: linear-gradient(135deg, rgba(230, 57, 128, 0.06) 0%, rgba(230, 57, 128, 0.03) 100%);
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(230, 57, 128, 0.1);
+    }
+
+    .kia-selector-header h4 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--pengguna-primary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .kia-selector-body {
+        padding: 24px;
+    }
+
+    .kia-card-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .kia-card-item {
+        background: linear-gradient(180deg, #fdfafc 0%, #fff 100%);
+        border: 2px solid rgba(230, 57, 128, 0.1);
+        border-radius: 16px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all .25s ease;
+        text-decoration: none;
+        display: block;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kia-card-item:hover {
+        border-color: var(--pengguna-primary);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .kia-card-item.active {
+        border-color: var(--pengguna-primary);
+        background: linear-gradient(180deg, rgba(230, 57, 128, 0.06) 0%, #fff 100%);
+        box-shadow: var(--shadow-md);
+    }
+
+    .kia-card-item.active::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-primary);
+    }
+
+    .kia-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: rgba(230, 57, 128, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .kia-card-icon i {
+        font-size: 1.5rem;
+        color: var(--pengguna-primary);
+    }
+
+    .kia-card-title {
+        font-weight: 800;
+        font-size: 1rem;
+        color: var(--pengguna-primary);
+        margin-bottom: 6px;
+    }
+
+    .kia-card-subtitle {
+        font-size: .82rem;
+        color: var(--pengguna-muted);
+        margin-bottom: 10px;
+    }
+
+    .kia-card-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: .72rem;
+        font-weight: 700;
+    }
+
+    .kia-card-badge.aktif {
+        background: rgba(0, 184, 148, 0.12);
+        color: var(--pengguna-secondary);
+    }
+
+    .kia-card-badge.draft {
+        background: rgba(230, 57, 128, 0.1);
+        color: var(--pengguna-primary);
+    }
+
+    .kia-card-active-indicator {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: .85rem;
+    }
+
+    .kia-card-active-indicator.hidden {
+        display: none;
+    }
+
+    .kia-card-actions {
+        border-color: rgba(230, 57, 128, 0.1) !important;
+    }
+
+    .btn-edit-kia {
+        background: var(--gradient-primary);
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        padding: 8px 16px;
+        border-radius: 10px;
+        transition: all .2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-edit-kia:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        color: #fff;
+    }
+
+    .btn-download-kia {
+        background: #fff;
+        border: 2px solid var(--pengguna-primary);
+        color: var(--pengguna-primary);
+        font-weight: 700;
+        padding: 8px 16px;
+        border-radius: 10px;
+        transition: all .2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-download-kia:hover {
+        background: rgba(230, 57, 128, 0.06);
+        transform: translateY(-2px);
+        color: var(--pengguna-primary);
+    }
+
+    /* Preview Info */
+    .preview-info {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .preview-info-item {
+        padding: 8px;
+        background: rgba(255,255,255,0.7);
+        border-radius: 8px;
+    }
+
+    .preview-info-item small {
+        display: block;
+        font-size: .72rem;
+        margin-bottom: 2px;
+    }
+
+    /* Book Visual */
+    .kia-book-visual {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+    }
+
+    /* KIA Book Content */
+    .kia-book-content {
+        max-height: 600px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    /* PDF Viewer */
+    .kia-pdf-viewer {
+        width: 100%;
+        height: 600px;
+        border: none;
+        border-radius: 12px;
+        background: #f8f9fa;
+    }
+
+    @media (max-width: 768px) {
+        .kia-pdf-viewer {
+            height: 400px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .kia-card-list {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Table Styling */
+    .table {
+        border-color: rgba(230, 57, 128, 0.08);
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, rgba(230, 57, 128, 0.06) 0%, rgba(230, 57, 128, 0.03) 100%);
+        color: var(--pengguna-primary);
+        font-weight: 700;
+        font-size: .78rem;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+        border-color: rgba(230, 57, 128, 0.1);
+        padding: 10px 6px;
+    }
+
+    .table tbody td {
+        padding: 6px;
+        border-color: rgba(230, 57, 128, 0.06);
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+        background: rgba(230, 57, 128, 0.03);
+    }
+
+    .table-light {
+        background: linear-gradient(135deg, rgba(230, 57, 128, 0.06) 0%, rgba(230, 57, 128, 0.03) 100%);
+    }
+
+    /* Form Checkbox */
+    .form-check-input:checked {
+        background-color: var(--pengguna-primary);
+        border-color: var(--pengguna-primary);
+    }
+
+    .form-check-input:focus {
+        box-shadow: 0 0 0 3px rgba(230, 57, 128, 0.1);
+        border-color: var(--pengguna-primary);
+    }
+
+    /* Section Headers in Form */
+    .form-category-content h6 {
+        color: var(--pengguna-primary);
+        font-size: .95rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid rgba(230, 57, 128, 0.08);
+    }
+
+    /* Border radius for nested elements */
+    .border.rounded-3 {
+        border-color: rgba(230, 57, 128, 0.1) !important;
+        background: linear-gradient(180deg, rgba(230, 57, 128, 0.02) 0%, #fff 100%);
+    }
+
+    .border.rounded-3 h6 {
+        color: var(--pengguna-primary);
+    }
+
+    /* Scrollbar styling for tables */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table-responsive::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+        background: rgba(230, 57, 128, 0.06);
+        border-radius: 4px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+        background: var(--pengguna-primary);
+        border-radius: 4px;
+    }
+
+    /* HR divider */
+    hr {
+        border-color: rgba(230, 57, 128, 0.1);
+    }
+
+    /* Badge for active/success states */
+    .badge-active {
+        background: var(--gradient-primary);
+        color: #fff;
+    }
+
+    /* Text helpers */
+    .text-primary {
+        color: var(--pengguna-primary) !important;
+    }
+
+    /* Form Control in Tables */
+    .form-control-sm {
+        font-size: .78rem;
+        padding: 4px 8px;
+        border-color: rgba(230, 57, 128, 0.15);
+    }
+
+    .form-control-sm:focus {
+        border-color: var(--pengguna-primary);
+        box-shadow: 0 0 0 2px rgba(230, 57, 128, 0.1);
+    }
+
+    /* Toast styling */
+    .custom-toast.success {
+        border-left: 4px solid var(--pengguna-primary);
+    }
+
+    .custom-toast.success .toast-icon {
+        background: rgba(230, 57, 128, 0.15);
+        color: var(--pengguna-primary);
+    }
 </style>
 @endpush
 
@@ -445,41 +836,72 @@
     <div class="kia-hero">
         <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
             <div>
-                <h2>Buku KIA Anda</h2>
-                <p>Kelola semua data Buku KIA untuk kehamilan dan anak Anda di halaman ini.</p>
+                <h2>Daftar Buku KIA</h2>
             </div>
         </div>
     </div>
 
-    <!-- Preview Section - Inline View -->
-    <div class="kia-preview-section">
+    <!-- Buku KIA Selector Section -->
+    <div class="kia-selector-section">
+        <div class="kia-selector-body">
+            <div class="kia-card-list">
+                @forelse($bukuKiaCards as $card)
+                <div class="kia-card-item {{ $card['is_active'] ? 'active' : '' }}" onclick="pilihBukuKia({{ $card['id'] }})">
+                    @if($card['is_active'])
+                    <div class="kia-card-active-indicator">
+                        <i class="bi bi-check"></i>
+                    </div>
+                    @endif
+                    <div class="kia-card-icon">
+                        <i class="bi bi-journal-bookmark-fill"></i>
+                    </div>
+                    <div class="kia-card-title">{{ $card['label'] }}</div>
+                    @if($card['nama_anak'])
+                    <div class="kia-card-subtitle">Anak: {{ $card['nama_anak'] }}</div>
+                    @endif
+                    <span class="kia-card-badge {{ strtolower($card['status']) }}">
+                        <i class="bi {{ $card['status'] == 'Aktif' ? 'bi-check-circle-fill' : 'bi-clock' }} me-1"></i>
+                        {{ $card['status'] }}
+                    </span>
+
+                    @if($card['is_active'])
+                    <div class="kia-card-actions mt-3 pt-3 border-top">
+                        <a href="#form-section" class="btn btn-sm btn-edit-kia w-100 mb-2" onclick="event.stopPropagation();">
+                            <i class="bi bi-pencil-square me-1"></i>
+                            Edit Buku KIA
+                        </a>
+                        <a href="{{ route('pengguna.kia.download', $card['id']) }}" class="btn btn-sm btn-download-kia w-100" onclick="event.stopPropagation();">
+                            <i class="bi bi-download me-1"></i>
+                            Download PDF
+                        </a>
+                    </div>
+                    @endif
+                </div>
+                @empty
+                @endforelse
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Section - Isi Buku KIA (PDF) -->
+    <div class="kia-preview-section" id="preview-section">
         <div class="kia-preview-header">
             <h4>
-                <i class="bi bi-journal-bookmark-fill"></i>
-                Tampilan Buku KIA
+                <i class="bi bi-book"></i>
+                Isi Buku KIA - {{ $activeKia->ibu->nama ?? 'Data Pengguna' }}
             </h4>
         </div>
         <div class="kia-preview-body">
-            <div class="kia-book-preview">
-                <i class="bi bi-book"></i>
-                <h5>Buku KIA - {{ $dataKia->ibu->nama ?? 'Data Pengguna' }}</h5>
-                <p>Buku Kesehatan Ibu dan Anak (KIA) berisi catatan kesehatan ibu hamil, persalinan, dan tumbuh kembang anak.</p>
-                <div class="kia-book-actions">
-                    <button class="btn-preview btn-preview-outline" onclick="openPdfInline()">
-                        <i class="bi bi-eye"></i>
-                        Lihat Buku KIA
-                    </button>
-                    <a href="{{ route('pengguna.kia.download') }}" class="btn-preview btn-preview-filled">
-                        <i class="bi bi-download"></i>
-                        Download PDF
-                    </a>
-                </div>
-            </div>
+            <iframe
+                src="{{ route('pengguna.kia.Buku-KIA', $activeKia->id) }}"
+                class="kia-pdf-viewer"
+                title="Buku KIA">
+            </iframe>
         </div>
     </div>
 
     <!-- All Form Section -->
-    <div class="kia-form-section">
+    <div class="kia-form-section" id="form-section">
         <div class="kia-form-header">
             <h4>
                 <i class="bi bi-pencil-square"></i>
@@ -489,6 +911,7 @@
         <div class="kia-form-body">
             <form id="kiaForm" action="{{ route('pengguna.kia.save_wizard') }}" method="POST">
                 @csrf
+                <input type="hidden" name="data_kia_id" value="{{ $activeKia->id }}">
 
                 <!-- Category Tabs -->
                 <div class="category-tabs">
@@ -519,6 +942,54 @@
                     <button type="button" class="category-tab" onclick="showCategory('kehamilan')">
                         <i class="bi bi-heart-pulse"></i>
                         Riwayat Kehamilan
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('catatan_ttd')">
+                        <i class="bi bi-capsule"></i>
+                        Catatan TTD
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('pemantauan_mingguan')">
+                        <i class="bi bi-calendar-week"></i>
+                        Pemantauan Mingguan
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('kelas_ibu')">
+                        <i class="bi bi-mortarboard"></i>
+                        Kelas Ibu Hamil
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('persiapan')">
+                        <i class="bi bi-truck"></i>
+                        Persiapan Melahirkan
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('pemantauan_nifas')">
+                        <i class="bi bi-droplet"></i>
+                        Pemantauan Nifas
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('kb')">
+                        <i class="bi bi-flower1"></i>
+                        KB
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('bayi_baru')">
+                        <i class="bi bi-baby"></i>
+                        Bayi Baru Lahir
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('pemantauan_bayi')">
+                        <i class="bi bi-thermometer"></i>
+                        Pemantauan Bayi
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('warna_tinja')">
+                        <i class="bi bi-palette"></i>
+                        Warna Tinja
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('kelas_balita')">
+                        <i class="bi bi-people"></i>
+                        Kelas Balita
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('perkembangan_bayi')">
+                        <i class="bi bi-graph-up"></i>
+                        Perkembangan Bayi
+                    </button>
+                    <button type="button" class="category-tab" onclick="showCategory('kesehatan_lingkungan')">
+                        <i class="bi bi-house"></i>
+                        Kesehatan Lingkungan
                     </button>
                 </div>
 
@@ -972,6 +1443,657 @@
                     </div>
                 </div>
 
+                <!-- Form Content: Catatan TTD -->
+                <div class="form-category-content" id="form_catatan_ttd" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Catatan Minum Tablet Tambah Darah (TTD)</div>
+                        <p class="text-muted small mb-3">Catat minum TTD setiap hari. Centang √ jika sudah minum pada tanggal tersebut.</p>
+                        <div class="row">
+                            @for($bulan = 1; $bulan <= 9; $bulan++)
+                            <div class="col-md-4 mb-4">
+                                <div class="border rounded-3 p-3">
+                                    <h6 class="fw-bold text-center mb-3" style="color: #be185d;">Bulan ke-{{ $bulan }}</h6>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <label class="form-label-custom small">Usia Kehamilan (minggu)</label>
+                                        <input type="number" class="form-control form-control-sm w-50" name="ttd_bulan_{{ $bulan }}_usia"
+                                            placeholder="Contoh: 12" style="font-size: 0.8rem;">
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <label class="form-label-custom small">Bulan/Tahun</label>
+                                        <input type="text" class="form-control form-control-sm w-50" name="ttd_bulan_{{ $bulan }}_bulan_tahun"
+                                            placeholder="Contoh: Januari 2026" style="font-size: 0.8rem;">
+                                    </div>
+                                    <div class="border-top pt-2 mt-2">
+                                        <div class="row g-1">
+                                            @for($hari = 1; $hari <= 31; $hari++)
+                                            <div class="col-1 text-center p-0">
+                                                <small class="d-block" style="font-size: 0.6rem; color: #999;">{{ $hari }}</small>
+                                                <div class="form-check d-flex justify-content-center p-0">
+                                                    <input class="form-check-input" type="checkbox" name="ttd_bulan_{{ $bulan }}_h{{ $hari }}" id="ttd_bulan_{{ $bulan }}_h{{ $hari }}" style="width: 14px; height: 14px;">
+                                                </div>
+                                            </div>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endfor
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Content: Pemantauan Mingguan -->
+                <div class="form-category-content" id="form_pemantauan_mingguan" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Pemantauan Ibu Hamil Mingguan</div>
+                        <p class="text-muted small mb-3">Pemeriksaan dan konsultasi yang dilakukan setiap minggu selama kehamilan.</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center" style="width: 60px;">Minggu ke</th>
+                                        <th>Pemeriksaan Kehamilan</th>
+                                        <th>Kelas Ibu Hamil</th>
+                                        <th>Demam >2 Hari</th>
+                                        <th>Pusing/Sakit Kepala</th>
+                                        <th>Sulit Tidur/Cemas</th>
+                                        <th>Risiko TB</th>
+                                        <th>Gerakan Bayi Berkurang</th>
+                                        <th>Nyeri Perut Hebat</th>
+                                        <th>Keluar Cairan Lahir</th>
+                                        <th>Sakit Saat Kencing</th>
+                                        <th>Diare Berulang</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for($minggu = 1; $minggu <= 42; $minggu++)
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ $minggu }}</td>
+                                        @for($col = 1; $col <= 10; $col++)
+                                        <td class="text-center">
+                                            <input class="form-check-input" type="checkbox" name="pemantauan_minggu_{{ $minggu }}_{{ $col }}">
+                                        </td>
+                                        @endfor
+                                    </tr>
+                                    @endfor
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Content: Kelas Ibu Hamil -->
+                <div class="form-category-content" id="form_kelas_ibu" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Kelas Ibu Hamil - Absensi Kehadiran</div>
+                        <p class="text-muted small mb-3">Catat kehadiran Ibu Hamil dalam kelas.</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center">Sesi ke</th>
+                                        <th>Tanggal</th>
+                                        <th>Kader/Tenaga Kesehatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for($sesi = 1; $sesi <= 9; $sesi++)
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ $sesi }}</td>
+                                        <td>
+                                            <input type="date" class="form-control form-control-custom" name="kelas_ibu_tanggal_{{ $sesi }}">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-custom" name="kelas_ibu_kader_{{ $sesi }}" placeholder="Nama kader/nakes">
+                                        </td>
+                                    </tr>
+                                    @endfor
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Content: Persiapan Melahirkan -->
+                <div class="form-category-content" id="form_persiapan" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Persiapan Melahirkan</div>
+                        <div class="form-row-custom">
+                            <div>
+                                <label class="form-label-custom">HPL Tanggal</label>
+                                <input type="number" class="form-control form-control-custom" name="hpl_tanggal" min="1" max="31" placeholder="Tanggal">
+                            </div>
+                            <div>
+                                <label class="form-label-custom">HPL Bulan</label>
+                                <input type="number" class="form-control form-control-custom" name="hpl_bulan" min="1" max="12" placeholder="Bulan">
+                            </div>
+                            <div>
+                                <label class="form-label-custom">HPL Tahun</label>
+                                <input type="number" class="form-control form-control-custom" name="hpl_tahun" min="2024" placeholder="Tahun">
+                            </div>
+                        </div>
+                        <hr>
+                        <h6 class="fw-bold mb-3">Persiapan Checklist</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="tanya_tanggal_perkiraan" id="tanya_tanggal_perkiraan">
+                                    <label class="form-check-label" for="tanya_tanggal_perkiraan">Tanya tanggal perkiraan melahirkan</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="minta_dampingi" id="minta_dampingi">
+                                    <label class="form-check-label" for="minta_dampaikan">Minta keluarga/dukun accompagngi</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="siap_tabungan" id="siap_tabungan">
+                                    <label class="form-check-label" for="siap_tabungan">Siap menyimpan uang</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="kartu_jkn" id="kartu_jkn">
+                                    <label class="form-check-label" for="kartu_jkn">Siap membawa kartu JKN/BPJS</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="tempat_melahirkan" id="tempat_melahirkan">
+                                    <label class="form-check-label" for="tempat_melahirkan">Tahu tempat melahirkan</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="siap_ktp_kk" id="siap_ktp_kk">
+                                    <label class="form-check-label" for="siap_ktp_kk">Siap membawa KTP dan KK</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="siap_pendonor" id="siap_pendonor">
+                                    <label class="form-check-label" for="siap_pendonor">Siap mencari donor darah</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="siap_kendaraan" id="siap_kendaraan">
+                                    <label class="form-check-label" for="siap_kendaraan">Siap transportasi ke faskes</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="sepakat_stiker_p4k" id="sepakat_stiker_p4k">
+                                    <label class="form-check-label" for="sepakat_stiker_p4k">Sepakat pasang stiker P4K</label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="rencana_kb" id="rencana_kb">
+                                    <label class="form-check-label" for="rencana_kb">Rencanakan KB setelah melahirkan</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Content: Pemantauan Nifas -->
+                <div class="form-category-content" id="form_pemantauan_nifas" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Pemantauan Ibu Nifas</div>
+                        <p class="text-muted small mb-3">Pemantauan ibu setelah melahirkan selama 42 hari (6 minggu).</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center" style="width: 80px;">Hari ke</th>
+                                        <th>Pemeriksaan Nifas</th>
+                                        <th>Konsumsi Vitamin A</th>
+                                        <th>Konsumsi TTD</th>
+                                        <th>Pemenuhan Gizi</th>
+                                        <th>Masalah Jiwa</th>
+                                        <th>Demam</th>
+                                        <th>Sakit Kepala</th>
+                                        <th>Pandangan Kabur</th>
+                                        <th>Nyeri Ulu Hati</th>
+                                        <th>Jantung Berdebar</th>
+                                        <th>Keluar Cairan Lahir</th>
+                                        <th>Napas Pendek</th>
+                                        <th>Payudara Bengkak</th>
+                                        <th>Gangguan BAK</th>
+                                        <th>Kelamin Bengkak</th>
+                                        <th>Darah Nifas Berbau</th>
+                                        <th>Pendarahan Hebat</th>
+                                        <th>Keputihan</th>
+                                        <th>Paraf Kader/Nakes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for($hari = 1; $hari <= 42; $hari++)
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ $hari }}</td>
+                                        @for($col = 1; $col <= 18; $col++)
+                                        <td class="text-center">
+                                            <input class="form-check-input" type="checkbox" name="nifas_hari_{{ $hari }}_{{ $col }}">
+                                        </td>
+                                        @endfor
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm" name="nifas_paraf_{{ $hari }}" placeholder="Paraf">
+                                        </td>
+                                    </tr>
+                                    @endfor
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Content: KB -->
+                <div class="form-category-content" id="form_kb" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Rencana Keluarga Berencana (KB)</div>
+                        <div class="form-row-custom">
+                            <div>
+                                <label class="form-label-custom">Metode KB yang Dipilih</label>
+                                <select class="form-select form-select-custom" name="metode_kb">
+                                    <option value="">Pilih Metode</option>
+                                    <option value="MOW">MOW (Tubektomi)</option>
+                                    <option value="MOP">MOP (Vasektomi)</option>
+                                    <option value="IUD">IUD (Alat Kontrasepsi Dalam Rahim)</option>
+                                    <option value="Implant">Implant (Kontrasepsi Implant)</option>
+                                    <option value="Suntik">Suntik KB</option>
+                                    <option value="Pil">Pil KB</option>
+                                    <option value="Kondom">Kondom</option>
+                                    <option value="Metode Amenore Laktasi">Metode Amenore Laktasi (MAL)</option>
+                                    <option value="Pil Progestin">Pil Progestin (Mini Pil)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-row-custom">
+                            <div>
+                                <label class="form-label-custom">Paraf Ibu</label>
+                                <input type="text" class="form-control form-control-custom" name="paraf_ibu" placeholder="Paraf/Tanda tangan ibu">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Content: Bayi Baru Lahir -->
+                <div class="form-category-content" id="form_bayi_baru" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Pemeriksaan Bayi Baru Lahir</div>
+                        <p class="text-muted small mb-3">Ceklist pemeriksaan bayi baru lahir pada waktu tertentu.</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-3 mb-3">
+                                    <h6 class="fw-bold mb-2">0 - 6 Jam</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="bayi_0_6_jam" id="bayi_0_6_jam">
+                                        <label class="form-check-label" for="bayi_0_6_jam">Pemeriksaan pada 0-6 jam setelah lahir</label>
+                                    </div>
+                                </div>
+                                <div class="border rounded-3 p-3 mb-3">
+                                    <h6 class="fw-bold mb-2">6 - 48 Jam</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="bayi_6_48_jam" id="bayi_6_48_jam">
+                                        <label class="form-check-label" for="bayi_6_48_jam">Pemeriksaan pada 6-48 jam setelah lahir</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-3 mb-3">
+                                    <h6 class="fw-bold mb-2">3 - 7 Hari</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="bayi_hari_3_7" id="bayi_hari_3_7">
+                                        <label class="form-check-label" for="bayi_hari_3_7">Pemeriksaan pada 3-7 hari setelah lahir</label>
+                                    </div>
+                                </div>
+                                <div class="border rounded-3 p-3 mb-3">
+                                    <h6 class="fw-bold mb-2">8 - 28 Hari</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="bayi_hari_8_28" id="bayi_hari_8_28">
+                                        <label class="form-check-label" for="bayi_hari_8_28">Pemeriksaan pada 8-28 hari setelah lahir</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Content: Pemantauan Bayi -->
+                <div class="form-category-content" id="form_pemantauan_bayi" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Pemantauan Harian Bayi</div>
+                        <p class="text-muted small mb-3">Catatan pemantauan kesehatan bayi baru lahir setiap hari.</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center" style="width: 80px;">Hari ke</th>
+                                        <th>Sesak Napas</th>
+                                        <th>Aktivitas Lemah</th>
+                                        <th>Warna Kulit Biru</th>
+                                        <th>Hisapan Lemah</th>
+                                        <th>Kejang</th>
+                                        <th>Suhu Abnormal</th>
+                                        <th>BAB Abnormal</th>
+                                        <th>Kencing Sedikit</th>
+                                        <th>Tali Pusat Merah</th>
+                                        <th>Mata Merah</th>
+                                        <th>Kulit Bintil</th>
+                                        <th>Belum Imunisasi</th>
+                                        <th>Paraf</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for($hari = 1; $hari <= 28; $hari++)
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ $hari }}</td>
+                                        @for($col = 1; $col <= 11; $col++)
+                                        <td class="text-center">
+                                            <input class="form-check-input" type="checkbox" name="bayi_hari_{{ $hari }}_{{ $col }}">
+                                        </td>
+                                        @endfor
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm" name="bayi_paraf_{{ $hari }}" placeholder="Paraf">
+                                        </td>
+                                    </tr>
+                                    @endfor
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Content: Warna Tinja -->
+                <div class="form-category-content" id="form_warna_tinja" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Pemantauan Warna Tinja Bayi</div>
+                        <p class="text-muted small mb-3">Catat perubahan warna tinja bayi untuk mengetahui perkembangan pencernaan.</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Usia Bayi</th>
+                                        <th>Tanggal</th>
+                                        <th>Nomor Urut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold">2 Minggu</td>
+                                        <td><input type="date" class="form-control form-control-custom" name="tinja_2_minggu_tanggal"></td>
+                                        <td><input type="number" class="form-control form-control-custom" name="tinja_2_minggu_nomor" placeholder="Nomor"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">1 Bulan</td>
+                                        <td><input type="date" class="form-control form-control-custom" name="tinja_1_bulan_tanggal"></td>
+                                        <td><input type="number" class="form-control form-control-custom" name="tinja_1_bulan_nomor" placeholder="Nomor"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">2-4 Bulan</td>
+                                        <td><input type="date" class="form-control form-control-custom" name="tinja_2_4_bulan_tanggal"></td>
+                                        <td><input type="number" class="form-control form-control-custom" name="tinja_2_4_bulan_nomor" placeholder="Nomor"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Content: Kelas Balita -->
+                <div class="form-category-content" id="form_kelas_balita" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Kelas Balita - Absensi Kehadiran</div>
+                        <p class="text-muted small mb-3">Catat kehadiran balita dalam kelas.</p>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center">Sesi ke</th>
+                                        <th>Tanggal</th>
+                                        <th>Kader/Tenaga Kesehatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for($sesi = 1; $sesi <= 9; $sesi++)
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ $sesi }}</td>
+                                        <td>
+                                            <input type="date" class="form-control form-control-custom" name="kelas_balita_tanggal_{{ $sesi }}">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-custom" name="kelas_balita_kader_{{ $sesi }}" placeholder="Nama kader/nakes">
+                                        </td>
+                                    </tr>
+                                    @endfor
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Content: Perkembangan Bayi -->
+                <div class="form-category-content" id="form_perkembangan_bayi" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Pemenuhan Tumbuh Kembang Bayi dan Anak</div>
+                        <p class="text-muted small mb-3">Pantau perkembangan bayi dan anak sesuai usia.</p>
+
+                        <!-- Mingguan Bayi (0-2 bulan) -->
+                        <h6 class="fw-bold text-primary mb-3">Pemantauan Mingguan (0-2 Bulan)</h6>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center" style="width: 60px;">Minggu</th>
+                                        <th>Sesak Napas</th>
+                                        <th>Batuk</th>
+                                        <th>Suhu Abnormal</th>
+                                        <th>BAB Sering</th>
+                                        <th>Kencing Sedikit</th>
+                                        <th>Kulit Biru</th>
+                                        <th>Aktivitas Lemah</th>
+                                        <th>Hisapan Lemah</th>
+                                        <th>Tidak Makan</th>
+                                        <th>Paraf</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for($m = 1; $m <= 8; $m++)
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ $m }}</td>
+                                        @for($c = 1; $c <= 9; $c++)
+                                        <td class="text-center"><input class="form-check-input" type="checkbox" name="mingguan_bayi_{{ $m }}_{{ $c }}"></td>
+                                        @endfor
+                                        <td><input type="text" class="form-control form-control-sm" name="mingguan_bayi_paraf_{{ $m }}"></td>
+                                    </tr>
+                                    @endfor
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Perkembangan Bayi 0-2 Bulan -->
+                        <h6 class="fw-bold text-primary mb-3">Perkembangan Bayi 0-2 Bulan</h6>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_angkat_kepala_45"><label class="form-check-label">Mengangkat kepala 45 derajat</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_gerakkan_kepala"><label class="form-check-label">Menggerakkan kepala</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_tatap_wajah"><label class="form-check-label">Menatap wajah ibu</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_ngoceh"><label class="form-check-label">Mengoceh</label></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_tertawa_keras"><label class="form-check-label">Tertawa keras</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_terkejut_suara"><label class="form-check-label">Terkejut suara keras</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_tersenyum"><label class="form-check-label">Tersenyum</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_mengenal_ibu"><label class="form-check-label">Mengenal ibu</label></div>
+                            </div>
+                        </div>
+
+                        <!-- Bulanan Bayi 2-6 Bulan -->
+                        <h6 class="fw-bold text-primary mb-3">Pemantauan Bulanan (2-6 Bulan)</h6>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered table-sm">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center" style="width: 60px;">Bulan</th>
+                                        <th>Sesak Napas</th>
+                                        <th>Batuk</th>
+                                        <th>Suhu Abnormal</th>
+                                        <th>BAB Sering</th>
+                                        <th>Kencing Sedikit</th>
+                                        <th>Kulit Biru</th>
+                                        <th>Aktivitas Lemah</th>
+                                        <th>Hisapan Lemah</th>
+                                        <th>Tidak Makan</th>
+                                        <th>Paraf</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for($b = 1; $b <= 6; $b++)
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ $b }}</td>
+                                        @for($c = 1; $c <= 9; $c++)
+                                        <td class="text-center"><input class="form-check-input" type="checkbox" name="bulanan_bayi_{{ $b }}_{{ $c }}"></td>
+                                        @endfor
+                                        <td><input type="text" class="form-control form-control-sm" name="bulanan_bayi_paraf_{{ $b }}"></td>
+                                    </tr>
+                                    @endfor
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Perkembangan Bayi 3-6 Bulan -->
+                        <h6 class="fw-bold text-primary mb-3">Perkembangan Bayi 3-6 Bulan</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_berbalik"><label class="form-check-label">Berbalik sendiri</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_kepala_tegak_90"><label class="form-check-label">Kepala tegak 90°</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_kepala_stabil"><label class="form-check-label">Kepala stabil</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_genggam_mainan"><label class="form-check-label">Menggenggam mainan</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_raih_benda"><label class="form-check-label">Meraih benda</label></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_amati_tangan"><label class="form-check-label">Memperhatikan tangan</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_luas_pandang"><label class="form-check-label">Luas pandang 180°</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_arah_mata"><label class="form-check-label">Mengarahkan mata</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_suara_gembira"><label class="form-check-label">Suara gembira</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bayi_senyum_mainan"><label class="form-check-label">Senyum melihat mainan</label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Content: Kesehatan Lingkungan -->
+                <div class="form-category-content" id="form_kesehatan_lingkungan" style="display: none;">
+                    <div class="form-card">
+                        <div class="form-card-title">Kondisi Kesehatan Lingkungan</div>
+                        <p class="text-muted small mb-3">Pastikan rumah dan lingkungan sehat untuk ibu dan anak.</p>
+
+                        <!-- BAB -->
+                        <h6 class="fw-bold text-primary mb-2">Pencemaran BAB</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bab_sembarangan"><label class="form-check-label">BAB di sembarangan</label></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="bab_jamban_sendiri"><label class="form-check-label">BAB di jamban sendiri</label></div>
+                            </div>
+                        </div>
+
+                        <!-- Penampung -->
+                        <h6 class="fw-bold text-primary mb-2">Tempat Penampungan Sampah</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="penampung_tangki_septik"><label class="form-check-label">Tangki septik</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="penampung_cubluk"><label class="form-check-label">Cubluk</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="penampung_drainase"><label class="form-check-label">Drainase</label></div>
+                            </div>
+                        </div>
+                        <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="kloset_leher_angsa"><label class="form-check-label">Kloset leher angsa</label></div>
+
+                        <!-- CTPS -->
+                        <h6 class="fw-bold text-primary mb-2">Cuci Tangan Pakai Sabun (CTPS)</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="ctps_sarana"><label class="form-check-label">Sarana CTPS tersedia</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="ctps_air_mengalir"><label class="form-check-label">Air mengalir</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="ctps_sabun"><label class="form-check-label">Sabun tersedia</label></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="ctps_sebelum_makan"><label class="form-check-label">Sebelum makan</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="ctps_sebelum_mengolah"><label class="form-check-label">Sebelum mengolah</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="ctps_sebelum_menyusui"><label class="form-check-label">Sebelum menyusui</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="ctps_setelah_bab"><label class="form-check-label">Setelah BAB</label></div>
+                            </div>
+                        </div>
+
+                        <!-- Sumber Air -->
+                        <h6 class="fw-bold text-primary mb-2">Sumber Air Bersih</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sumber_air_pipa"><label class="form-check-label">Air PAM/perpipan</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sumber_air_kran"><label class="form-check-label">Kran/pompa</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sumber_air_sumur"><label class="form-check-label">Sumur terlindung</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sumber_air_mata_air"><label class="form-check-label">Mata air terlindung</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sumber_air_sungai"><label class="form-check-label">Sungai</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sumber_air_danau"><label class="form-check-label">Danau/Waduk</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sumber_air_hujan"><label class="form-check-label">Air hujan</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sumber_air_kolam"><label class="form-check-label">Kolam/Irigasi</label></div>
+                            </div>
+                        </div>
+
+                        <!-- Kelola Air -->
+                        <h6 class="fw-bold text-primary mb-2">Pengelolaan Air</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="kelola_air_rebus"><label class="form-check-label">Air dimasak/direbus</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="kelola_air_endap_saring"><label class="form-check-label">Diendapkan/disaring</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="kelola_air_wadah_tertutup"><label class="form-check-label">Wadah tertutup</label></div>
+                            </div>
+                        </div>
+
+                        <!-- Kelola Makanan -->
+                        <h6 class="fw-bold text-primary mb-2">Pengelolaan Makanan</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="kelola_makanan_tertutup"><label class="form-check-label">Makanan tertutup</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="kelola_makanan_jauh"><label class="form-check-label">Jauh dari bahan berbahaya</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="kelola_makanan_baik"><label class="form-check-label">Diolah baik & benar</label></div>
+                            </div>
+                        </div>
+
+                        <!-- Sampah -->
+                        <h6 class="fw-bold text-primary mb-2">Pengelolaan Sampah</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sampah_tidak_berserakan"><label class="form-check-label">Tidak berserakan</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sampah_tempat_tertutup"><label class="form-check-label">Tempat sampah tertutup</label></div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sampah_dipilah"><label class="form-check-label">Sampah dipilah</label></div>
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="sampah_tidak_dibakar"><label class="form-check-label">Tidak dibakar</label></div>
+                            </div>
+                        </div>
+
+                        <!-- Limbah -->
+                        <h6 class="fw-bold text-primary mb-2">Pengelolaan Limbah</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="limbah_tidak_menggenang"><label class="form-check-label">Tidak menggenang</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="limbah_saluran_tertutup"><label class="form-check-label">Saluran tertutup</label></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="limbah_terhubung_resapan"><label class="form-check-label">Terhubung resapan</label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Save Button -->
                 <div class="d-flex justify-content-end mt-4 pt-4 border-top">
                     <button type="submit" class="btn-save-form">
@@ -1024,10 +2146,16 @@
 
     // Open PDF inline in modal
     function openPdfInline() {
-        const pdfUrl = '{{ route('pengguna.kia.pdf') }}';
+        const activeKiaId = {{ $activeKia->id }};
+        const pdfUrl = '/pengguna/kia/' + activeKiaId + '/pdf';
         document.getElementById('pdfFrame').src = pdfUrl;
         const modal = new bootstrap.Modal(document.getElementById('pdfModal'));
         modal.show();
+    }
+
+    // Pilih Buku KIA
+    function pilihBukuKia(id) {
+        window.location.href = '/pengguna/buku-kia/' + id;
     }
 
     // Show toast notification
@@ -1069,11 +2197,13 @@
         .then(data => {
             if (data.success) {
                 showToast(data.message || 'Data berhasil disimpan!', 'success');
+            } else {
+                showToast(data.message || 'Terjadi kesalahan.', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showToast('Terjadi kesalahan. Silakan coba lagi.', 'error');
+            showToast('Terjadi kesalahan jaringan atau server.', 'error');
         });
     });
 </script>

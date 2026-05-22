@@ -43,7 +43,7 @@ Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>
             <div class="stat-card" data-role-filter="articles" title="Klik untuk lihat daftar artikel" style="cursor: pointer;">
                 <div class="stat-icon orange"><i class="bi bi-journal-text"></i></div>
                 <div class="stat-info">
-                    <h3 class="stat-value" id="statTotalArtikel" style="font-size: clamp(1rem, 2.5vw, 1.5rem);">0</h3>
+                    <h3 class="stat-value" id="statTotalArtikel" style="font-size: clamp(1rem, 2.5vw, 1.5rem);">{{ $articleCount ?? 0 }}</h3>
                     <p class="stat-label" style="font-size: clamp(0.7rem, 2vw, 0.85rem);">Total Artikel</p>
                 </div>
             </div>
@@ -238,22 +238,22 @@ Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>
                 : '<span class="badge text-bg-secondary">Tidak Hamil</span>';
         }
 
-        // Article stat sync from ManajemenArtikel localStorage
-        const statTotalArtikelEl = document.getElementById('statTotalArtikel');
-        function updateArticleStat() {
-            try {
-                const arts = getArticlesFromLocalStorage();
-                if (statTotalArtikelEl) statTotalArtikelEl.textContent = String(arts.length || 0);
-            } catch (e) {
-                console.error('Gagal update stat artikel', e);
-            }
-        }
+        // Article stat - use server-side value from PHP (no localStorage override)
+        // const statTotalArtikelEl = document.getElementById('statTotalArtikel');
+        // function updateArticleStat() {
+        //     try {
+        //         const arts = getArticlesFromLocalStorage();
+        //         if (statTotalArtikelEl) statTotalArtikelEl.textContent = String(arts.length || 0);
+        //     } catch (e) {
+        //         console.error('Gagal update stat artikel', e);
+        //     }
+        // }
 
-        updateArticleStat();
-        // update when storage changes (other tab or when ManajemenArtikel updates)
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'momspire_articles') updateArticleStat();
-        });
+        // updateArticleStat();
+        // // update when storage changes (other tab or when ManajemenArtikel updates)
+        // window.addEventListener('storage', function(e) {
+        //     if (e.key === 'momspire_articles') updateArticleStat();
+        // });
 
         document.querySelectorAll('.stat-card[data-role-filter]').forEach((card) => {
             card.addEventListener('click', function() {
