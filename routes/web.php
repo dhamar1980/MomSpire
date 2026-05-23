@@ -541,6 +541,161 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->name('bidan.pengguna.bukuKIA');
 
+    Route::get('/bidan/pengguna/{id}/buku-kia/input', function (Request $request, $id) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $pengguna = \App\Models\Pengguna::withCount(['anak', 'conversations'])->findOrFail($id);
+
+        // Get all DataKIA for this pengguna
+        $bukuKiaList = \App\Models\DataKia::where('user_id', $pengguna->user_id ?? $id)
+            ->with(['ibu'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        // Determine selected KIA
+        $selectedKiaId = $request->query('buku_id');
+        $selectedKia = null;
+
+        if ($selectedKiaId) {
+            $selectedKia = $bukuKiaList->firstWhere('id', $selectedKiaId);
+        }
+
+        // If no selected KIA, use the first one or null
+        if (!$selectedKia && $bukuKiaList->isNotEmpty()) {
+            $selectedKia = $bukuKiaList->first();
+            $selectedKiaId = $selectedKia->id;
+        }
+
+        // Load relations for selected KIA
+        if ($selectedKia) {
+            $selectedKia->load([
+                'ibu', 'suami', 'anak', 'layanan', 'riwayat',
+                'ttdTrackings', 'pemantauanMingguans', 'absenKelasIbuHamils',
+                'persiapanMelahirkan', 'pemantauanIbuNifas', 'keluargaBerencana',
+                'bayiBaruLahir', 'pemantauanBayis', 'warnaTinja',
+                'absenKelasBalitas', 'pemantauanMingguanBayis', 'perkembanganBayi',
+                'perkembanganBayi6Bulan'
+            ]);
+        }
+
+        return view('nakes.buku-kia-pengguna', [
+            'pengguna' => $pengguna,
+            'role' => 'bidan',
+            'bukuKiaList' => $bukuKiaList,
+            'selectedKia' => $selectedKia,
+            'selectedKiaId' => $selectedKiaId,
+        ]);
+    })->name('bidan.pengguna.bukuKIA.input');
+
+    Route::post('/bidan/pengguna/{penggunaId}/buku-kia/tambah', function (Request $request, $penggunaId) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $pengguna = \App\Models\Pengguna::findOrFail($penggunaId);
+
+        // Create new DataKIA for this pengguna
+        $dataKia = \App\Models\DataKia::create([
+            'user_id' => $pengguna->user_id ?? $penggunaId,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'id' => $dataKia->id,
+            'message' => 'Buku KIA baru berhasil dibuat'
+        ]);
+    })->name('bidan.pengguna.bukuKIA.tambah');
+
+    Route::post('/bidan/pengguna/{id}/buku-kia/input', function (Request $request, $id) use ($ensureRole) {
+        $ensureRole('bidan');
+
+        $pengguna = \App\Models\Pengguna::findOrFail($id);
+
+        // Get the DataKIA from the form
+        $kiaId = $request->input('data_kia_id');
+        $dataKia = \App\Models\DataKia::findOrFail($kiaId);
+
+        $clean = function ($val) {
+            return $val === '' ? null : $val;
+        };
+
+        // 1. Core Data
+        $dataKia->update([
+            'faskes_dikeluarkan' => $clean($request->faskes_dikeluarkan),
+            'tanggal_dikeluarkan' => $clean($request->tanggal_dikeluarkan),
+            'kab_kota_dikeluarkan' => $clean($request->kab_kota_dikeluarkan),
+            'provinsi_dikeluarkan' => $clean($request->provinsi_dikeluarkan),
+        ]);
+
+        // 2. Identitas Ibu
+        $dataKia->ibu()->updateOrCreate([], [
+            'nama' => $clean($request->nama_ibu),
+            'nik' => $clean($request->nik),
+            'no_jkn' => $clean($request->no_jkn_ibu),
+            'faskes_tk1' => $clean($request->faskes_tk1_ibu),
+            'faskes_rujukan' => $clean($request->faskes_rujukan_ibu),
+            'tempat_lahir' => $clean($request->tempat_lahir),
+            'tanggal_lahir' => $clean($request->tanggal_lahir),
+            'pendidikan' => $clean($request->pendidikan),
+            'pekerjaan' => $clean($request->pekerjaan),
+            'alamat' => $clean($request->alamat),
+            'telepon' => $clean($request->telepon_ibu),
+            'golongan_darah' => $clean($request->golongan_darah),
+        ]);
+
+        // 3. Identitas Suami
+        $dataKia->suami()->updateOrCreate([], [
+            'nama' => $clean($request->nama_suami),
+            'nik' => $clean($request->nik_suami),
+            'no_jkn' => $clean($request->no_jkn_suami),
+            'faskes_tk1' => $clean($request->faskes_tk1_suami),
+            'faskes_rujukan' => $clean($request->faskes_rujukan_suami),
+            'tempat_lahir' => $clean($request->tempat_lahir_suami),
+            'tanggal_lahir' => $clean($request->tanggal_lahir_suami),
+            'pendidikan' => $clean($request->pendidikan_suami),
+            'pekerjaan' => $clean($request->pekerjaan_suami),
+            'alamat' => $clean($request->alamat_rumah_suami),
+            'telepon' => $clean($request->telepon_suami),
+            'golongan_darah' => $clean($request->golongan_darah_suami),
+        ]);
+
+        // 4. Identitas Anak
+        $dataKia->anak()->updateOrCreate([], [
+            'nama' => $clean($request->nama_anak),
+            'nik' => $clean($request->nik_anak),
+            'no_jkn' => $clean($request->no_jkn_anak),
+            'faskes_tk1' => $clean($request->faskes_tk1_anak),
+            'faskes_rujukan' => $clean($request->faskes_rujukan_anak),
+            'tempat_lahir' => $clean($request->tempat_lahir_anak),
+            'tanggal_lahir' => $clean($request->tanggal_lahir_anak),
+            'anak_ke' => $clean($request->anak_ke),
+            'no_akta_kelahiran' => $clean($request->no_akta_kelahiran_anak),
+            'telepon' => $clean($request->telepon_anak),
+            'alamat' => $clean($request->alamat_anak),
+            'golongan_darah' => $clean($request->golongan_darah_anak),
+        ]);
+
+        // 5. Layanan & Pembiayaan
+        $dataKia->layanan()->updateOrCreate([], [
+            'puskesmas_domisili' => $clean($request->puskesmas_domisili),
+            'no_reg_kohort_ibu' => $clean($request->no_reg_kohort_ibu),
+            'no_reg_kohort_bayi' => $clean($request->no_reg_kohort_bayi),
+            'no_reg_kohort_balita' => $clean($request->no_reg_kohort_balita),
+            'no_catatan_medik_rs' => $clean($request->no_catatan_medik_rs),
+            'asuransi_lain' => $clean($request->asuransi_lain),
+            'no_asuransi_lain' => $clean($request->no_asuransi_lain),
+            'tanggal_berlaku_asuransi_lain' => $clean($request->tanggal_berlaku_asuransi_lain),
+        ]);
+
+        // 6. Riwayat Kesehatan
+        $dataKia->riwayat()->updateOrCreate([], [
+            'hpht' => $clean($request->hpht),
+            'htp' => $clean($request->htp),
+            'lingkar_lengan_atas' => $clean($request->lingkar_lengan_atas),
+            'tinggi_badan' => $clean($request->tinggi_badan),
+        ]);
+
+        return back()->with('success', 'Data Buku KIA berhasil disimpan.');
+    })->name('bidan.pengguna.bukuKIA.input.store');
+
     Route::post('/bidan/pengguna/{id}/buku-kia', function (Request $request, $id) use ($ensureRole) {
         $ensureRole('bidan');
 
@@ -893,6 +1048,161 @@ Route::middleware(['auth'])->group(function () {
             'templates' => $templates,
         ]);
     })->name('dokter.pengguna.bukuKIA');
+
+    Route::get('/dokter/pengguna/{id}/buku-kia/input', function (Request $request, $id) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $pengguna = \App\Models\Pengguna::withCount(['anak', 'conversations'])->findOrFail($id);
+
+        // Get all DataKIA for this pengguna
+        $bukuKiaList = \App\Models\DataKia::where('user_id', $pengguna->user_id ?? $id)
+            ->with(['ibu'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        // Determine selected KIA
+        $selectedKiaId = $request->query('buku_id');
+        $selectedKia = null;
+
+        if ($selectedKiaId) {
+            $selectedKia = $bukuKiaList->firstWhere('id', $selectedKiaId);
+        }
+
+        // If no selected KIA, use the first one or null
+        if (!$selectedKia && $bukuKiaList->isNotEmpty()) {
+            $selectedKia = $bukuKiaList->first();
+            $selectedKiaId = $selectedKia->id;
+        }
+
+        // Load relations for selected KIA
+        if ($selectedKia) {
+            $selectedKia->load([
+                'ibu', 'suami', 'anak', 'layanan', 'riwayat',
+                'ttdTrackings', 'pemantauanMingguans', 'absenKelasIbuHamils',
+                'persiapanMelahirkan', 'pemantauanIbuNifas', 'keluargaBerencana',
+                'bayiBaruLahir', 'pemantauanBayis', 'warnaTinja',
+                'absenKelasBalitas', 'pemantauanMingguanBayis', 'perkembanganBayi',
+                'perkembanganBayi6Bulan'
+            ]);
+        }
+
+        return view('nakes.buku-kia-pengguna', [
+            'pengguna' => $pengguna,
+            'role' => 'dokter',
+            'bukuKiaList' => $bukuKiaList,
+            'selectedKia' => $selectedKia,
+            'selectedKiaId' => $selectedKiaId,
+        ]);
+    })->name('dokter.pengguna.bukuKIA.input');
+
+    Route::post('/dokter/pengguna/{penggunaId}/buku-kia/tambah', function (Request $request, $penggunaId) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $pengguna = \App\Models\Pengguna::findOrFail($penggunaId);
+
+        // Create new DataKIA for this pengguna
+        $dataKia = \App\Models\DataKia::create([
+            'user_id' => $pengguna->user_id ?? $penggunaId,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'id' => $dataKia->id,
+            'message' => 'Buku KIA baru berhasil dibuat'
+        ]);
+    })->name('dokter.pengguna.bukuKIA.tambah');
+
+    Route::post('/dokter/pengguna/{id}/buku-kia/input', function (Request $request, $id) use ($ensureRole) {
+        $ensureRole('dokter');
+
+        $pengguna = \App\Models\Pengguna::findOrFail($id);
+
+        // Get the DataKIA from the form
+        $kiaId = $request->input('data_kia_id');
+        $dataKia = \App\Models\DataKia::findOrFail($kiaId);
+
+        $clean = function ($val) {
+            return $val === '' ? null : $val;
+        };
+
+        // 1. Core Data
+        $dataKia->update([
+            'faskes_dikeluarkan' => $clean($request->faskes_dikeluarkan),
+            'tanggal_dikeluarkan' => $clean($request->tanggal_dikeluarkan),
+            'kab_kota_dikeluarkan' => $clean($request->kab_kota_dikeluarkan),
+            'provinsi_dikeluarkan' => $clean($request->provinsi_dikeluarkan),
+        ]);
+
+        // 2. Identitas Ibu
+        $dataKia->ibu()->updateOrCreate([], [
+            'nama' => $clean($request->nama_ibu),
+            'nik' => $clean($request->nik),
+            'no_jkn' => $clean($request->no_jkn_ibu),
+            'faskes_tk1' => $clean($request->faskes_tk1_ibu),
+            'faskes_rujukan' => $clean($request->faskes_rujukan_ibu),
+            'tempat_lahir' => $clean($request->tempat_lahir),
+            'tanggal_lahir' => $clean($request->tanggal_lahir),
+            'pendidikan' => $clean($request->pendidikan),
+            'pekerjaan' => $clean($request->pekerjaan),
+            'alamat' => $clean($request->alamat),
+            'telepon' => $clean($request->telepon_ibu),
+            'golongan_darah' => $clean($request->golongan_darah),
+        ]);
+
+        // 3. Identitas Suami
+        $dataKia->suami()->updateOrCreate([], [
+            'nama' => $clean($request->nama_suami),
+            'nik' => $clean($request->nik_suami),
+            'no_jkn' => $clean($request->no_jkn_suami),
+            'faskes_tk1' => $clean($request->faskes_tk1_suami),
+            'faskes_rujukan' => $clean($request->faskes_rujukan_suami),
+            'tempat_lahir' => $clean($request->tempat_lahir_suami),
+            'tanggal_lahir' => $clean($request->tanggal_lahir_suami),
+            'pendidikan' => $clean($request->pendidikan_suami),
+            'pekerjaan' => $clean($request->pekerjaan_suami),
+            'alamat' => $clean($request->alamat_rumah_suami),
+            'telepon' => $clean($request->telepon_suami),
+            'golongan_darah' => $clean($request->golongan_darah_suami),
+        ]);
+
+        // 4. Identitas Anak
+        $dataKia->anak()->updateOrCreate([], [
+            'nama' => $clean($request->nama_anak),
+            'nik' => $clean($request->nik_anak),
+            'no_jkn' => $clean($request->no_jkn_anak),
+            'faskes_tk1' => $clean($request->faskes_tk1_anak),
+            'faskes_rujukan' => $clean($request->faskes_rujukan_anak),
+            'tempat_lahir' => $clean($request->tempat_lahir_anak),
+            'tanggal_lahir' => $clean($request->tanggal_lahir_anak),
+            'anak_ke' => $clean($request->anak_ke),
+            'no_akta_kelahiran' => $clean($request->no_akta_kelahiran_anak),
+            'telepon' => $clean($request->telepon_anak),
+            'alamat' => $clean($request->alamat_anak),
+            'golongan_darah' => $clean($request->golongan_darah_anak),
+        ]);
+
+        // 5. Layanan & Pembiayaan
+        $dataKia->layanan()->updateOrCreate([], [
+            'puskesmas_domisili' => $clean($request->puskesmas_domisili),
+            'no_reg_kohort_ibu' => $clean($request->no_reg_kohort_ibu),
+            'no_reg_kohort_bayi' => $clean($request->no_reg_kohort_bayi),
+            'no_reg_kohort_balita' => $clean($request->no_reg_kohort_balita),
+            'no_catatan_medik_rs' => $clean($request->no_catatan_medik_rs),
+            'asuransi_lain' => $clean($request->asuransi_lain),
+            'no_asuransi_lain' => $clean($request->no_asuransi_lain),
+            'tanggal_berlaku_asuransi_lain' => $clean($request->tanggal_berlaku_asuransi_lain),
+        ]);
+
+        // 6. Riwayat Kesehatan
+        $dataKia->riwayat()->updateOrCreate([], [
+            'hpht' => $clean($request->hpht),
+            'htp' => $clean($request->htp),
+            'lingkar_lengan_atas' => $clean($request->lingkar_lengan_atas),
+            'tinggi_badan' => $clean($request->tinggi_badan),
+        ]);
+
+        return back()->with('success', 'Data Buku KIA berhasil disimpan.');
+    })->name('dokter.pengguna.bukuKIA.input.store');
 
     Route::post('/dokter/pengguna/{id}/buku-kia', function (Request $request, $id) use ($ensureRole) {
         $ensureRole('dokter');

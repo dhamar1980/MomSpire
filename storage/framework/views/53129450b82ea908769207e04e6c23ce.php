@@ -1,15 +1,13 @@
-@extends('dokter.master')
+<?php $__env->startSection('title', 'Detail Pengguna - MomSpire'); ?>
+<?php $__env->startSection('header_title', 'Detail Pengguna'); ?>
+<?php $__env->startSection('header_subtitle', 'Lihat dan kelola data pengguna yang sedang ditangani.'); ?>
 
-@section('title', 'Detail Pengguna - MomSpire')
-@section('header_title', 'Detail Pengguna')
-@section('header_subtitle', '')
-
-@push('head')
+<?php $__env->startPush('head'); ?>
 <script>
     window.__MOMSPIRE_HEADER_TITLE_LOCK = 'Detail Pengguna';
 </script>
 <style>
-    .dokter-detail-page {
+    .bidan-detail-page {
         --detail-accent: rgba(214, 51, 108, 0.85);
         --detail-accent-2: rgba(139, 92, 246, 0.82);
         --detail-soft: rgba(255, 255, 255, 0.55);
@@ -20,22 +18,22 @@
         min-height: 100vh;
     }
 
-    .dokter-detail-page .role-card {
+    .bidan-detail-page .role-card {
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
     }
 
-    .dokter-detail-page .role-card::before {
+    .bidan-detail-page .role-card::before {
         background: linear-gradient(90deg, rgba(214, 51, 108, 0.14) 0%, rgba(139, 92, 246, 0.12) 55%, rgba(214, 51, 108, 0.08) 100%);
         opacity: 0.38;
         height: 2px;
     }
 
-    .dokter-detail-page .hero-role::before {
+    .bidan-detail-page .hero-role::before {
         display: none;
     }
 
-    .dokter-detail-page .role-card:hover::before {
+    .bidan-detail-page .role-card:hover::before {
         opacity: 0.52;
         height: 2px;
     }
@@ -325,27 +323,28 @@
         }
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
-<div class="dokter-dashboard dokter-detail-page detail-shell">
-    @if (session('success'))
+<?php $__env->startSection('content'); ?>
+<div class="bidan-dashboard bidan-detail-page detail-shell">
+    <?php if(session('success')): ?>
         <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-            {{ session('success') }}
+            <?php echo e(session('success')); ?>
+
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    @endif
+    <?php endif; ?>
 
-    @if ($errors->any())
+    <?php if($errors->any()): ?>
         <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
             <ul class="mb-0 ps-3">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
+                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <li><?php echo e($error); ?></li>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </ul>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    @endif
+    <?php endif; ?>
 
     <div class="card role-card hero-role detail-hero mb-4">
         <div class="card-body p-4 p-lg-5">
@@ -356,10 +355,10 @@
                         Daftar Pengguna
                     </span>
                     <h2 class="detail-heading mb-2">Detail Data Pengguna</h2>
-                    <p class="mb-0 detail-subtitle">Lihat informasi lengkap dan kelola pengguna yang sedang ditangani dengan tampilan yang serasi dengan panel dokter.</p>
+                    <p class="mb-0 detail-subtitle">Lihat informasi lengkap dan kelola pengguna yang sedang ditangani dengan tampilan yang serasi dengan panel bidan.</p>
                 </div>
-                <form method="GET" action="{{ route('dokter.pengguna') }}" class="detail-search d-flex gap-2 flex-grow-1 justify-content-lg-end">
-                    <input type="search" name="q" value="{{ $search }}" class="form-control" placeholder="Cari nama atau email">
+                <form method="GET" action="<?php echo e(route('bidan.pengguna')); ?>" class="detail-search d-flex gap-2 flex-grow-1 justify-content-lg-end">
+                    <input type="search" name="q" value="<?php echo e($search); ?>" class="form-control" placeholder="Cari nama atau email">
                     <button class="btn btn-role-primary" type="submit">
                         <i class="bi bi-search me-1"></i>Cari
                     </button>
@@ -369,35 +368,36 @@
     </div>
 
     <div class="card role-card p-4 p-lg-5">
-        @if($penggunaList->count() > 0)
+        <?php if($penggunaList->count() > 0): ?>
             <div class="mb-3">
                 <span class="pengguna-count">
-                    <i class="bi bi-people-fill"></i> Menampilkan {{ $penggunaList->count() }} pengguna
+                    <i class="bi bi-people-fill"></i> Menampilkan <?php echo e($penggunaList->count()); ?> pengguna
                 </span>
             </div>
             <div class="row g-3">
-                @foreach($penggunaList as $pengguna)
+                <?php $__currentLoopData = $penggunaList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pengguna): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div class="col-lg-6">
                         <div class="pengguna-row">
                             <div class="pengguna-header">
-                                <div class="pengguna-name">{{ $pengguna->name }}</div>
-                                <span class="status-badge {{ $pengguna->is_hamil ? 'status-hamil' : 'status-tidak' }}">
-                                    {{ $pengguna->is_hamil ? 'Hamil' : 'Tidak Hamil' }}
+                                <div class="pengguna-name"><?php echo e($pengguna->name); ?></div>
+                                <span class="status-badge <?php echo e($pengguna->is_hamil ? 'status-hamil' : 'status-tidak'); ?>">
+                                    <?php echo e($pengguna->is_hamil ? 'Hamil' : 'Tidak Hamil'); ?>
+
                                 </span>
                             </div>
                             
                             <div class="pengguna-info">
                                 <div class="info-item">
                                     <span class="info-label">Email</span>
-                                    <span class="info-value text-break">{{ $pengguna->email ?? '-' }}</span>
+                                    <span class="info-value text-break"><?php echo e($pengguna->email ?? '-'); ?></span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Total Anak</span>
-                                    <span class="info-value">{{ $pengguna->anak_count ?? 0 }} anak</span>
+                                    <span class="info-value"><?php echo e($pengguna->anak_count ?? 0); ?> anak</span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Konsultasi</span>
-                                    <span class="info-value">{{ $pengguna->conversations_count ?? 0 }} percakapan</span>
+                                    <span class="info-value"><?php echo e($pengguna->conversations_count ?? 0); ?> percakapan</span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Status</span>
@@ -406,18 +406,18 @@
                             </div>
 
                             <div class="d-flex gap-2 mt-3">
-                                <button type="button" class="btn btn-role-primary btn-sm addScheduleBtn" data-id="{{ $pengguna->id }}" data-name="{{ $pengguna->name }}">
+                                <button type="button" class="btn btn-role-primary btn-sm addScheduleBtn" data-id="<?php echo e($pengguna->id); ?>" data-name="<?php echo e($pengguna->name); ?>">
                                     <i class="bi bi-calendar-plus me-1"></i>Tambah Jadwal
                                 </button>
-                                <a href="{{ route('dokter.pengguna.bukuKIA.input', $pengguna->id) }}" class="btn btn-role-outline btn-sm">
+                                <a href="<?php echo e(route('bidan.pengguna.bukuKIA.input', $pengguna->id)); ?>" class="btn btn-role-outline btn-sm">
                                     <i class="bi bi-book"></i> Kelola Buku KIA
                                 </a>
                             </div>
                         </div>
                     </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
-        @else
+        <?php else: ?>
             <div class="empty-state">
                 <div class="empty-icon">
                     <i class="bi bi-inbox"></i>
@@ -425,12 +425,12 @@
                 <h5 class="fw-bold mb-2" style="color: #475569;">Tidak ada pengguna ditemukan</h5>
                 <p class="mb-0">Coba ubah kriteria pencarian atau periksa kembali nanti.</p>
             </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <!-- Modal: Tambah Jadwal -->
 <div class="modal fade" id="tambahJadwalModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -439,8 +439,8 @@
                 <h5 class="modal-title">Tambah Jadwal untuk <span id="modalPenggunaName"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="{{ route('dokter.jadwal.store') }}">
-                @csrf
+            <form method="POST" action="<?php echo e(route('bidan.jadwal.store')); ?>">
+                <?php echo csrf_field(); ?>
                 <input type="hidden" name="pengguna_id" id="modalPenggunaId">
                 <div class="modal-body">
                     <div class="row g-3">
@@ -501,4 +501,6 @@
         });
     });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('bidan.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\MomSpire\resources\views/bidan/detailPengguna.blade.php ENDPATH**/ ?>

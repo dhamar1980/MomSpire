@@ -409,7 +409,7 @@
                                 <button type="button" class="btn btn-role-primary btn-sm addScheduleBtn" data-id="{{ $pengguna->id }}" data-name="{{ $pengguna->name }}">
                                     <i class="bi bi-calendar-plus me-1"></i>Tambah Jadwal
                                 </button>
-                                <a href="{{ route('bidan.pengguna.bukuKIA', $pengguna->id) }}" class="btn btn-role-outline btn-sm">
+                                <a href="{{ route('bidan.pengguna.bukuKIA.input', $pengguna->id) }}" class="btn btn-role-outline btn-sm">
                                     <i class="bi bi-book"></i> Kelola Buku KIA
                                 </a>
                             </div>
