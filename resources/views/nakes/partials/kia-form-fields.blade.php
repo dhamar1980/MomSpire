@@ -1,5 +1,5 @@
 <!-- Form Fields Partial for buku-kia-pengguna -->
-<div class="form-category-content" id="form_info_buku" style="display:none;">
+<div class="form-category-content" id="form_info_buku" style="display:block;">
     <div class="form-card">
         <div class="form-card-title">Informasi Pembuatan Buku KIA</div>
         <div class="form-row-custom">

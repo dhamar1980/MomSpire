@@ -173,6 +173,80 @@
         color: #fff;
     }
 
+    .kia-card-actions {
+        display: grid;
+        gap: 8px;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(230, 57, 128, 0.12);
+    }
+
+    .btn-card-primary,
+    .btn-card-outline {
+        border-radius: 10px;
+        font-size: .82rem;
+        font-weight: 800;
+        padding: 9px 12px;
+        text-align: center;
+        text-decoration: none;
+        transition: all .2s ease;
+    }
+
+    .btn-card-primary {
+        background: var(--gradient-primary);
+        color: #fff;
+        border: 1.5px solid transparent;
+    }
+
+    .btn-card-primary:hover { color: #fff; transform: translateY(-1px); }
+
+    .btn-card-outline {
+        background: #fff;
+        color: #e63980;
+        border: 1.5px solid #e63980;
+    }
+
+    .btn-card-outline:hover {
+        background: rgba(230, 57, 128, 0.06);
+        color: #e63980;
+        transform: translateY(-1px);
+    }
+
+    .kia-preview-section {
+        background: #fff;
+        border: 1px solid rgba(230, 57, 128, 0.12);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+        margin-bottom: 24px;
+    }
+
+    .kia-preview-header {
+        background: rgba(230, 57, 128, 0.06);
+        padding: 18px 24px;
+        border-bottom: 1px solid rgba(230, 57, 128, 0.1);
+    }
+
+    .kia-preview-header h4 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 800;
+        color: #e63980;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .kia-preview-body { padding: 20px; }
+
+    .kia-pdf-viewer {
+        width: 100%;
+        height: 600px;
+        border: none;
+        border-radius: 12px;
+        background: #f8f9fa;
+    }
+
     .kia-form-section {
         background: #fff;
         border: 1px solid rgba(230, 57, 128, 0.12);
@@ -266,6 +340,127 @@
         height: 18px;
         background: var(--gradient-primary);
         border-radius: 2px;
+    }
+
+    .nakes-form-pane,
+    .nakes-visit-pane,
+    .pelayanan-visit-pane { display: none; }
+
+    .nakes-form-pane.active,
+    .nakes-visit-pane.active,
+    .pelayanan-visit-pane.active { display: block; }
+
+    .kia-form-body .card.bg-light {
+        background: linear-gradient(180deg, #fdfafc 0%, #fff 100%) !important;
+        border: 1px solid rgba(230, 57, 128, 0.08) !important;
+        box-shadow: none !important;
+    }
+
+    .kia-form-body .text-success,
+    .kia-form-body .text-warning,
+    .kia-form-body .text-primary {
+        color: #e63980 !important;
+    }
+
+    .kia-form-body .bg-success,
+    .kia-form-body .bg-warning,
+    .kia-form-body .bg-primary {
+        background: var(--gradient-primary) !important;
+    }
+
+    .kia-form-body .border-bottom {
+        border-color: rgba(230, 57, 128, 0.14) !important;
+    }
+
+    .kia-form-body .form-label,
+    .kia-form-body .form-label.small,
+    .kia-form-body .fw-semibold {
+        color: #e63980;
+    }
+
+    .kia-form-body .form-control,
+    .kia-form-body .form-select,
+    .kia-form-body .input-group-text {
+        border-color: rgba(230, 57, 128, 0.15);
+        border-radius: 10px;
+    }
+
+    .kia-form-body .input-group .form-control,
+    .kia-form-body .input-group .form-select,
+    .kia-form-body .input-group .input-group-text {
+        border-radius: 0;
+    }
+
+    .kia-form-body .input-group > :first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+    .kia-form-body .input-group > :last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+
+    .kia-form-body .form-control:focus,
+    .kia-form-body .form-select:focus {
+        border-color: #e63980;
+        box-shadow: 0 0 0 3px rgba(230, 57, 128, 0.1);
+    }
+
+    .kia-form-body .form-check-input:checked {
+        background-color: #e63980;
+        border-color: #e63980;
+    }
+
+    .kia-form-body .btn-success,
+    .kia-form-body .btn-warning,
+    .kia-form-body .btn-primary {
+        background: var(--gradient-primary) !important;
+        border-color: transparent !important;
+        color: #fff !important;
+        font-weight: 800;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 22px rgba(230, 57, 128, 0.18);
+    }
+
+    .kia-form-body .btn-success:hover,
+    .kia-form-body .btn-warning:hover,
+    .kia-form-body .btn-primary:hover,
+    .kia-form-body .btn-save-form:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(230, 57, 128, 0.25);
+    }
+
+    .kia-form-body .btn-outline-secondary,
+    .kia-form-body .btn-outline-danger {
+        border-color: #e63980 !important;
+        color: #e63980 !important;
+        background: #fff !important;
+        border-radius: 12px !important;
+        font-weight: 700;
+    }
+
+    .kia-form-body .btn-outline-secondary:hover,
+    .kia-form-body .btn-outline-danger:hover {
+        background: rgba(230, 57, 128, 0.08) !important;
+        color: #e63980 !important;
+    }
+
+    .kia-form-body .nav-pills {
+        background: rgba(230, 57, 128, 0.04) !important;
+    }
+
+    .kia-form-body .nav-pills .nav-link {
+        color: #e63980 !important;
+        border-radius: 12px !important;
+    }
+
+    .kia-form-body .nav-pills .nav-link.active,
+    .kia-form-body .nav-pills .nav-link.bg-success {
+        background: var(--gradient-primary) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 15px rgba(230, 57, 128, 0.2);
+    }
+
+    .kia-form-body .table-light th,
+    .kia-form-body .table-light td,
+    .kia-form-body .table-secondary th,
+    .kia-form-body .table-secondary td {
+        background-color: rgba(230, 57, 128, 0.06) !important;
+        color: #e63980;
     }
 
     .form-label-custom {
@@ -369,6 +564,7 @@
         .category-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 16px; }
         .category-tab { white-space: nowrap; }
         .kia-card-list { grid-template-columns: 1fr; }
+        .kia-pdf-viewer { height: 400px; }
     }
 </style>
 @endpush
@@ -417,7 +613,7 @@
             @if($bukuKiaList->count() > 0)
             <div class="kia-card-list">
                 @foreach($bukuKiaList as $kia)
-                <div class="kia-card-item {{ $selectedKiaId == $kia->id ? 'active' : '' }}" onclick="pilihBukuKIA({{ $kia->id }})">
+                <div class="kia-card-item {{ $selectedKiaId == $kia->id ? 'active' : '' }}" data-kia-id="{{ $kia->id }}">
                     @if($selectedKiaId == $kia->id)
                     <div class="kia-card-active-indicator">
                         <i class="bi bi-check"></i>
@@ -434,6 +630,16 @@
                         <i class="bi {{ $kia->ibu && $kia->ibu->tanggal_lahir ? 'bi-check-circle-fill' : 'bi-clock' }} me-1"></i>
                         {{ $kia->ibu && $kia->ibu->tanggal_lahir ? 'Aktif' : 'Draft' }}
                     </span>
+                    @if($selectedKiaId == $kia->id && in_array($role, ['bidan', 'dokter']))
+                    <div class="kia-card-actions" onclick="event.stopPropagation();">
+                        <a href="#form-section" class="btn-card-primary">
+                            <i class="bi bi-pencil-square me-1"></i> Edit Buku KIA
+                        </a>
+                        <a href="{{ route($role . '.pengguna.bukuKIA.download', [$pengguna->id, $kia->id]) }}" class="btn-card-outline">
+                            <i class="bi bi-download me-1"></i> Download PDF
+                        </a>
+                    </div>
+                    @endif
                 </div>
                 @endforeach
             </div>
@@ -448,7 +654,20 @@
     </div>
 
     @if($selectedKia)
-    <div class="kia-form-section">
+    <div class="kia-preview-section" id="preview-section">
+        <div class="kia-preview-header">
+            <h4><i class="bi bi-book"></i> Isi Buku KIA - {{ $selectedKia->ibu->nama ?? 'Buku KIA #' . $selectedKia->id }}</h4>
+        </div>
+        <div class="kia-preview-body">
+            <iframe
+                src="{{ route($role . '.pengguna.bukuKIA.pdf', [$pengguna->id, $selectedKia->id]) }}"
+                class="kia-pdf-viewer"
+                title="Buku KIA">
+            </iframe>
+        </div>
+    </div>
+
+    <div class="kia-form-section" id="form-section">
         <div class="kia-form-header">
             <h4><i class="bi bi-pencil-square"></i> Form Input Data Buku KIA</h4>
             <span class="badge" style="background: rgba(230, 57, 128, 0.08); color: #e63980;">
@@ -456,40 +675,7 @@
             </span>
         </div>
         <div class="kia-form-body">
-            <form id="kiaForm" action="{{ route($role . '.pengguna.bukuKIA.input.store', $pengguna->id) }}" method="POST">
-                @csrf
-                <input type="hidden" name="data_kia_id" value="{{ $selectedKia->id }}">
-
-                <div class="category-tabs">
-                    <button type="button" class="category-tab active" onclick="showCategory('info_buku')"><i class="bi bi-info-circle"></i> Info</button>
-                    <button type="button" class="category-tab" onclick="showCategory('identitas_ibu')"><i class="bi bi-person"></i> Ibu</button>
-                    <button type="button" class="category-tab" onclick="showCategory('identitas_suami')"><i class="bi bi-person-badge"></i> Suami</button>
-                    <button type="button" class="category-tab" onclick="showCategory('identitas_anak')"><i class="bi bi-emoji-smile"></i> Anak</button>
-                    <button type="button" class="category-tab" onclick="showCategory('layanan')"><i class="bi bi-hospital"></i> Layanan</button>
-                    <button type="button" class="category-tab" onclick="showCategory('asuransi')"><i class="bi bi-shield-check"></i> Asuransi</button>
-                    <button type="button" class="category-tab" onclick="showCategory('kehamilan')"><i class="bi bi-heart-pulse"></i> Kehamilan</button>
-                    <button type="button" class="category-tab" onclick="showCategory('catatan_ttd')"><i class="bi bi-capsule"></i> TTD</button>
-                    <button type="button" class="category-tab" onclick="showCategory('pemantauan_mingguan')"><i class="bi bi-calendar-week"></i> P. Mingguan</button>
-                    <button type="button" class="category-tab" onclick="showCategory('kelas_ibu')"><i class="bi bi-mortarboard"></i> Kelas</button>
-                    <button type="button" class="category-tab" onclick="showCategory('persiapan')"><i class="bi bi-truck"></i> Persiapan</button>
-                    <button type="button" class="category-tab" onclick="showCategory('pemantauan_nifas')"><i class="bi bi-droplet"></i> Nifas</button>
-                    <button type="button" class="category-tab" onclick="showCategory('kb')"><i class="bi bi-flower1"></i> KB</button>
-                    <button type="button" class="category-tab" onclick="showCategory('bayi_baru')"><i class="bi bi-baby"></i> Bayi</button>
-                    <button type="button" class="category-tab" onclick="showCategory('pemantauan_bayi')"><i class="bi bi-thermometer"></i> P. Bayi</button>
-                    <button type="button" class="category-tab" onclick="showCategory('warna_tinja')"><i class="bi bi-palette"></i> Tinja</button>
-                    <button type="button" class="category-tab" onclick="showCategory('kelas_balita')"><i class="bi bi-people"></i> Balita</button>
-                    <button type="button" class="category-tab" onclick="showCategory('perkembangan_bayi')"><i class="bi bi-graph-up"></i> Perkembangan</button>
-                    <button type="button" class="category-tab" onclick="showCategory('kesehatan_lingkungan')"><i class="bi bi-house"></i> Lingkungan</button>
-                </div>
-
-                @include('nakes.partials.kia-form-fields', ['selectedKia' => $selectedKia])
-
-                <div class="mt-4">
-                    <button type="submit" class="btn-save-form">
-                        <i class="bi bi-save"></i> Simpan Data Buku KIA
-                    </button>
-                </div>
-            </form>
+            @include('nakes.partials.kia-nakes-inline-fields', ['selectedKia' => $selectedKia, 'role' => $role])
         </div>
     </div>
     @endif
@@ -503,19 +689,129 @@
             window.__momspireSidebarOpen = false;
             window.__momspireSyncSidebar && window.__momspireSyncSidebar();
         }
+        var firstAvailableTab = document.querySelector('[data-nakes-tab]');
+        var defaultNakesTab = firstAvailableTab ? firstAvailableTab.getAttribute('data-nakes-tab') : 'riwayat';
+        var savedNakesTab = localStorage.getItem('momspire_nakes_kia_tab') || defaultNakesTab;
+        if (!document.getElementById('nakes_form_' + savedNakesTab)) savedNakesTab = defaultNakesTab;
+        var savedVisitTab = localStorage.getItem('momspire_nakes_kia_visit') || '1';
+        showNakesForm(savedNakesTab);
+        showVisitForm(savedVisitTab);
+        showPelayananVisit(savedVisitTab);
+        initCatatanDynamic('catatan-container-t1', 'btnAddCatatanT1', 'deleted_catatan_t1');
+        initCatatanDynamic('catatan-container-t2', 'btnAddCatatanT2', 'deleted_catatan_t2');
+
+        document.querySelectorAll('.kia-card-item[data-kia-id]').forEach(function(card) {
+            card.addEventListener('click', function() {
+                pilihBukuKIA(this.dataset.kiaId);
+            });
+        });
     });
 
-    function showCategory(category) {
-        document.querySelectorAll('.form-category-content').forEach(function(el) { el.style.display = 'none'; });
-        document.querySelectorAll('.category-tab').forEach(function(el) { el.classList.remove('active'); });
-        var target = document.getElementById('form_' + category);
-        if (target) target.style.display = 'block';
-        var btns = document.querySelectorAll('.category-tab');
-        btns.forEach(function(btn) {
-            if (btn.getAttribute('onclick') && btn.getAttribute('onclick').indexOf(category) !== -1) {
-                btn.classList.add('active');
+    function showNakesForm(category) {
+        document.querySelectorAll('.nakes-form-pane').forEach(function(el) { el.classList.remove('active'); });
+        document.querySelectorAll('[data-nakes-tab]').forEach(function(el) { el.classList.remove('active'); });
+        var target = document.getElementById('nakes_form_' + category);
+        if (target) {
+            target.classList.add('active');
+            localStorage.setItem('momspire_nakes_kia_tab', category);
+        }
+        var button = document.querySelector('[data-nakes-tab="' + category + '"]');
+        if (button) button.classList.add('active');
+    }
+
+    function showVisitForm(visit) {
+        document.querySelectorAll('.nakes-visit-pane').forEach(function(el) { el.classList.remove('active'); });
+        document.querySelectorAll('[data-visit-tab]').forEach(function(el) { el.classList.remove('active'); });
+        var target = document.getElementById('visit_form_' + visit);
+        if (target) {
+            target.classList.add('active');
+            localStorage.setItem('momspire_nakes_kia_visit', visit);
+        }
+        var button = document.querySelector('[data-visit-tab="' + visit + '"]');
+        if (button) button.classList.add('active');
+    }
+
+    function showPelayananVisit(visit) {
+        document.querySelectorAll('.pelayanan-visit-pane').forEach(function(el) { el.classList.remove('active'); });
+        document.querySelectorAll('[data-pelayanan-visit]').forEach(function(el) { el.classList.remove('active'); });
+        var target = document.getElementById('pane-kunjungan-' + visit);
+        if (target) {
+            target.classList.add('active');
+            localStorage.setItem('momspire_nakes_kia_visit', visit);
+        }
+        var button = document.querySelector('[data-pelayanan-visit="' + visit + '"]');
+        if (button) button.classList.add('active');
+    }
+
+    function initCatatanDynamic(containerId, buttonId, deletedInputId) {
+        var container = document.getElementById(containerId);
+        var button = document.getElementById(buttonId);
+        var deletedInput = document.getElementById(deletedInputId);
+        if (!container || !button || !deletedInput) return;
+
+        function updateCounters() {
+            var items = container.querySelectorAll('.catatan-item');
+            items.forEach(function(item, index) {
+                var counter = item.querySelector('.catatan-counter');
+                var removeButton = item.querySelector('.btn-remove-catatan');
+                if (counter) counter.textContent = index + 1;
+                if (removeButton) {
+                    if (items.length === 1) removeButton.classList.add('d-none');
+                    else removeButton.classList.remove('d-none');
+                }
+            });
+        }
+
+        function nextIndex() {
+            var max = -1;
+            container.querySelectorAll('.catatan-item').forEach(function(item) {
+                var current = parseInt(item.getAttribute('data-index'), 10);
+                if (!isNaN(current) && current > max) max = current;
+            });
+            return max + 1;
+        }
+
+        container.addEventListener('click', function(event) {
+            if (!event.target.classList.contains('btn-remove-catatan')) return;
+            var item = event.target.closest('.catatan-item');
+            var id = event.target.getAttribute('data-id');
+            if (id) {
+                var currentDeleted = deletedInput.value ? deletedInput.value.split(',') : [];
+                currentDeleted.push(id);
+                deletedInput.value = currentDeleted.join(',');
             }
+            if (item) item.remove();
+            updateCounters();
         });
+
+        button.addEventListener('click', function() {
+            var index = nextIndex();
+            var html = '' +
+                '<div class="catatan-item card border shadow-none rounded-3 mb-4 p-4" data-index="' + index + '">' +
+                    '<div class="d-flex justify-content-between align-items-center mb-3">' +
+                        '<h6 class="fw-bold m-0 text-secondary">Catatan #<span class="catatan-counter"></span></h6>' +
+                        '<button type="button" class="btn btn-outline-danger btn-sm rounded-pill btn-remove-catatan">Hapus Baris</button>' +
+                    '</div>' +
+                    '<div class="row g-3">' +
+                        '<div class="col-md-4">' +
+                            '<label class="form-label">Tanggal Periksa</label>' +
+                            '<input type="date" class="form-control" name="catatan[' + index + '][tanggal_periksa]">' +
+                        '</div>' +
+                        '<div class="col-md-4">' +
+                            '<label class="form-label">Tanggal Kembali</label>' +
+                            '<input type="date" class="form-control" name="catatan[' + index + '][tanggal_kembali]">' +
+                        '</div>' +
+                        '<div class="col-12">' +
+                            '<label class="form-label">Keluhan, Pemeriksaan, Tindakan dan Saran</label>' +
+                            '<textarea class="form-control" name="catatan[' + index + '][catatan]" rows="3"></textarea>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            container.insertAdjacentHTML('beforeend', html);
+            updateCounters();
+        });
+
+        updateCounters();
     }
 
     function pilihBukuKIA(id) {
