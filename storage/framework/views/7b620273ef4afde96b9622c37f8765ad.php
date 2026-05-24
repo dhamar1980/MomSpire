@@ -1,10 +1,8 @@
-@extends('pengguna.master')
+<?php $__env->startSection('title', 'Konsultasi - MomSpire'); ?>
+<?php $__env->startSection('header_title', 'Konsultasi'); ?>
+<?php $__env->startSection('header_subtitle', ''); ?>
 
-@section('title', 'Konsultasi - MomSpire')
-@section('header_title', 'Konsultasi')
-@section('header_subtitle', '')
-
-@push('head')
+<?php $__env->startPush('head'); ?>
 <style>
     :root {
         --pengguna-primary: #e63980;
@@ -494,9 +492,9 @@
         .wa-message { max-width: 85%; }
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="pengguna-konsultasi-shell">
     <div class="wa-full-container">
         <!-- Sidebar - Contacts -->
@@ -515,94 +513,98 @@
             <div class="wa-contacts" id="contactsList">
                 <div class="wa-contact-section">
                     <div class="wa-section-title">Bidan</div>
-                    @forelse($bidan as $b)
-                        @php
+                    <?php $__empty_1 = true; $__currentLoopData = $bidan; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $b): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <?php
                             $bLastSeen = $b->last_seen ? \Carbon\Carbon::parse($b->last_seen) : null;
                             $bDiff = $bLastSeen ? $bLastSeen->diffInMinutes(now()) : null;
                             $bIsOnline = $bDiff !== null && $bDiff <= 5;
-                        @endphp
+                        ?>
                         <div class="wa-contact-item"
-                             data-id="{{ $b->id }}"
+                             data-id="<?php echo e($b->id); ?>"
                              data-type="bidan"
-                             data-name="{{ strtolower($b->name) }}"
-                             data-is-online="{{ $bIsOnline ? 'true' : 'false' }}"
+                             data-name="<?php echo e(strtolower($b->name)); ?>"
+                             data-is-online="<?php echo e($bIsOnline ? 'true' : 'false'); ?>"
                              onclick="selectProfessional(this)">
                             <div class="wa-contact-avatar bidan">
-                                {{ strtoupper(substr($b->name, 0, 1)) }}
-                                <span class="wa-online-dot" style="background: {{ $bIsOnline ? '#25d366' : '#ccc' }};"></span>
+                                <?php echo e(strtoupper(substr($b->name, 0, 1))); ?>
+
+                                <span class="wa-online-dot" style="background: <?php echo e($bIsOnline ? '#25d366' : '#ccc'); ?>;"></span>
                             </div>
                             <div class="wa-contact-info">
-                                <div class="wa-contact-name">{{ $b->name }}</div>
-                                <div class="wa-contact-role" style="color: {{ $bIsOnline ? '#25d366' : '#888' }};">
-                                    @if($bIsOnline)
+                                <div class="wa-contact-name"><?php echo e($b->name); ?></div>
+                                <div class="wa-contact-role" style="color: <?php echo e($bIsOnline ? '#25d366' : '#888'); ?>;">
+                                    <?php if($bIsOnline): ?>
                                         Online
-                                    @elseif($bDiff !== null)
-                                        @if($bDiff < 60)
-                                            Aktif {{ round($bDiff) }} menit lalu
-                                        @elseif($bDiff < 1440)
-                                            Aktif {{ floor($bDiff / 60) }} jam lalu
-                                        @else
-                                            Aktif {{ $bLastSeen->diffForHumans() }}
-                                        @endif
-                                    @else
+                                    <?php elseif($bDiff !== null): ?>
+                                        <?php if($bDiff < 60): ?>
+                                            Aktif <?php echo e(round($bDiff)); ?> menit lalu
+                                        <?php elseif($bDiff < 1440): ?>
+                                            Aktif <?php echo e(floor($bDiff / 60)); ?> jam lalu
+                                        <?php else: ?>
+                                            Aktif <?php echo e($bLastSeen->diffForHumans()); ?>
+
+                                        <?php endif; ?>
+                                    <?php else: ?>
                                         Offline
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <div class="wa-contact-item">
                             <div class="wa-contact-info">
                                 <div class="wa-contact-role" style="color:#aaa; padding:10px 0;">Belum ada bidan tersedia</div>
                             </div>
                         </div>
-                    @endforelse
+                    <?php endif; ?>
                 </div>
 
                 <div class="wa-contact-section">
                     <div class="wa-section-title">Dokter</div>
-                    @forelse($dokter as $d)
-                        @php
+                    <?php $__empty_1 = true; $__currentLoopData = $dokter; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $d): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <?php
                             $dLastSeen = $d->last_seen ? \Carbon\Carbon::parse($d->last_seen) : null;
                             $dDiff = $dLastSeen ? $dLastSeen->diffInMinutes(now()) : null;
                             $dIsOnline = $dDiff !== null && $dDiff <= 5;
-                        @endphp
+                        ?>
                         <div class="wa-contact-item"
-                             data-id="{{ $d->id }}"
+                             data-id="<?php echo e($d->id); ?>"
                              data-type="dokter"
-                             data-name="{{ strtolower($d->name) }}"
-                             data-is-online="{{ $dIsOnline ? 'true' : 'false' }}"
+                             data-name="<?php echo e(strtolower($d->name)); ?>"
+                             data-is-online="<?php echo e($dIsOnline ? 'true' : 'false'); ?>"
                              onclick="selectProfessional(this)">
                             <div class="wa-contact-avatar dokter">
-                                {{ strtoupper(substr($d->name, 0, 1)) }}
-                                <span class="wa-online-dot" style="background: {{ $dIsOnline ? '#25d366' : '#ccc' }};"></span>
+                                <?php echo e(strtoupper(substr($d->name, 0, 1))); ?>
+
+                                <span class="wa-online-dot" style="background: <?php echo e($dIsOnline ? '#25d366' : '#ccc'); ?>;"></span>
                             </div>
                             <div class="wa-contact-info">
-                                <div class="wa-contact-name">{{ $d->name }}</div>
-                                <div class="wa-contact-role" style="color: {{ $dIsOnline ? '#25d366' : '#888' }};">
-                                    @if($dIsOnline)
+                                <div class="wa-contact-name"><?php echo e($d->name); ?></div>
+                                <div class="wa-contact-role" style="color: <?php echo e($dIsOnline ? '#25d366' : '#888'); ?>;">
+                                    <?php if($dIsOnline): ?>
                                         Online
-                                    @elseif($dDiff !== null)
-                                        @if($dDiff < 60)
-                                            Aktif {{ round($dDiff) }} menit lalu
-                                        @elseif($dDiff < 1440)
-                                            Aktif {{ floor($dDiff / 60) }} jam lalu
-                                        @else
-                                            Aktif {{ $dLastSeen->diffForHumans() }}
-                                        @endif
-                                    @else
+                                    <?php elseif($dDiff !== null): ?>
+                                        <?php if($dDiff < 60): ?>
+                                            Aktif <?php echo e(round($dDiff)); ?> menit lalu
+                                        <?php elseif($dDiff < 1440): ?>
+                                            Aktif <?php echo e(floor($dDiff / 60)); ?> jam lalu
+                                        <?php else: ?>
+                                            Aktif <?php echo e($dLastSeen->diffForHumans()); ?>
+
+                                        <?php endif; ?>
+                                    <?php else: ?>
                                         Offline
-                                    @endif
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <div class="wa-contact-item">
                             <div class="wa-contact-info">
                                 <div class="wa-contact-role" style="color:#aaa; padding:10px 0;">Belum ada dokter tersedia</div>
                             </div>
                         </div>
-                    @endforelse
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -657,16 +659,16 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
     let currentConversation = null;
     let currentProfessional = null;
     let isLoading = false;
 
-    const currentUserId = {{ auth()->id() }};
-    const currentUserName = @json(auth()->user()->name ?? 'Pengguna');
+    const currentUserId = <?php echo e(auth()->id()); ?>;
+    const currentUserName = <?php echo json_encode(auth()->user()->name ?? 'Pengguna', 15, 512) ?>;
 
     console.log('[Konsultasi] User ID:', currentUserId);
 
@@ -722,7 +724,7 @@
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
-            const response = await fetch('{{ route("pengguna.konsultasi.start") }}', {
+            const response = await fetch('<?php echo e(route("pengguna.konsultasi.start")); ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -889,7 +891,7 @@
         input.value = '';
 
         try {
-            const response = await fetch('{{ route("pengguna.konsultasi.send_message") }}', {
+            const response = await fetch('<?php echo e(route("pengguna.konsultasi.send_message")); ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1024,4 +1026,6 @@
         console.log('[Konsultasi] Ready!');
     });
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('pengguna.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\MomSpire\resources\views/pengguna/konsultasi.blade.php ENDPATH**/ ?>

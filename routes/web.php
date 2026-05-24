@@ -1060,7 +1060,7 @@ Route::middleware(["auth"])->group(function () {
                     "sender_type" => $msg->sender_type,
                     "sender_id" => $msg->sender_id,
                     "message" => $msg->message,
-                    "created_at" => $msg->created_at,
+                    "created_at" => $msg->created_at?->toIso8601String(),
                     "is_read" => $msg->is_read,
                 ];
             });
@@ -1110,14 +1110,13 @@ Route::middleware(["auth"])->group(function () {
             "last_message_at" => now(),
         ]);
 
-        // created_at dari accessor Model (sudah otomatis WIB karena getCreatedAtAttribute)
         return response()->json([
             "success" => true,
             "message" => [
                 "id" => $message->id,
                 "sender_type" => $message->sender_type,
                 "message" => $message->message,
-                "created_at" => $message->created_at,
+                "created_at" => $message->created_at?->toIso8601String(),
             ],
         ]);
     })->name("bidan.konsultasi.send_message");
@@ -1158,7 +1157,7 @@ Route::middleware(["auth"])->group(function () {
                     "sender_type" => $msg->sender_type,
                     "sender_id" => $msg->sender_id,
                     "message" => $msg->message,
-                    "created_at" => $msg->created_at,
+                    "created_at" => $msg->created_at?->toIso8601String(),
                     "is_read" => $msg->is_read,
                 ];
             }),
@@ -1776,7 +1775,7 @@ Route::middleware(["auth"])->group(function () {
                     "sender_type" => $msg->sender_type,
                     "sender_id" => $msg->sender_id,
                     "message" => $msg->message,
-                    "created_at" => $msg->created_at,
+                    "created_at" => $msg->created_at?->toIso8601String(),
                     "is_read" => $msg->is_read,
                 ];
             });
@@ -1826,14 +1825,13 @@ Route::middleware(["auth"])->group(function () {
             "last_message_at" => now(),
         ]);
 
-        // created_at dari accessor Model (sudah otomatis WIB karena getCreatedAtAttribute)
         return response()->json([
             "success" => true,
             "message" => [
                 "id" => $message->id,
                 "sender_type" => $message->sender_type,
                 "message" => $message->message,
-                "created_at" => $message->created_at,
+                "created_at" => $message->created_at?->toIso8601String(),
             ],
         ]);
     })->name("dokter.konsultasi.send_message");
@@ -1874,7 +1872,7 @@ Route::middleware(["auth"])->group(function () {
                     "sender_type" => $msg->sender_type,
                     "sender_id" => $msg->sender_id,
                     "message" => $msg->message,
-                    "created_at" => $msg->created_at,
+                    "created_at" => $msg->created_at?->toIso8601String(),
                     "is_read" => $msg->is_read,
                 ];
             }),
@@ -2403,14 +2401,13 @@ Route::middleware([
             "last_message_at" => now(),
         ]);
 
-        // created_at dari accessor Model (sudah otomatis WIB karena getCreatedAtAttribute)
         return response()->json([
             "success" => true,
             "message" => [
                 "id" => $message->id,
                 "sender_type" => $message->sender_type,
                 "message" => $message->message,
-                "created_at" => $message->created_at,
+                "created_at" => $message->created_at?->toIso8601String(),
             ],
         ]);
     })->name("pengguna.konsultasi.send_message");
@@ -2438,7 +2435,7 @@ Route::middleware([
                     "sender_type" => $msg->sender_type,
                     "sender_id" => $msg->sender_id,
                     "message" => $msg->message,
-                    "created_at" => $msg->created_at,
+                    "created_at" => $msg->created_at?->toIso8601String(),
                     "is_read" => $msg->is_read,
                 ];
             });

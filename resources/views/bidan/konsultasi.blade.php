@@ -605,35 +605,12 @@
         } else {
             messages.forEach((msg) => {
                 const isOwn = msg.sender_type === 'bidan';
-                // Parse jam langsung dari string "HH:mm:ss" di created_at tanpa timezone conversion
-                // Ini agar jam tampil PERSIS seperti yang disimpan di database
-                let time = '--:--';
-                let msgDate = '';
-                try {
-                    const timeStr = msg.created_at ? msg.created_at.split(' ')[1] : '';
-                    if (timeStr && timeStr.includes(':')) {
-                        const parts = timeStr.split(':');
-                        const hour = parseInt(parts[0], 10);
-                        const minute = parseInt(parts[1], 10);
-                        time = String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0');
-                    }
-                    const dateStrOnly = msg.created_at ? msg.created_at.split(' ')[0] : '';
-                    if (dateStrOnly) {
-                        const dp = dateStrOnly.split('-');
-                        const year = parseInt(dp[0], 10);
-                        const month = (parseInt(dp[1], 10) || 1) - 1;
-                        const day = parseInt(dp[2], 10) || 1;
-                        const localDate = new Date(year, month, day);
-                        msgDate = localDate.toDateString();
-                    }
-                } catch (e) {
-                    const now = new Date();
-                    msgDate = now.toDateString();
-                    time = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-                }
+                const messageDate = parseMessageDate(msg);
+                const time = formatMessageTime(messageDate);
+                const msgDate = messageDate ? messageDate.toDateString() : '';
 
-                if (msgDate !== lastDate) {
-                    const dateStr = formatDateSeparator(msg.created_at);
+                if (msgDate && msgDate !== lastDate) {
+                    const dateStr = formatDateSeparator(messageDate);
                     html += `<div class="wa-date-separator"><span>${dateStr}</span></div>`;
                     lastDate = msgDate;
                 }
@@ -732,24 +709,47 @@
         }
     }
 
-    function formatDateSeparator(dateStr) {
-        // Parse date parts manually - jam PERSIS sesuai database tanpa timezone shift
-        const parts = dateStr ? dateStr.split(' ') : [];
-        if (parts.length < 2) return dateStr || '';
-        const dateParts = parts[0].split('-');
-        const year = parseInt(dateParts[0], 10);
-        const month = (parseInt(dateParts[1], 10) || 1) - 1;
-        const day = parseInt(dateParts[2], 10) || 1;
+    function parseMessageDate(msg) {
+        const raw = msg?.created_at;
+        if (raw) {
+            const date = new Date(raw);
+            if (!Number.isNaN(date.getTime())) return date;
+        }
+
+        if (msg?.timestamp) {
+            const timestamp = Number(msg.timestamp);
+            const date = new Date(timestamp < 1000000000000 ? timestamp * 1000 : timestamp);
+            if (!Number.isNaN(date.getTime())) return date;
+        }
+
+        return null;
+    }
+
+    function formatMessageTime(date) {
+        if (!date) return '--:--';
+        return date.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        }).replace('.', ':');
+    }
+
+    function formatDateSeparator(dateInput) {
+        const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+        if (Number.isNaN(date.getTime())) return '';
 
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
 
-        if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) return 'Hari ini';
-        if (year === yesterday.getFullYear() && month === yesterday.getMonth() && day === yesterday.getDate()) return 'Kemarin';
+        if (date.toDateString() === today.toDateString()) return 'Hari ini';
+        if (date.toDateString() === yesterday.toDateString()) return 'Kemarin';
 
-        const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-        return day + ' ' + bulan[month] + ' ' + year;
+        return date.toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
     }
 
     function scrollToBottom() {
