@@ -2268,6 +2268,22 @@ Route::middleware([
         ]);
     })->name("pengguna.artikel");
 
+    // Route untuk menampilkan konten artikel via web scraping (modal)
+    Route::get("/pengguna/artikel/{id}/content", [
+        \App\Http\Controllers\ArticleScraperController::class,
+        "show",
+    ])
+        ->middleware(["auth:sanctum", config("jetstream.auth_session"), "verified"])
+        ->name("pengguna.artikel.content");
+
+    // Route untuk refresh cache artikel
+    Route::post("/pengguna/artikel/{id}/refresh", [
+        \App\Http\Controllers\ArticleScraperController::class,
+        "refresh",
+    ])
+        ->middleware(["auth:sanctum", config("jetstream.auth_session"), "verified"])
+        ->name("pengguna.artikel.refresh");
+
     Route::get("/pengguna/konsultasi", function () use ($ensureUserRole) {
         $ensureUserRole("pengguna");
 

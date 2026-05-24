@@ -13,7 +13,10 @@
       "Bash(exist storage\\\\framework\\\\views\\\\*.php del /q storage\\\\framework\\\\views\\\\*.php)",
       "Bash(Remove-Item -Path \"c:\\\\xampp\\\\htdocs\\\\MomSpire\\\\storage\\\\framework\\\\views\\\\*\" -Force -ErrorAction SilentlyContinue)",
       "Bash(Write-Host \"Cache cleared\")",
-      "Bash(powershell.exe -Command \"Remove-Item -Path 'c:\\\\xampp\\\\htdocs\\\\MomSpire\\\\storage\\\\framework\\\\views\\\\*' -Force -ErrorAction SilentlyContinue; Write-Host 'Cache cleared'\")"
+      "Bash(powershell.exe -Command \"Remove-Item -Path 'c:\\\\xampp\\\\htdocs\\\\MomSpire\\\\storage\\\\framework\\\\views\\\\*' -Force -ErrorAction SilentlyContinue; Write-Host 'Cache cleared'\")",
+      "Bash(composer require *)",
+      "Bash(composer install *)",
+      "Bash(composer update *)"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\MomSpire\\app\\Http\\Controllers"
