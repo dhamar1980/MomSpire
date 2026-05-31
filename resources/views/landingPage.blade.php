@@ -615,16 +615,20 @@
                                 @csrf
                                 <div class="form-group">
                                     <label class="form-label">Email</label>
-                                    <div class="input-icon">
+                                    <div class="input-icon password-input">
                                         <i class="bi bi-envelope"></i>
                                         <input type="email" class="form-control" name="email" id="loginEmail" placeholder="nama@email.com" required>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Password</label>
-                                    <div class="input-icon">
+                                    <div class="input-icon password-input">
                                         <i class="bi bi-lock"></i>
                                         <input type="password" class="form-control" name="password" id="loginPassword" placeholder="Masukkan password" required>
+                                        <button type="button" class="password-toggle-btn" data-password-toggle="#loginPassword" aria-label="Tampilkan password" aria-pressed="false">
+                                            <i class="bi bi-eye" data-password-icon-show aria-hidden="true"></i>
+                                            <i class="bi bi-eye-slash d-none" data-password-icon-hide aria-hidden="true"></i>
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="form-options">
@@ -641,9 +645,10 @@
                                 <span>atau</span>
                             </div>
                             <div class="social-buttons">
-                                <button class="btn btn-social" type="button"><i class="bi bi-google"></i></button>
-                                <button class="btn btn-social" type="button"><i class="bi bi-facebook"></i></button>
-                                <button class="btn btn-social" type="button"><i class="bi bi-apple"></i></button>
+                                <a class="btn btn-social btn-social-google" href="{{ route('auth.google.redirect', ['intent' => 'login']) }}">
+                                    <i class="bi bi-google"></i>
+                                    <span>Masuk dengan Google</span>
+                                </a>
                             </div>
                         </div>
                         <!-- Forgot Password -->
@@ -656,7 +661,7 @@
                                 @csrf
                                 <div class="form-group">
                                     <label class="form-label">Email</label>
-                                    <div class="input-icon">
+                                    <div class="input-icon password-input">
                                         <i class="bi bi-envelope"></i>
                                         <input type="email" class="form-control" name="email" id="forgotEmailModal" placeholder="nama@email.com" required>
                                     </div>
@@ -697,6 +702,10 @@
                                     <div class="input-icon">
                                         <i class="bi bi-lock"></i>
                                         <input type="password" class="form-control" name="password" id="registerPassword" placeholder="Minimal 8 karakter" required>
+                                        <button type="button" class="password-toggle-btn" data-password-toggle="#registerPassword" aria-label="Tampilkan password" aria-pressed="false">
+                                            <i class="bi bi-eye" data-password-icon-show aria-hidden="true"></i>
+                                            <i class="bi bi-eye-slash d-none" data-password-icon-hide aria-hidden="true"></i>
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -704,6 +713,10 @@
                                     <div class="input-icon">
                                         <i class="bi bi-lock"></i>
                                         <input type="password" class="form-control" name="password_confirmation" id="registerPasswordConfirm" placeholder="Ulangi password" required>
+                                        <button type="button" class="password-toggle-btn" data-password-toggle="#registerPasswordConfirm" aria-label="Tampilkan password" aria-pressed="false">
+                                            <i class="bi bi-eye" data-password-icon-show aria-hidden="true"></i>
+                                            <i class="bi bi-eye-slash d-none" data-password-icon-hide aria-hidden="true"></i>
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -715,6 +728,15 @@
                                 </div>
                                 <button type="submit" class="btn btn-auth w-100">Daftar Sekarang</button>
                             </form>
+                            <div class="auth-divider">
+                                <span>atau</span>
+                            </div>
+                            <div class="social-buttons">
+                                <a class="btn btn-social btn-social-google" href="{{ route('auth.google.redirect', ['intent' => 'register']) }}">
+                                    <i class="bi bi-google"></i>
+                                    <span>Daftar dengan Google</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

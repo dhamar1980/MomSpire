@@ -26,19 +26,24 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Secure Area" />
+    <Head title="Konfirmasi Password" />
 
     <AuthenticationCard>
         <template #logo>
             <AuthenticationCardLogo />
         </template>
 
-        <div class="mb-4 text-sm text-gray-600">
-            This is a secure area of the application. Please confirm your password before continuing.
+        <div class="mom-auth-header">
+            <h1 class="mom-auth-title">
+                Konfirmasi Password
+            </h1>
+            <p class="mom-auth-subtitle">
+                Masukkan password Anda untuk melanjutkan.
+            </p>
         </div>
 
         <form @submit.prevent="submit">
-            <div>
+            <div class="mom-form-group">
                 <InputLabel for="password" value="Password" />
                 <TextInput
                     id="password"
@@ -53,9 +58,9 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="flex justify-end mt-4">
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Confirm
+            <div>
+                <PrimaryButton class="w-full" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                    Konfirmasi
                 </PrimaryButton>
             </div>
         </form>

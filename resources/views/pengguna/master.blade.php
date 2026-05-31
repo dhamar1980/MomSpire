@@ -213,14 +213,6 @@
 				AOS.init({ duration: 650, easing: 'ease-out-cubic', once: true, mirror: false });
 			}
 
-			// Logout handler
-			const logoutConfirmBtn = document.getElementById('logoutConfirmBtn');
-			if (logoutConfirmBtn) {
-				logoutConfirmBtn.addEventListener('click', function(){
-					document.getElementById('adminLogoutForm').submit();
-				});
-			}
-
 			// Micro-interactions for nav links
 			document.querySelectorAll('.sidebar-nav .nav-link').forEach(function(el){
 				el.addEventListener('mouseenter', function(){ el.classList.add('hovered'); });

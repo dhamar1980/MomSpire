@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class PasswordConfirmController extends Controller
 {
@@ -35,8 +36,13 @@ class PasswordConfirmController extends Controller
             ], 401);
         }
 
-        // Use Hash::check directly - this works regardless of guard
         if (!Hash::check($request->password, $user->password)) {
+            if (!$request->expectsJson()) {
+                throw ValidationException::withMessages([
+                    'password' => ['Password tidak valid.'],
+                ]);
+            }
+
             return response()->json([
                 'message' => 'Password tidak valid.',
                 'errors' => ['password' => ['Password tidak valid.']],
@@ -45,6 +51,10 @@ class PasswordConfirmController extends Controller
 
         // Mark as confirmed in session
         $request->session()->put('auth.password_confirmed_at', now()->unix());
+
+        if (!$request->expectsJson()) {
+            return back();
+        }
 
         return response()->json([
             'message' => 'Password confirmed successfully.',

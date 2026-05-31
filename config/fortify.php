@@ -90,6 +90,10 @@ return [
 
     'domain' => null,
 
+    'paths' => [
+        'two-factor.login' => '/_fortify/two-factor-challenge',
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Fortify Routes Middleware
@@ -164,14 +168,12 @@ return [
     'features' => [
         Features::registration(),
         Features::resetPasswords(),
-        // Features::emailVerification(),
+        Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
         Features::twoFactorAuthentication([
             'confirm' => true,
-            // Allow enabling 2FA without re-submitting the password from the UI
             'confirmPassword' => true,
-            // 'window' => 0,
         ]),
         Features::passkeys([
             'confirmPassword' => true,

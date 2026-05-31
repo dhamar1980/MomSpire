@@ -34,8 +34,17 @@ const submit = () => {
             <AuthenticationCardLogo />
         </template>
 
+        <div class="mom-auth-header">
+            <h1 class="mom-auth-title">
+                Reset Password
+            </h1>
+            <p class="mom-auth-subtitle">
+                Buat password baru untuk akun MomSpire Anda.
+            </p>
+        </div>
+
         <form @submit.prevent="submit">
-            <div>
+            <div class="mom-form-group">
                 <InputLabel for="email" value="Email" />
                 <TextInput
                     id="email"
@@ -49,7 +58,7 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
+            <div class="mom-form-group">
                 <InputLabel for="password" value="Password" />
                 <TextInput
                     id="password"
@@ -62,8 +71,8 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
+            <div class="mom-form-group">
+                <InputLabel for="password_confirmation" value="Konfirmasi Password" />
                 <TextInput
                     id="password_confirmation"
                     v-model="form.password_confirmation"
@@ -75,8 +84,8 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password_confirmation" />
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+            <div>
+                <PrimaryButton class="w-full" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Reset Password
                 </PrimaryButton>
             </div>

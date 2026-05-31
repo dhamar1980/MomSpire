@@ -30,19 +30,28 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Log in" />
+    <Head title="Login" />
 
     <AuthenticationCard>
         <template #logo>
             <AuthenticationCardLogo />
         </template>
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+        <div class="mom-auth-header">
+            <h1 class="mom-auth-title">
+                MomSpire
+            </h1>
+            <p class="mom-auth-subtitle">
+                Masuk ke akun Anda
+            </p>
+        </div>
+
+        <div v-if="status" class="mom-alert-success">
             {{ status }}
         </div>
 
         <form @submit.prevent="submit">
-            <div>
+            <div class="mom-form-group">
                 <InputLabel for="email" value="Email" />
                 <TextInput
                     id="email"
@@ -56,7 +65,7 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
+            <div class="mom-form-group">
                 <InputLabel for="password" value="Password" />
                 <TextInput
                     id="password"
@@ -69,20 +78,20 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="block mt-4">
+            <div class="mom-form-group">
                 <label class="flex items-center">
                     <Checkbox v-model:checked="form.remember" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
+                    <span class="ms-2 text-sm text-slate-600">Ingat saya</span>
                 </label>
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Forgot your password?
+            <div class="flex items-center justify-between gap-4">
+                <Link v-if="canResetPassword" :href="route('password.request')" class="mom-auth-link text-sm">
+                    Lupa password?
                 </Link>
 
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Log in
+                <PrimaryButton class="min-w-28" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                    Masuk
                 </PrimaryButton>
             </div>
         </form>

@@ -79,8 +79,11 @@
         $pengguna = $pengguna ?? auth()->user();
         $twoFactorEnabled = $twoFactorEnabled ?? false;
         $twoFactorConfirmed = $twoFactorConfirmed ?? false;
+        $twoFactorPending = $twoFactorPending ?? ($twoFactorEnabled && !$twoFactorConfirmed);
         $requiresTwoFactorConfirmation = $requiresTwoFactorConfirmation ?? false;
         $browserSessions = $browserSessions ?? [];
+        $hasCustomPassword = $hasCustomPassword ?? false;
+        $googleSsoUser = $googleSsoUser ?? false;
     @endphp
 
     <div class="pengguna-dashboard-shell">
@@ -204,28 +207,41 @@
                         <p class="text-muted mb-3">Tambahkan lapisan keamanan ekstra dengan kode OTP dari aplikasi authenticator.</p>
 
                         <div id="twoFactorDisabledState" class="{{ $twoFactorEnabled ? 'd-none' : '' }}">
-                            <div class="alert alert-light border mb-3">Fitur ini akan meminta password sebelum aktif, lalu menampilkan QR code untuk dipindai.</div>
-                            <button type="button" class="btn btn-primary-custom" id="enableTwoFactorBtn">Aktifkan 2FA</button>
+                            @if($googleSsoUser && !$hasCustomPassword)
+                                <div class="alert alert-warning border mb-3">
+                                    <strong>Password belum diset.</strong> Akun Google SSO perlu mengatur password terlebih dahulu sebelum bisa mengaktifkan 2FA.
+                                </div>
+                                <a href="{{ route('settings.set-password') }}" class="btn btn-warning">
+                                    <i class="bi bi-key me-1"></i> Atur Password Dulu
+                                </a>
+                            @else
+                                <div class="alert alert-light border mb-3">Fitur ini akan meminta password sebelum aktif, lalu menampilkan QR code untuk dipindai.</div>
+                                <button type="button" class="btn btn-primary-custom" id="enableTwoFactorBtn">Aktifkan 2FA</button>
+                            @endif
                         </div>
 
                         <div id="twoFactorEnabledState" class="{{ $twoFactorEnabled ? '' : 'd-none' }}">
                             <div class="d-flex flex-wrap gap-2 mb-3">
                                 <button type="button" class="btn btn-outline-primary btn-sm" id="showTwoFactorQrBtn">Tampilkan QR Code</button>
+                                @if($twoFactorEnabled && ! $twoFactorConfirmed)
+                                    <button type="button" class="btn btn-outline-primary btn-sm" id="resetTwoFactorSetupBtn">Buat QR Baru</button>
+                                @endif
                                 <button type="button" class="btn btn-outline-secondary btn-sm" id="showRecoveryCodesBtn">Lihat Recovery Codes</button>
                                 <button type="button" class="btn btn-outline-warning btn-sm" id="regenerateRecoveryCodesBtn">Regenerasi Codes</button>
                                 <button type="button" class="btn btn-outline-danger btn-sm" id="disableTwoFactorBtn">Nonaktifkan</button>
                             </div>
 
-                            <div id="twoFactorConfirmBox" class="{{ $twoFactorEnabled && !$twoFactorConfirmed && $requiresTwoFactorConfirmation ? '' : 'd-none' }} mb-3">
+                            <div id="twoFactorConfirmBox" class="{{ ($twoFactorEnabled && !$twoFactorConfirmed) || ($twoFactorEnabled && $twoFactorPending) ? '' : 'd-none' }} mb-3">
                                 <div class="row g-2 align-items-end">
                                     <div class="col-md-8">
                                         <label class="form-label">Kode OTP</label>
-                                        <input type="text" class="form-control" id="twoFactorOtpCode" placeholder="Masukkan kode dari authenticator">
+                                        <input type="text" class="form-control" id="twoFactorOtpCode" placeholder="Masukkan kode dari authenticator" maxlength="6">
                                     </div>
                                     <div class="col-md-4">
-                                        <button type="button" class="btn btn-primary-custom w-100" id="confirmTwoFactorBtn">Konfirmasi</button>
+                                        <button type="button" class="btn btn-primary-custom w-100" id="confirmTwoFactorBtn">Konfirmasi 2FA</button>
                                     </div>
                                 </div>
+                                <div class="form-text">Masukkan 6 digit kode dari aplikasi Google Authenticator</div>
                             </div>
 
                             <div id="twoFactorStatusBox" class="alert {{ $twoFactorConfirmed ? 'alert-success' : 'alert-warning' }} mb-3">
@@ -353,20 +369,24 @@
         csrfToken: @json(csrf_token()),
         passwordConfirmationUrl: @json(route('password.confirmation')),
         passwordConfirmUrl: @json(route('password.confirm.store')),
-        twoFactorEnableUrl: @json(route('two-factor.enable')),
-        twoFactorConfirmUrl: @json(route('two-factor.confirm')),
-        twoFactorDisableUrl: @json(route('two-factor.disable')),
-        twoFactorQrCodeUrl: @json(route('two-factor.qr-code')),
-        twoFactorSecretKeyUrl: @json(route('two-factor.secret-key')),
-        twoFactorRecoveryCodesUrl: @json(route('two-factor.recovery-codes')),
+        twoFactorEnableUrl: @json(route('settings.security.two-factor.enable')),
+        twoFactorConfirmUrl: @json(route('settings.security.two-factor.confirm')),
+        twoFactorDisableUrl: @json(route('settings.security.two-factor.disable')),
+        twoFactorQrCodeUrl: @json(route('settings.security.two-factor.qr-code')),
+        twoFactorSecretKeyUrl: @json(route('settings.security.two-factor.secret-key')),
+        twoFactorRecoveryCodesUrl: @json(route('settings.security.two-factor.recovery-codes')),
         otherBrowserSessionsUrl: @json(route('other-browser-sessions.destroy')),
         requiresTwoFactorConfirmation: @json($requiresTwoFactorConfirmation),
         twoFactorEnabled: @json($twoFactorEnabled),
         twoFactorConfirmed: @json($twoFactorConfirmed),
+        hasCustomPassword: @json($hasCustomPassword),
+        googleSsoUser: @json($googleSsoUser),
+        setPasswordUrl: @json(route('settings.set-password')),
     };
 
     document.addEventListener('DOMContentLoaded', function() {
         const settings = window.MOMSPIRE_PENGATURAN_PENGGUNA || {};
+        const http = createHttpClient(settings);
 
         if (window.axios && settings.csrfToken) {
             window.axios.defaults.headers.common['X-CSRF-TOKEN'] = settings.csrfToken;
@@ -396,11 +416,51 @@
         const confirmTwoFactorBtn = document.getElementById('confirmTwoFactorBtn');
         const disableTwoFactorBtn = document.getElementById('disableTwoFactorBtn');
         const showTwoFactorQrBtn = document.getElementById('showTwoFactorQrBtn');
+        const resetTwoFactorSetupBtn = document.getElementById('resetTwoFactorSetupBtn');
         const showRecoveryCodesBtn = document.getElementById('showRecoveryCodesBtn');
         const regenerateRecoveryCodesBtn = document.getElementById('regenerateRecoveryCodesBtn');
         const logoutOtherSessionsBtn = document.getElementById('logoutOtherSessionsBtn');
 
         let pendingConfirmedAction = null;
+
+        function createHttpClient(settings) {
+            if (window.axios) {
+                return window.axios;
+            }
+
+            const request = async (method, url, data = null, options = {}) => {
+                const headers = {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': settings.csrfToken || document.head.querySelector('meta[name="csrf-token"]')?.content || '',
+                    ...(options.headers || {}),
+                };
+
+                const response = await fetch(url, {
+                    method,
+                    credentials: 'same-origin',
+                    headers: {
+                        ...headers,
+                        ...(data ? { 'Content-Type': 'application/json' } : {}),
+                    },
+                    body: data ? JSON.stringify(data) : undefined,
+                });
+
+                const body = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    throw { response: { status: response.status, data: body } };
+                }
+
+                return { data: body };
+            };
+
+            return {
+                get: (url, options = {}) => request('GET', url, null, options),
+                post: (url, data = {}, options = {}) => request('POST', url, data, options),
+                delete: (url, options = {}) => request('DELETE', url, options.data || null, options),
+            };
+        }
 
         function setLoadingState(button, isLoading, text) {
             if (!button) return;
@@ -409,6 +469,8 @@
             if (text) {
                 button.dataset.originalText = button.dataset.originalText || button.textContent;
                 button.textContent = isLoading ? text : button.dataset.originalText;
+            } else if (!isLoading && button.dataset.originalText) {
+                button.textContent = button.dataset.originalText;
             }
         }
 
@@ -416,6 +478,21 @@
             if (!confirmError) return;
             confirmError.textContent = message || '';
             confirmError.classList.toggle('d-none', !message);
+        }
+
+        function syncCsrfToken(token) {
+            if (!token) return;
+
+            settings.csrfToken = token;
+
+            const meta = document.head.querySelector('meta[name="csrf-token"]');
+            if (meta) {
+                meta.setAttribute('content', token);
+            }
+
+            if (window.axios) {
+                window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+            }
         }
 
         function openPasswordModal(options) {
@@ -434,7 +511,7 @@
 
         async function passwordConfirmed() {
             try {
-                const response = await window.axios.get(settings.passwordConfirmationUrl);
+                const response = await http.get(settings.passwordConfirmationUrl);
                 return Boolean(response.data && response.data.confirmed);
             } catch (error) {
                 return false;
@@ -442,14 +519,7 @@
         }
 
         function requirePasswordConfirmation(options) {
-            passwordConfirmed().then((confirmed) => {
-                if (confirmed) {
-                    options.onConfirmed();
-                    return;
-                }
-
-                openPasswordModal(options);
-            });
+            openPasswordModal(options);
         }
 
         async function confirmPasswordSubmit(event) {
@@ -460,7 +530,7 @@
 
             try {
                 const csrfToken = settings.csrfToken || document.head.querySelector('meta[name="csrf-token"]')?.content || '';
-                const response = await window.axios.post(settings.passwordConfirmUrl, 
+                const response = await http.post(settings.passwordConfirmUrl,
                     { password: confirmPassword ? confirmPassword.value : '' },
                     {
                         headers: {
@@ -470,16 +540,21 @@
                         },
                     }
                 );
+                syncCsrfToken(response.data?.csrfToken);
 
                 hidePasswordModal();
 
                 if (typeof pendingConfirmedAction === 'function') {
                     const callback = pendingConfirmedAction;
                     pendingConfirmedAction = null;
-                    callback();
+                    callback(confirmPassword ? confirmPassword.value : '');
                 }
             } catch (error) {
-                const message = error?.response?.data?.errors?.password?.[0] || error?.response?.data?.message || 'Password tidak valid.';
+                const message = !error?.response
+                    ? 'Komponen keamanan belum siap. Refresh halaman lalu coba lagi.'
+                    : (error.response.status === 419
+                        ? 'Sesi halaman kedaluwarsa. Refresh halaman lalu coba lagi.'
+                        : (error?.response?.data?.errors?.password?.[0] || error?.response?.data?.message || 'Password tidak valid.'));
                 setConfirmError(message);
             } finally {
                 setLoadingState(confirmSubmitBtn, false);
@@ -487,13 +562,13 @@
         }
 
         async function fetchQrCode() {
-            const response = await window.axios.get(settings.twoFactorQrCodeUrl);
+            const response = await http.get(settings.twoFactorQrCodeUrl);
             if (twoFactorQrCode && response.data && response.data.svg) {
                 twoFactorQrCode.innerHTML = response.data.svg;
             }
 
             if (twoFactorSetupKey) {
-                const secretResponse = await window.axios.get(settings.twoFactorSecretKeyUrl);
+                const secretResponse = await http.get(settings.twoFactorSecretKeyUrl);
                 twoFactorSetupKey.innerHTML = `<strong>Setup Key:</strong> <span class="font-monospace">${secretResponse.data?.secretKey || ''}</span>`;
                 twoFactorSetupKey.classList.remove('d-none');
             }
@@ -504,7 +579,7 @@
         }
 
         async function fetchRecoveryCodes() {
-            const response = await window.axios.get(settings.twoFactorRecoveryCodesUrl);
+            const response = await http.get(settings.twoFactorRecoveryCodesUrl);
             if (twoFactorRecoveryCodes && Array.isArray(response.data)) {
                 twoFactorRecoveryCodes.innerHTML = response.data.map((code) => `<div>${code}</div>`).join('');
             }
@@ -517,11 +592,16 @@
         function markTwoFactorEnabledState() {
             if (twoFactorDisabledState) twoFactorDisabledState.classList.add('d-none');
             if (twoFactorEnabledState) twoFactorEnabledState.classList.remove('d-none');
+            // Selalu tampilkan box konfirmasi setelah QR dibuat
+            if (twoFactorConfirmBox) twoFactorConfirmBox.classList.remove('d-none');
             if (twoFactorStatusBox) {
-                twoFactorStatusBox.classList.remove('alert-secondary', 'alert-warning');
-                twoFactorStatusBox.classList.add('alert-success');
-                twoFactorStatusBox.innerHTML = '<div class="fw-semibold">2FA sudah aktif.</div><div class="small mb-0">Gunakan QR code atau recovery code untuk login dengan lebih aman.</div>';
+                twoFactorStatusBox.classList.remove('alert-secondary', 'alert-warning', 'alert-success');
+                twoFactorStatusBox.classList.add('alert-warning');
+                twoFactorStatusBox.innerHTML = '<div class="fw-semibold">Scan QR code terlebih dahulu.</div><div class="small mb-0">Masukkan kode OTP dari aplikasi authenticator untuk menyelesaikan aktivasi.</div>';
             }
+            // Auto-fetch QR dan recovery codes
+            fetchQrCode();
+            fetchRecoveryCodes();
         }
 
         function markTwoFactorDisabledState() {
@@ -538,45 +618,121 @@
             }
         }
 
-        async function enableTwoFactor() {
+        function setTwoFactorStatus(type, title, message) {
+            if (!twoFactorStatusBox) return;
+
+            twoFactorStatusBox.classList.remove('alert-secondary', 'alert-warning', 'alert-success', 'alert-danger', 'alert-info');
+            twoFactorStatusBox.classList.add(`alert-${type}`);
+            twoFactorStatusBox.replaceChildren();
+
+            const titleEl = document.createElement('div');
+            titleEl.className = 'fw-semibold';
+            titleEl.textContent = title;
+
+            const messageEl = document.createElement('div');
+            messageEl.className = 'small mb-0';
+            messageEl.textContent = message;
+
+            twoFactorStatusBox.append(titleEl, messageEl);
+        }
+
+        function twoFactorErrorMessage(error, fallback) {
+            return error?.response?.data?.errors?.code?.[0]
+                || error?.response?.data?.errors?.recovery_code?.[0]
+                || error?.response?.data?.message
+                || fallback;
+        }
+
+        async function enableTwoFactor(password) {
             setLoadingState(enableTwoFactorBtn, true, 'Mengaktifkan...');
 
             try {
-                await window.axios.post(settings.twoFactorEnableUrl, {});
-                markTwoFactorEnabledState();
-                if (settings.requiresTwoFactorConfirmation) {
-                    markTwoFactorNeedsConfirmation();
+                // Google SSO user yang sudah punya password - kirim password
+                // User biasa - kirim password
+                const payload = (settings.googleSsoUser && settings.hasCustomPassword) || !settings.googleSsoUser
+                    ? { password }
+                    : {};
+
+                const response = await http.post(settings.twoFactorEnableUrl, payload);
+                syncCsrfToken(response.data?.csrfToken);
+
+                // Update UI state
+                if (twoFactorDisabledState) twoFactorDisabledState.classList.add('d-none');
+                if (twoFactorEnabledState) twoFactorEnabledState.classList.remove('d-none');
+                // Tampilkan box konfirmasi OTP
+                if (twoFactorConfirmBox) twoFactorConfirmBox.classList.remove('d-none');
+                if (twoFactorStatusBox) {
+                    twoFactorStatusBox.classList.remove('alert-secondary', 'alert-success');
+                    twoFactorStatusBox.classList.add('alert-warning');
+                    twoFactorStatusBox.innerHTML = '<div class="fw-semibold">Scan QR code terlebih dahulu.</div><div class="small mb-0">Masukkan kode OTP dari aplikasi authenticator untuk menyelesaikan aktivasi.</div>';
                 }
+
+                // Auto-fetch QR dan recovery codes
                 await Promise.all([fetchQrCode(), fetchRecoveryCodes()]);
+
+                // Focus ke input OTP
+                if (twoFactorOtpCode) {
+                    twoFactorOtpCode.value = '';
+                    twoFactorOtpCode.focus();
+                }
+            } catch (error) {
+                setTwoFactorStatus('danger', 'Gagal mengaktifkan 2FA.', error?.response?.data?.message || 'Terjadi kesalahan.');
             } finally {
                 setLoadingState(enableTwoFactorBtn, false);
+            }
+        }
+
+        async function resetTwoFactorSetup(password) {
+            setLoadingState(resetTwoFactorSetupBtn, true, 'Membuat...');
+
+            try {
+                await enableTwoFactor(password);
+            } finally {
+                setLoadingState(resetTwoFactorSetupBtn, false);
             }
         }
 
         async function confirmTwoFactor() {
             if (!twoFactorOtpCode) return;
 
+            const code = twoFactorOtpCode.value.trim();
+            if (!code) {
+                setTwoFactorStatus('warning', 'Kode OTP belum diisi.', 'Masukkan 6 digit kode dari aplikasi authenticator.');
+                twoFactorOtpCode.focus();
+                return;
+            }
+
             setLoadingState(confirmTwoFactorBtn, true, 'Mengonfirmasi...');
+            setTwoFactorStatus('info', 'Memverifikasi kode OTP...', 'Tunggu sebentar, sistem sedang memeriksa kode authenticator.');
 
             try {
-                await window.axios.post(settings.twoFactorConfirmUrl, { code: twoFactorOtpCode.value });
+                const response = await http.post(settings.twoFactorConfirmUrl, { code });
+                syncCsrfToken(response.data?.csrfToken);
                 if (twoFactorConfirmBox) twoFactorConfirmBox.classList.add('d-none');
-                if (twoFactorStatusBox) {
-                    twoFactorStatusBox.classList.remove('alert-warning');
-                    twoFactorStatusBox.classList.add('alert-success');
-                    twoFactorStatusBox.innerHTML = '<div class="fw-semibold">2FA berhasil dikonfirmasi.</div><div class="small mb-0">Aktivasi sudah selesai dan siap digunakan.</div>';
-                }
+                setTwoFactorStatus('success', '2FA berhasil dikonfirmasi.', 'Aktivasi sudah selesai dan siap digunakan saat login berikutnya.');
                 twoFactorOtpCode.value = '';
+            } catch (error) {
+                setTwoFactorStatus('danger', 'Konfirmasi 2FA gagal.', twoFactorErrorMessage(error, 'Kode OTP tidak valid atau sudah kedaluwarsa.'));
+                if (twoFactorConfirmBox) twoFactorConfirmBox.classList.remove('d-none');
+                twoFactorOtpCode.focus();
+                twoFactorOtpCode.select();
             } finally {
                 setLoadingState(confirmTwoFactorBtn, false);
             }
         }
 
-        async function disableTwoFactor() {
+        async function disableTwoFactor(password) {
             setLoadingState(disableTwoFactorBtn, true, 'Menonaktifkan...');
 
             try {
-                await window.axios.delete(settings.twoFactorDisableUrl);
+                // Google SSO user yang sudah punya password - kirim password
+                // User biasa - kirim password
+                const payload = (settings.googleSsoUser && settings.hasCustomPassword) || !settings.googleSsoUser
+                    ? { password }
+                    : {};
+
+                const response = await http.delete(settings.twoFactorDisableUrl, { data: payload });
+                syncCsrfToken(response.data?.csrfToken);
                 if (twoFactorQrArea) twoFactorQrArea.classList.add('d-none');
                 if (twoFactorRecoveryArea) twoFactorRecoveryArea.classList.add('d-none');
                 if (twoFactorConfirmBox) twoFactorConfirmBox.classList.add('d-none');
@@ -591,8 +747,15 @@
             await fetchRecoveryCodes();
         }
 
-        async function reloadRecoveryCodes() {
-            await window.axios.post(settings.twoFactorRecoveryCodesUrl, {});
+        async function reloadRecoveryCodes(password) {
+            // Google SSO user yang sudah punya password - kirim password
+            // User biasa - kirim password
+            const payload = (settings.googleSsoUser && settings.hasCustomPassword) || !settings.googleSsoUser
+                ? { password }
+                : {};
+
+            const response = await http.post(settings.twoFactorRecoveryCodesUrl, payload);
+            syncCsrfToken(response.data?.csrfToken);
             await fetchRecoveryCodes();
         }
 
@@ -602,7 +765,7 @@
             setLoadingState(logoutOtherSessionsBtn, true, 'Logout...');
 
             try {
-                await window.axios.delete(settings.otherBrowserSessionsUrl, {
+                await http.delete(settings.otherBrowserSessionsUrl, {
                     data: {
                         password: confirmPassword ? confirmPassword.value : '',
                     },
@@ -619,6 +782,13 @@
 
         if (enableTwoFactorBtn) {
             enableTwoFactorBtn.addEventListener('click', function() {
+                // Cek apakah user Google SSO yang belum punya password
+                if (settings.googleSsoUser && !settings.hasCustomPassword) {
+                    // Redirect ke halaman set password
+                    window.location.href = settings.setPasswordUrl || '/settings/set-password';
+                    return;
+                }
+
                 requirePasswordConfirmation({
                     title: 'Aktifkan 2FA',
                     text: 'Masukkan password untuk mengaktifkan autentikasi dua faktor.',
@@ -629,6 +799,21 @@
 
         if (confirmTwoFactorBtn) {
             confirmTwoFactorBtn.addEventListener('click', confirmTwoFactor);
+        }
+
+        // Enter key support untuk OTP input
+        if (twoFactorOtpCode) {
+            twoFactorOtpCode.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    confirmTwoFactor();
+                }
+            });
+
+            // Auto-format: hanya angka
+            twoFactorOtpCode.addEventListener('input', function(event) {
+                event.target.value = event.target.value.replace(/\D/g, '').slice(0, 6);
+            });
         }
 
         if (disableTwoFactorBtn) {
@@ -647,6 +832,16 @@
                     title: 'Tampilkan QR Code',
                     text: 'Masukkan password untuk melihat QR code 2FA.',
                     onConfirmed: showTwoFactorCodes,
+                });
+            });
+        }
+
+        if (resetTwoFactorSetupBtn) {
+            resetTwoFactorSetupBtn.addEventListener('click', function() {
+                requirePasswordConfirmation({
+                    title: 'Buat QR 2FA Baru',
+                    text: 'Masukkan password. Secret pending akan diganti, jadi scan ulang QR baru di authenticator.',
+                    onConfirmed: resetTwoFactorSetup,
                 });
             });
         }

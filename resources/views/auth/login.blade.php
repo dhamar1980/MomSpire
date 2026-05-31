@@ -3,133 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login - MomSpire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-        }
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .auth-logo {
-            width: 92px;
-            height: 92px;
-            margin: 0 auto 16px;
-            border-radius: 9999px;
-            padding: 8px;
-            overflow: hidden;
-            border: 4px solid rgba(102, 126, 234, 0.14);
-            background: #ffffff;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        }
-        .auth-logo img {
-            width: 100%;
-            height: 100%;
-            border-radius: 9999px;
-            object-fit: cover;
-            display: block;
-        }
-        .login-header h1 {
-            color: #333;
-            font-size: 28px;
-            margin: 0 0 10px 0;
-        }
-        .login-header p {
-            color: #666;
-            margin: 0;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        .error-message {
-            color: #e74c3c;
-            font-size: 13px;
-            margin-top: 5px;
-        }
-        .error-alert {
-            background: #fee2e2;
-            border: 1px solid #fca5a5;
-            color: #991b1b;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        .submit-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .submit-btn:hover {
-            transform: translateY(-2px);
-        }
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-        .form-footer {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .form-footer a {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .form-footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
 </head>
-<body>
-    <div class="login-container">
-        <div class="login-header">
-            <div class="auth-logo">
+<body class="mom-auth-page">
+    <main class="mom-auth-card" aria-labelledby="login-title">
+        <div class="mom-auth-header">
+            <a href="{{ url('/') }}" class="mom-auth-logo" aria-label="MomSpire">
                 <img src="{{ asset('foto/logo.jpg') }}" alt="Logo MomSpire">
-            </div>
-            <h1>MomSpire</h1>
-            <p>Masuk ke akun Anda</p>
+            </a>
+            <h1 id="login-title" class="mom-auth-title">MomSpire</h1>
+            <p class="mom-auth-subtitle">Masuk ke akun Anda</p>
         </div>
 
         @php
@@ -137,128 +24,120 @@
         @endphp
 
         @if($loginError)
-        <div class="error-alert" id="login-error-alert">
-            {{ $loginError }}
-        </div>
+            <div class="mom-alert-error" id="login-error-alert">
+                {{ $loginError }}
+            </div>
         @endif
 
         <form method="POST" action="{{ route('login.submit') }}">
             @csrf
 
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus>
+            <div class="mom-form-group">
+                <label class="mom-form-label" for="email">Email</label>
+                <input class="mom-form-input" type="email" id="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username">
                 @error('email')
-                    <div class="error-message">{{ $message }}</div>
+                    <div class="mom-error-message">{{ $message }}</div>
                 @enderror
             </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+            <div class="mom-form-group">
+                <label class="mom-form-label" for="password">Password</label>
+                <div class="mom-password-field">
+                    <input class="mom-form-input" type="password" id="password" name="password" required autocomplete="current-password">
+                    <button type="button" class="mom-password-toggle" data-password-toggle="#password" aria-label="Tampilkan password" aria-pressed="false">
+                        <i class="bi bi-eye" data-password-icon-show aria-hidden="true"></i>
+                        <i class="bi bi-eye-slash d-none" data-password-icon-hide aria-hidden="true"></i>
+                    </button>
+                </div>
                 @error('password')
-                    <div class="error-message">{{ $message }}</div>
+                    <div class="mom-error-message">{{ $message }}</div>
                 @enderror
             </div>
 
-            <div class="form-group" style="display:flex; justify-content:space-between; align-items:center;">
-                <label style="display: flex; align-items: center; margin:0;">
-                    <input type="checkbox" name="remember" style="width: auto; margin-right: 8px;">
+            <div class="mom-form-group mom-auth-row">
+                <label class="mom-check-label">
+                    <input class="mom-checkbox" type="checkbox" name="remember">
                     <span>Ingat saya</span>
                 </label>
-                <button id="forgot-link" type="button" style="background:none;border:none;padding:0;color:#ff4d7a;text-decoration:underline;cursor:pointer;font-weight:600;">Lupa password?</button>
+                <button id="forgot-link" class="mom-link-button" type="button">Lupa password?</button>
             </div>
 
-            <button type="submit" class="submit-btn">Masuk</button>
-
-            <div class="form-footer">
-                <p>Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a></p>
-            </div>
+            <button type="submit" class="mom-submit-btn">Masuk</button>
         </form>
 
-        <!-- Hidden forgot-password form (toggled via JS) -->
-        <div id="forgot-password-card" style="display:none; margin-top:18px;">
-            <div style="background:#fff; padding:20px; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.06);">
-                <h2 style="margin:0 0 8px 0; font-size:20px; text-align:center;">Lupa Password</h2>
-                <p style="text-align:center; color:#666; margin:0 0 12px 0;">Masukkan email Anda untuk menerima tautan reset.</p>
-
-                @if(session('status'))
-                    <div style="background:#e6fffa;color:#065f46;padding:10px;border-radius:6px;margin-bottom:12px">{{ session('status') }}</div>
-                @endif
-
-                @if ($errors->has('email'))
-                    <div class="error-message">{{ $errors->first('email') }}</div>
-                @endif
-
-                <form method="POST" action="{{ route('password.email') }}">
-                    @csrf
-                    <div class="form-group" style="margin-bottom:12px;">
-                        <label for="forgot_email">Email</label>
-                        <input id="forgot_email" type="email" name="email" value="{{ old('email') }}" required style="width:100%; padding:10px; border:1px solid #e6e9ef; border-radius:6px;">
-                    </div>
-                    <div style="display:flex; gap:8px;">
-                        <button type="submit" class="submit-btn" style="flex:1; padding:10px; border-radius:6px;">Kirim Tautan Reset</button>
-                        <button type="button" id="cancel-forgot" style="flex:1; padding:10px; border-radius:6px; background:#f1f5f9; border:none;">Batal</button>
-                    </div>
-                </form>
-            </div>
+        <div class="mom-auth-divider">
+            <span>atau</span>
         </div>
-    </div>
+
+        <a class="mom-google-btn" href="{{ route('auth.google.redirect', ['intent' => 'login']) }}">
+            <span class="mom-google-mark" aria-hidden="true">G</span>
+            <span>Masuk dengan Google</span>
+        </a>
+
+        <div class="mom-auth-footer">
+            Belum punya akun? <a class="mom-auth-link" href="{{ route('register') }}">Daftar di sini</a>
+        </div>
+
+        <section id="forgot-password-card" class="mom-forgot-card" aria-labelledby="forgot-title" hidden>
+            <h2 id="forgot-title" class="mom-forgot-title">Lupa Password</h2>
+            <p class="mom-forgot-text">Masukkan email Anda untuk menerima tautan reset.</p>
+
+            @if(session('status'))
+                <div class="mom-alert-success">{{ session('status') }}</div>
+            @endif
+
+            @if ($errors->has('email'))
+                <div class="mom-error-message">{{ $errors->first('email') }}</div>
+            @endif
+
+            <form method="POST" action="{{ route('password.email') }}">
+                @csrf
+                <div class="mom-form-group">
+                    <label class="mom-form-label" for="forgot_email">Email</label>
+                    <input id="forgot_email" class="mom-form-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="username">
+                </div>
+                <div class="mom-auth-row">
+                    <button type="submit" class="mom-submit-btn">Kirim Tautan Reset</button>
+                    <button type="button" id="cancel-forgot" class="mom-secondary-btn">Batal</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
     <script>
-        (function(){
+        (function () {
             const forgotLink = document.getElementById('forgot-link');
             const forgotCard = document.getElementById('forgot-password-card');
             const loginEmail = document.getElementById('email');
             const forgotEmail = document.getElementById('forgot_email');
             const cancelBtn = document.getElementById('cancel-forgot');
 
-            console.log('[login] forgot-link:', !!forgotLink, 'forgot-card:', !!forgotCard);
-
-            // bind immediately if element exists
             if (forgotLink) {
-                forgotLink.addEventListener('click', function(e){
-                    e && e.preventDefault && e.preventDefault();
-                    console.log('[login] forgot-link clicked');
+                forgotLink.addEventListener('click', function (event) {
+                    event.preventDefault();
                     openForgot();
                 });
             }
 
             if (cancelBtn) {
-                cancelBtn.addEventListener('click', function(){
-                    console.log('[login] cancel-forgot clicked');
-                    closeForgot();
-                });
+                cancelBtn.addEventListener('click', closeForgot);
             }
 
-            // Event delegation: handle clicks on dynamically inserted forgot-link
-            document.addEventListener('click', function(e){
-                const btn = e.target.closest && e.target.closest('#forgot-link');
-                if (btn) {
-                    e.preventDefault();
-                    console.log('[login][delegated] forgot-link clicked');
-                    openForgot();
-                }
-
-                const cancel = e.target.closest && e.target.closest('#cancel-forgot');
-                if (cancel) {
-                    console.log('[login][delegated] cancel-forgot clicked');
-                    closeForgot();
-                }
-            });
-
-            // If there are validation errors for email or a status message, show the forgot card by default
             @if($errors->has('email') || session('status'))
                 openForgot();
             @endif
+
             function openForgot() {
                 if (loginEmail && forgotEmail && loginEmail.value) {
                     forgotEmail.value = loginEmail.value;
                 }
-                forgotCard.style.display = 'block';
-                forgotCard.scrollIntoView({behavior: 'smooth'});
+
+                forgotCard.hidden = false;
+                forgotCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
+
             function closeForgot() {
-                forgotCard.style.display = 'none';
+                forgotCard.hidden = true;
             }
         })();
     </script>

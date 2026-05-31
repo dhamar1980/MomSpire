@@ -1,3 +1,5 @@
+import './bootstrap';
+
 // ==================== DATA DUMMY (Backup jika DB error) ====================
 const users = [
     { email: 'admin@gmail.com', password: 'admin123', role: 'admin', name: 'Administrator' },
@@ -344,14 +346,23 @@ if (registerForm) {
                 })
             });
 
-            const result = await response.json();
+            const rawBody = await response.text();
+            let result = {};
+
+            if (rawBody) {
+                try {
+                    result = JSON.parse(rawBody);
+                } catch (error) {
+                    result = {};
+                }
+            }
 
             if (response.ok) {
-                alert('Registrasi Berhasil! Silakan login.');
+                alert('Registrasi berhasil. Silakan cek email untuk verifikasi akun.');
                 const modal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
                 if (modal) modal.hide();
                 registerForm.reset();
-                document.getElementById('login-tab').click();
+                window.location.href = '/email/verify';
             } else {
                 // Handle Laravel validation errors
                 if (result.errors) {
@@ -457,7 +468,11 @@ if (adminNavLinks.length > 0) {
 const logoutConfirmBtn = document.getElementById('logoutConfirmBtn');
 const adminToastEl = document.getElementById('adminToast');
 if (logoutConfirmBtn) {
-    logoutConfirmBtn.addEventListener('click', function() {
+    logoutConfirmBtn.addEventListener('click', async function() {
+        if (window.__momspireLogoutSubmitting) return;
+        window.__momspireLogoutSubmitting = true;
+        logoutConfirmBtn.disabled = true;
+
         clearCurrentUser();
         const modalEl = document.getElementById('logoutModal');
         const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -465,6 +480,13 @@ if (logoutConfirmBtn) {
         const logoutForm = document.getElementById('adminLogoutForm');
 
         if (logoutForm) {
+            const latestToken = await fetchFreshCsrfToken() || document.querySelector('meta[name="csrf-token"]')?.content;
+            const tokenInput = logoutForm.querySelector('input[name="_token"]');
+
+            if (latestToken && tokenInput) {
+                tokenInput.value = latestToken;
+            }
+
             logoutForm.submit();
             return;
         }
@@ -477,6 +499,33 @@ if (logoutConfirmBtn) {
             window.location.href = window.location.origin + APP_BASE;
         }
     });
+}
+
+async function fetchFreshCsrfToken() {
+    try {
+        const response = await fetch('/csrf-token', {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        if (!response.ok) return null;
+
+        const body = await response.json();
+        const token = body?.csrfToken || null;
+        const meta = document.querySelector('meta[name="csrf-token"]');
+
+        if (token && meta) {
+            meta.setAttribute('content', token);
+        }
+
+        return token;
+    } catch (error) {
+        return null;
+    }
 }
 
 // ==================== SMOOTH SCROLL (KODE LAMA) ====================
@@ -524,6 +573,20 @@ document.querySelectorAll('.service-link').forEach(link => {
 
 // ==================== AUTH MODAL: Forgot password handler ====================
 document.addEventListener('click', function(e){
+    const passwordToggle = e.target.closest && e.target.closest('[data-password-toggle]');
+    if (passwordToggle) {
+        const input = document.querySelector(passwordToggle.getAttribute('data-password-toggle'));
+
+        if (input) {
+            const shouldShow = input.type === 'password';
+            input.type = shouldShow ? 'text' : 'password';
+            passwordToggle.setAttribute('aria-pressed', shouldShow ? 'true' : 'false');
+            passwordToggle.setAttribute('aria-label', shouldShow ? 'Sembunyikan password' : 'Tampilkan password');
+            passwordToggle.querySelector('[data-password-icon-show]')?.classList.toggle('d-none', shouldShow);
+            passwordToggle.querySelector('[data-password-icon-hide]')?.classList.toggle('d-none', !shouldShow);
+        }
+    }
+
     const forgot = e.target.closest && e.target.closest('.forgot-link');
     if (forgot) {
         e.preventDefault();

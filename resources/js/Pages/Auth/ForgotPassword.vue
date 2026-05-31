@@ -21,23 +21,28 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Forgot Password" />
+    <Head title="Lupa Password" />
 
     <AuthenticationCard>
         <template #logo>
             <AuthenticationCardLogo />
         </template>
 
-        <div class="mb-4 text-sm text-gray-600">
-            Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.
+        <div class="mom-auth-header">
+            <h1 class="mom-auth-title">
+                Lupa Password
+            </h1>
+            <p class="mom-auth-subtitle">
+                Masukkan email Anda. Kami akan mengirimkan tautan untuk mereset password.
+            </p>
         </div>
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+        <div v-if="status" class="mom-alert-success">
             {{ status }}
         </div>
 
         <form @submit.prevent="submit">
-            <div>
+            <div class="mom-form-group">
                 <InputLabel for="email" value="Email" />
                 <TextInput
                     id="email"
@@ -51,9 +56,9 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Email Password Reset Link
+            <div>
+                <PrimaryButton class="w-full" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                    Kirim Tautan Reset
                 </PrimaryButton>
             </div>
         </form>

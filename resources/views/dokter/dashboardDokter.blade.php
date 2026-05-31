@@ -9,17 +9,10 @@
 		$bidanCount = $bidanCount ?? 0;
 		$dokterCount = $dokterCount ?? 0;
 		$recentPengguna = $recentPengguna ?? collect();
-		
-		// Get today's schedules for dokter (with table existence check)
-		$todaySchedules = collect();
-		if (\Illuminate\Support\Facades\Schema::hasTable('jadwal_pemantauan')) {
-			$todaySchedules = \App\Models\JadwalPemantauan::where('dokter_id', auth()->id())
-				->where('status', '!=', 'dibatalkan')
-				->whereDate('tanggal', \Carbon\Carbon::today())
-				->orderBy('waktu')
-				->take(5)
-				->get();
-		}
+		$todaySchedules = $todaySchedules ?? collect();
+		$hamilSoon = $hamilSoon ?? collect();
+		$handledCount = $handledCount ?? 0;
+		$focusItems = $focusItems ?? [];
 
 		// Dynamic greeting based on time
 		$hour = \Carbon\Carbon::now()->hour;
@@ -60,13 +53,7 @@
 						Daftar Pengguna yang Akan Melahirkan dalam Waktu Dekat
 					</h5>
 					<div class="list-group list-group-flush">
-						@php
-							$hamiltSoon = \App\Models\Pengguna::where('is_hamil', true)
-								->orderBy('updated_at', 'desc')
-								->take(8)
-								->get();
-						@endphp
-						@forelse ($hamiltSoon as $user)
+						@forelse ($hamilSoon as $user)
 							<div class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2 border-bottom-light">
 								<div class="flex-grow-1">
 									<div class="fw-semibold dash-item-title">{{ $user->name }}</div>
@@ -92,12 +79,6 @@
 							Pengguna yang Sudah Ditangani
 						</h5>
 					</div>
-					@php
-						$handledCount = 0;
-						if (\Illuminate\Support\Facades\Schema::hasTable('jadwal_pemantauan')) {
-							$handledCount = \App\Models\JadwalPemantauan::where('dokter_id', auth()->id())->distinct('pengguna_id')->count('pengguna_id');
-						}
-					@endphp
 					<div class="text-center my-4 dash-count-wrap">
 						<div class="display-4 fw-bold text-gradient">{{ $handledCount }}</div>
 						<div class="text-muted dash-item-title">Pengguna ditangani oleh Anda</div>
@@ -172,33 +153,19 @@
 						Fokus Hari Ini
 					</h5>
 					<div class="list-group list-group-flush">
-						<div class="list-group-item px-0 py-3 border-bottom-light">
-							<div class="d-flex gap-2">
-								<i class="bi bi-check-circle-fill dash-icon-soft dash-check-icon"></i>
-								<div>
-									<div class="fw-semibold small dash-item-title">Periksa Konsultasi Baru</div>
-									<div class="text-muted small dash-item-sub">Respons pesan dari pengguna yang menunggu</div>
+						@forelse ($focusItems as $item)
+							<div class="list-group-item px-0 py-3 {{ !$loop->last ? 'border-bottom-light' : '' }}">
+								<div class="d-flex gap-2">
+									<i class="bi bi-check-circle-fill dash-icon-soft dash-check-icon"></i>
+									<div>
+										<div class="fw-semibold small dash-item-title">{{ $item['title'] ?? 'Fokus Hari Ini' }}</div>
+										<div class="text-muted small dash-item-sub">{{ $item['description'] ?? '-' }}</div>
+									</div>
 								</div>
 							</div>
-						</div>
-						<div class="list-group-item px-0 py-3 border-bottom-light">
-							<div class="d-flex gap-2">
-								<i class="bi bi-check-circle-fill dash-icon-soft dash-check-icon"></i>
-								<div>
-									<div class="fw-semibold small dash-item-title">Update Jadwal Imunisasi</div>
-									<div class="text-muted small dash-item-sub">Verifikasi jadwal imunisasi pengguna</div>
-								</div>
-							</div>
-						</div>
-						<div class="list-group-item px-0 py-3">
-							<div class="d-flex gap-2">
-								<i class="bi bi-check-circle-fill dash-icon-soft dash-check-icon"></i>
-								<div>
-									<div class="fw-semibold small dash-item-title">Review Data Pengguna Hamil</div>
-									<div class="text-muted small dash-item-sub">Pantau status kesehatan ibu hamil</div>
-								</div>
-							</div>
-						</div>
+						@empty
+							<div class="text-muted text-center py-4">Belum ada fokus hari ini.</div>
+						@endforelse
 					</div>
 				</div>
 			</div>

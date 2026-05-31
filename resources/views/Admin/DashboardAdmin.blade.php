@@ -52,7 +52,7 @@ Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>
             <div class="stat-card">
                 <div class="stat-icon purple"><i class="bi bi-chat-dots-fill"></i></div>
                 <div class="stat-info">
-                    <h3 class="stat-value" style="font-size: clamp(1rem, 2.5vw, 1.5rem);">567</h3>
+                    <h3 class="stat-value" style="font-size: clamp(1rem, 2.5vw, 1.5rem);">{{ $consultationCount ?? 0 }}</h3>
                     <p class="stat-label" style="font-size: clamp(0.7rem, 2vw, 0.85rem);">Total Konsultasi</p>
                 </div>
             </div>
@@ -83,8 +83,8 @@ Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>
         <div class="col-12 col-lg-6">
             <div class="admin-card">
                 <div class="card-header">
-                    <h5 style="font-size: clamp(0.95rem, 3vw, 1.1rem); margin-bottom: 0.25rem;">Pembaca Artikel Per Minggu</h5>
-                    <span class="text-muted small">Jumlah pembaca artikel minggu ini</span>
+                    <h5 style="font-size: clamp(0.95rem, 3vw, 1.1rem); margin-bottom: 0.25rem;">Artikel Dibuat 7 Hari Terakhir</h5>
+                    <span class="text-muted small">Jumlah artikel edukasi dari database</span>
                 </div>
                 <div class="card-body">
                     <canvas id="articleReadersChart" height="80"></canvas>
@@ -102,26 +102,20 @@ Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>
                 </div>
                 <div class="card-body p-0">
                     <div class="activity-log">
-                        <div class="activity-item">
-                            <div class="activity-icon" style="background: rgba(0, 184, 148, 0.15); color: #00b894;">
-                                <i class="bi bi-person-check-fill"></i>
+                        @forelse($recentActivities ?? [] as $activity)
+                            <div class="activity-item">
+                                <div class="activity-icon" style="background: {{ $activity['color'] ?? '#e63980' }}26; color: {{ $activity['color'] ?? '#e63980' }};">
+                                    <i class="bi {{ $activity['icon'] ?? 'bi-info-circle-fill' }}"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h6 style="font-size: clamp(0.9rem, 2vw, 1rem); margin-bottom: 0.25rem;">{{ $activity['title'] ?? 'Aktivitas' }}</h6>
+                                    <p class="text-muted small">{{ $activity['description'] ?? '-' }}</p>
+                                    <span class="activity-time">{{ $activity['time'] ?? '-' }}</span>
+                                </div>
                             </div>
-                            <div class="activity-content">
-                                <h6 style="font-size: clamp(0.9rem, 2vw, 1rem); margin-bottom: 0.25rem;">User Baru Terdaftar</h6>
-                                <p class="text-muted small">Siti Aminah mendaftar sebagai pengguna baru</p>
-                                <span class="activity-time">2 jam yang lalu</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon" style="background: rgba(230, 57, 128, 0.15); color: #e63980;">
-                                <i class="bi bi-chat-dots-fill"></i>
-                            </div>
-                            <div class="activity-content">
-                                <h6 style="font-size: clamp(0.9rem, 2vw, 1rem); margin-bottom: 0.25rem;">Konsultasi Baru</h6>
-                                <p class="text-muted small">Dewi Kartika berkonsultasi dengan Dr. Ratna</p>
-                                <span class="activity-time">1 jam yang lalu</span>
-                            </div>
-                        </div>
+                        @empty
+                            <div class="text-center py-4 text-muted">Belum ada aktivitas terbaru.</div>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -164,13 +158,19 @@ Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>
 @push('scripts')
 <script>
     window.MOMSPIRE_ADMIN_DASHBOARD_DATA = @json($dashboardUsers);
+    window.MOMSPIRE_ADMIN_ARTICLES = @json($dashboardArticles ?? []);
+    window.MOMSPIRE_ADMIN_USER_GROWTH_CHART = @json($userGrowthChart ?? ['labels' => [], 'data' => []]);
+    window.MOMSPIRE_ADMIN_ARTICLE_CHART = @json($articleChart ?? ['labels' => [], 'data' => []]);
 
     document.addEventListener('DOMContentLoaded', function() {
+        const userGrowthData = window.MOMSPIRE_ADMIN_USER_GROWTH_CHART || { labels: [], data: [] };
+        const articleChartData = window.MOMSPIRE_ADMIN_ARTICLE_CHART || { labels: [], data: [] };
+
         const ctx1 = document.getElementById('userGrowthChart');
         if(ctx1) {
             new Chart(ctx1, {
                 type: 'line',
-                data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], datasets: [{ label: 'Users', data: [200, 400, 600, 800, 1000, 1200], borderColor: '#e63980', backgroundColor: 'rgba(230, 57, 128, 0.1)', fill: true, tension: 0.4 }] },
+                data: { labels: userGrowthData.labels || [], datasets: [{ label: 'User Baru', data: userGrowthData.data || [], borderColor: '#e63980', backgroundColor: 'rgba(230, 57, 128, 0.1)', fill: true, tension: 0.4 }] },
                 options: { responsive: true, plugins: { legend: { display: false } } }
             });
         }
@@ -178,12 +178,13 @@ Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>
          if(ctx2) {
             new Chart(ctx2, {
                 type: 'bar',
-                data: { labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'], datasets: [{ label: 'Pembaca Minggu Ini', data: [14, 22, 18, 26, 24, 31, 20], backgroundColor: '#e63980' }] },
+                data: { labels: articleChartData.labels || [], datasets: [{ label: 'Artikel Dibuat', data: articleChartData.data || [], backgroundColor: '#e63980' }] },
                 options: { responsive: true, plugins: { legend: { display: false } } }
             });
         }
 
         const dashboardData = Array.isArray(window.MOMSPIRE_ADMIN_DASHBOARD_DATA) ? window.MOMSPIRE_ADMIN_DASHBOARD_DATA : [];
+        const dashboardArticles = Array.isArray(window.MOMSPIRE_ADMIN_ARTICLES) ? window.MOMSPIRE_ADMIN_ARTICLES : [];
         const modalEl = document.getElementById('dashboardStatsModal');
         const modalTitle = document.getElementById('dashboardStatsModalTitle');
         const modalSubtitle = document.getElementById('dashboardStatsModalSubtitle');
@@ -195,19 +196,8 @@ Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>
             bidan: { title: 'Daftar Bidan', subtitle: 'Semua akun dengan role bidan' },
             dokter: { title: 'Daftar Dokter', subtitle: 'Semua akun dengan role dokter' },
             pengguna_hamil: { title: 'Ibu Hamil Aktif', subtitle: 'Pengguna yang sedang hamil' },
-            articles: { title: 'Daftar Artikel', subtitle: 'Artikel yang tersimpan pada browser (LocalStorage)' },
+            articles: { title: 'Daftar Artikel', subtitle: 'Artikel yang tersimpan di database' },
         };
-
-        function getArticlesFromLocalStorage() {
-            try {
-                const raw = localStorage.getItem('momspire_articles');
-                const parsed = raw ? JSON.parse(raw) : [];
-                return Array.isArray(parsed) ? parsed : [];
-            } catch (e) {
-                console.error('Gagal membaca artikel dari localStorage', e);
-                return [];
-            }
-        }
 
         function getRows(filter) {
             if (filter === 'pengguna_hamil') {
@@ -215,13 +205,11 @@ Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>
             }
 
             if (filter === 'articles') {
-                // return articles list in a unified object shape for rendering
-                const arts = getArticlesFromLocalStorage();
-                return arts.map(a => ({
+                return dashboardArticles.map(a => ({
                     title: a.title || '-',
                     category: a.category || '-',
                     url: a.url || '#',
-                    createdAt: a.createdAt || a.created_at || null,
+                    createdAt: a.createdAt || null,
                 }));
             }
 

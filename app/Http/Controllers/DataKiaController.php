@@ -8,6 +8,14 @@ use App\Models\DataKia;
 
 class DataKiaController extends Controller
 {
+    protected function requireNakes()
+    {
+        $user = auth()->user();
+        abort_unless($user && in_array($user->role, ["bidan", "dokter"], true), 403);
+
+        return $user;
+    }
+
     public function wizard(Request $request, $id = null)
     {
         abort_unless(
@@ -719,6 +727,10 @@ class DataKiaController extends Controller
             "catatanPelayananTrimester2",
         ])->findOrFail($id);
 
+        if ($user->role === "pengguna") {
+            abort_unless((int) $dataKia->user_id === (int) $user->id, 403);
+        }
+
         // Pastikan relasi yang dipakai template PDF sudah tersedia.
         $dataKia->load([
             "ttdTrackings",
@@ -774,7 +786,7 @@ class DataKiaController extends Controller
 
     public function indexNakes()
     {
-        $role = auth()->user()->role;
+        $role = $this->requireNakes()->role;
         $dataKias = DataKia::with(["ibu"])
             ->latest()
             ->get();
@@ -784,7 +796,7 @@ class DataKiaController extends Controller
 
     public function editRiwayat($id)
     {
-        $role = auth()->user()->role;
+        $role = $this->requireNakes()->role;
         $dataKia = DataKia::with(["ibu", "riwayat"])->findOrFail($id);
 
         return view("nakes.kia-edit-riwayat", compact("dataKia", "role"));
@@ -792,6 +804,7 @@ class DataKiaController extends Controller
 
     public function saveRiwayat(Request $request, $id)
     {
+        $this->requireNakes();
         $dataKia = DataKia::findOrFail($id);
 
         $clean = function ($val) {
@@ -821,7 +834,7 @@ class DataKiaController extends Controller
 
     public function editPelayanan($id)
     {
-        $role = auth()->user()->role;
+        $role = $this->requireNakes()->role;
         $dataKia = DataKia::with(["ibu", "pelayananKesehatanIbu"])->findOrFail(
             $id,
         );
@@ -835,6 +848,7 @@ class DataKiaController extends Controller
 
     public function savePelayanan(Request $request, $id)
     {
+        $this->requireNakes();
         $dataKia = DataKia::findOrFail($id);
 
         $kunjunganKe = $request->kunjungan_ke;

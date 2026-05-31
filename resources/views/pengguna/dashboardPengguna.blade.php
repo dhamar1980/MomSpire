@@ -587,6 +587,12 @@
 			elseif ($hour < 18) { $greet = 'Selamat sore'; }
 			else { $greet = 'Selamat malam'; }
 			$displayName = 'Ny. ' . (auth()->user()->name ?? 'Pengguna');
+			$dashboardSummary = $dashboardSummary ?? [
+				'status_kehamilan' => ($pengguna->is_hamil ?? auth()->user()->is_hamil) ? 'Sedang Hamil' : 'Tidak Hamil',
+				'hpl' => '-',
+				'risiko' => 'Normal',
+				'gpa' => '0/0/0',
+			];
 		@endphp
 
 		<!-- Hero Greeting Section -->
@@ -600,19 +606,19 @@
 							<div class="hero-stats-row">
 								<div class="hero-stat">
 									<small class="text-muted d-block" style="font-size: .74rem; margin-bottom: 0.3rem;">Status Kehamilan</small>
-									<div class="fw-bold" style="font-size: .98rem; color: #1e293b;">{{ ($pengguna->is_hamil ?? auth()->user()->is_hamil) ? 'Sedang Hamil' : 'Tidak Hamil' }}</div>
+									<div class="fw-bold" style="font-size: .98rem; color: #1e293b;">{{ $dashboardSummary['status_kehamilan'] ?? 'Tidak Hamil' }}</div>
 								</div>
 								<div class="hero-stat">
 									<small class="text-muted d-block" style="font-size: .74rem; margin-bottom: 0.3rem;">HPL</small>
-									<div class="fw-bold" style="font-size: .98rem; color: #1e293b;">{{ auth()->user()->hpl ?? '—' }}</div>
+									<div class="fw-bold" style="font-size: .98rem; color: #1e293b;">{{ $dashboardSummary['hpl'] ?? '-' }}</div>
 								</div>
 								<div class="hero-stat">
 									<small class="text-muted d-block" style="font-size: .74rem; margin-bottom: 0.3rem;">Risiko Kehamilan</small>
-									<div class="fw-bold" style="font-size: .98rem; color: #1e293b;">{{ auth()->user()->resiko ?? 'Normal' }}</div>
+									<div class="fw-bold" style="font-size: .98rem; color: #1e293b;">{{ $dashboardSummary['risiko'] ?? 'Normal' }}</div>
 								</div>
 								<div class="hero-stat">
 									<small class="text-muted d-block" style="font-size: .74rem; margin-bottom: 0.3rem;">GPA</small>
-									<div class="fw-bold" style="font-size: .98rem; color: #1e293b;">{{ auth()->user()->gpa ?? '0/0/0' }}</div>
+									<div class="fw-bold" style="font-size: .98rem; color: #1e293b;">{{ $dashboardSummary['gpa'] ?? '0/0/0' }}</div>
 								</div>
 							</div>
 						</div>
@@ -696,7 +702,7 @@
 
 					<!-- Kalender dan Detail Jadwal -->
 					<div class="row">
-						<div class="col-12 col-md-6">
+						<div class="col-12 col-md-8">
 							<div class="d-flex align-items-center justify-content-between mb-3">
 								<div>
 									<button class="btn btn-sm btn-outline-pink" id="calPrev"><i class="bi bi-chevron-left"></i></button>
@@ -733,7 +739,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-12 col-md-6">
+						<div class="col-12 col-md-4">
 							<div class="alert alert-light border rounded-3" role="alert" style="background: linear-gradient(180deg, #fdf2f8 0%, #fff 100%);">
 								<h6 class="fw-semibold mb-3 text-pink-primary d-flex align-items-center gap-2">
 									<i class="bi bi-calendar-event"></i>

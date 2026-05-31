@@ -11,6 +11,7 @@ import TextInput from '@/Components/TextInput.vue';
 const form = useForm({
     name: '',
     email: '',
+    phone_number: '',
     password: '',
     password_confirmation: '',
     terms: false,
@@ -24,16 +25,25 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Register" />
+    <Head title="Daftar" />
 
     <AuthenticationCard>
         <template #logo>
             <AuthenticationCardLogo />
         </template>
 
+        <div class="mom-auth-header">
+            <h1 class="mom-auth-title">
+                MomSpire
+            </h1>
+            <p class="mom-auth-subtitle">
+                Buat akun baru
+            </p>
+        </div>
+
         <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="name" value="Name" />
+            <div class="mom-form-group">
+                <InputLabel for="name" value="Nama Lengkap" />
                 <TextInput
                     id="name"
                     v-model="form.name"
@@ -46,7 +56,7 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.name" />
             </div>
 
-            <div class="mt-4">
+            <div class="mom-form-group">
                 <InputLabel for="email" value="Email" />
                 <TextInput
                     id="email"
@@ -59,7 +69,19 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
+            <div class="mom-form-group">
+                <InputLabel for="phone_number" value="Nomor Telepon" />
+                <TextInput
+                    id="phone_number"
+                    v-model="form.phone_number"
+                    type="tel"
+                    class="mt-1 block w-full"
+                    autocomplete="tel"
+                />
+                <InputError class="mt-2" :message="form.errors.phone_number" />
+            </div>
+
+            <div class="mom-form-group">
                 <InputLabel for="password" value="Password" />
                 <TextInput
                     id="password"
@@ -72,8 +94,8 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
+            <div class="mom-form-group">
+                <InputLabel for="password_confirmation" value="Konfirmasi Password" />
                 <TextInput
                     id="password_confirmation"
                     v-model="form.password_confirmation"
@@ -85,26 +107,26 @@ const submit = () => {
                 <InputError class="mt-2" :message="form.errors.password_confirmation" />
             </div>
 
-            <div v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature" class="mt-4">
+            <div v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature" class="mom-form-group">
                 <InputLabel for="terms">
                     <div class="flex items-center">
                         <Checkbox id="terms" v-model:checked="form.terms" name="terms" required />
 
                         <div class="ms-2">
-                            I agree to the <a target="_blank" :href="route('terms.show')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Terms of Service</a> and <a target="_blank" :href="route('policy.show')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Privacy Policy</a>
+                            Saya setuju dengan <a target="_blank" :href="route('terms.show')" class="mom-auth-link text-sm">Syarat Layanan</a> dan <a target="_blank" :href="route('policy.show')" class="mom-auth-link text-sm">Kebijakan Privasi</a>
                         </div>
                     </div>
                     <InputError class="mt-2" :message="form.errors.terms" />
                 </InputLabel>
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <Link :href="route('login')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Already registered?
+            <div class="flex items-center justify-between gap-4">
+                <Link :href="route('login')" class="mom-auth-link text-sm">
+                    Sudah punya akun?
                 </Link>
 
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Register
+                <PrimaryButton class="min-w-28" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                    Daftar
                 </PrimaryButton>
             </div>
         </form>

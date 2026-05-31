@@ -12,6 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->validateCsrfTokens(except: [
+            'logout',
+        ]);
+
+        $middleware->alias([
+            'password.confirm' => \App\Http\Middleware\EnsurePasswordIsConfirmed::class,
+            'twofactor.verified' => \App\Http\Middleware\EnsureTwoFactorIsVerified::class,
+        ]);
+
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
